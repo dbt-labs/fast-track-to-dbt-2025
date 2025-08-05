@@ -5,6 +5,20 @@ sources:
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: table with jaffle_shop customers data
+        columns:
+          - name: id
+            description: primary key for jaffle_shop.customers
+            data_tests:
+              - unique
+              - not_null
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: table with jaffle_shop orders data
+        columns:
+          - name: id
+            description: primary key for jaffle_shop.orders
+            data_tests:
+              - unique
+              - not_null
+     
