@@ -1,0 +1,28 @@
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: This model serves as a staging layer for order data, transforming raw order information into a structured format for analysis. It includes key details such as order identifiers, customer associations, order dates, and current status, facilitating downstream analytics and reporting.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_date
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
