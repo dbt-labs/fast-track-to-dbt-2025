@@ -21,7 +21,6 @@ snapshot-paths: ["snapshots"]
 
 target-path: "target"  # directory which will store compiled SQL files
 clean-targets:         # directories to be removed by `dbt clean`
-  - "target"
   - "dbt_packages"
 
 
@@ -38,5 +37,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   my_new_project:
     # Applies to all files under models/example/
-    example:
+    marts:
       +materialized: table
