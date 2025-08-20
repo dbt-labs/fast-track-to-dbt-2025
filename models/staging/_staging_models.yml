@@ -25,6 +25,9 @@ models:
       - name: customer_id
         data_tests:
           - not_null
+          - relationships:
+              field: customer_id
+              to: ref("stg_customers")
       - name: order_date
         data_tests:
           - not_null
