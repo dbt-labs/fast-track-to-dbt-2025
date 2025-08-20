@@ -1,6 +1,7 @@
 {{
     config(
         materialized='table'
+        unique_key='customer_id'
     )
 }}
 
