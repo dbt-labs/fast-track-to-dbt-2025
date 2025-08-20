@@ -36,7 +36,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
-  my_new_project:
+  fast-track-to-dbt-2025:
     # Applies to all files under models/example/
     marts:
       +materialized: table
