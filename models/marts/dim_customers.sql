@@ -1,23 +1,29 @@
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 with customers as (
 
     select
-        id as customer_id,
+        customer_id,
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+    from {{ ref('stg_customers') }}
 
 ),
 
 orders as (
 
     select
-        id as order_id,
-        user_id as customer_id,
+        order_id,
+        customer_id,
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    from {{ ref('stg_orders') }}
 
 ),
 
@@ -51,6 +57,15 @@ final as (
     left join customer_orders using (customer_id)
 
 )
+SELECT
 
-select * 
-from final
+    final.customer_id,
+    final.first_name,
+    final.last_name,
+    final.first_order_date,
+    final.most_recent_order_date,
+    final.number_of_orders,
+    rank() over (ORDER BY final.number_of_orders desc) as customer_rank
+    from final
+
+order by customer_rank
