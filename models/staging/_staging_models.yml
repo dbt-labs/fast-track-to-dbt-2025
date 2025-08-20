@@ -1,0 +1,42 @@
+models:
+  - name: stg_customers
+    description: This model serves as a staging area for customer data, providing a clean and standardized 
+                  format for customer information sourced from the 'jaffle_shop' database. It includes essential customer 
+                  details such as unique identifiers and names, which are crucial for downstream processes and analyses.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer, ensuring distinct records.
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer.
+        tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer.
+        tests:
+          - not_null
+  - name: stg_orders
+    description: This model serves as a staging area for customer data, providing a clean and standardized 
+                  format for customer information sourced from the 'jaffle_shop' database. It includes essential customer 
+                  details such as unique identifiers and ensures foreing key relationship for customer_id.
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_date
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['completed', 'returned', 'return_pending', 'placed', 'shipped']
