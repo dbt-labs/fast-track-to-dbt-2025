@@ -1,0 +1,28 @@
+models:
+  - name: fct_orders
+    description: >
+      This model provides a comprehensive view of customer orders, including
+      details such as the order ID, customer ID, order date, and status. 
+      It serves as a foundational dataset for analyzing order trends, 
+      customer purchasing behavior, and order fulfillment status.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        tests:
+          - not_null
+
+      - name: order_date
+        description: The date when the order was placed.
+        tests:
+          - not_null
+
+      - name: status
+        description: The current status of the order, such as pending, completed, or cancelled.
+        tests:
+          - not_null
