@@ -1,0 +1,6 @@
+models:
+  - name: dim_customers
+    description: a bunch of stuff
+    columns:
+      - name: customer_id
+        description: unique identifier
