@@ -1,23 +1,44 @@
+--Overrides the default from the dbt_project.yml--
+--Initially, we updated this to materialize as a view instead of the table setting in dbt_project.yml--
+{{
+    config(
+        materialized='table'
+    )
+}}
+
+--Using a ref function to call rename of customer_id from stg_customers.sql--
 with customers as (
 
     select
-        id as customer_id,
+        --Original dimension--
+        --id as customer_id,
+
+        --Dimension from ref--
+        customer_id,
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+    from {{ ref('stg_customers') }}
+    --Original FROM source below--
+    --from raw.jaffle_shop.customers
 
 ),
 
 orders as (
 
     select
-        id as order_id,
-        user_id as customer_id,
+        order_id,
+        --id as order_id,
+        --Original dimension--
+        --user_id as customer_id,
+
+        --Dimension from staging--
+        customer_id,
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    from {{ ref('stg_orders') }}
+    --from raw.jaffle_shop.orders
 
 ),
 

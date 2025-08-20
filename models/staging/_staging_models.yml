@@ -1,0 +1,41 @@
+models:
+  - name: stg_customers
+    description: This model extracts and stages customer data from the 'jaffle_shop' source, 
+                 providing a foundational dataset for customer-related analyses.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer.
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer.
+        tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer.
+        tests:
+          - not_null
+
+  - name: stg_orders
+    description: This model extracts and stages order data from the 'jaffle_shop' source, 
+                 providing a foundational dataset for order-related analyses.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['completed','returned','return_pending','shipped','placed']
