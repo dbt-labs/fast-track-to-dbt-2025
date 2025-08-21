@@ -1,2 +1,5 @@
 models:
   - name : dim_customers
+  columns :
+    - name : customer_id 
+    
