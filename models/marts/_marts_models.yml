@@ -7,6 +7,9 @@ models:
     by each customer.
   columns:
   - name: customer_id
+    data_tests:
+      - unique
+      - not_null
     description: A unique identifier for each customer.
   - name: first_name
     description: The first name of the customer.
@@ -25,8 +28,14 @@ models:
     as a foundational dataset for analyzing order trends and customer purchasing behavior.
   columns:
   - name: order_id
+    data_tests:
+      - unique
+      - not_null
     description: A unique identifier for each order.
   - name: customer_id
+    data_tests:
+      - unique
+      - not_null
     description: The unique identifier of the customer who placed the order.
   - name: order_date
     description: The date when the order was placed.
