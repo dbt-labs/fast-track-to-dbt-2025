@@ -2,6 +2,8 @@ models:
   - name: dim_customers
     columns:
       - name: customer_id
+        tests:
+          - not_null      
         description: A unique identifier for each customer.
       - name: first_name
         description: The first name of the customer.
@@ -23,6 +25,8 @@ models:
     columns:
     - name: order_id
       description: A unique identifier for each order.
+      tests:
+        - not_null
     - name: customer_id
       description: The identifier for the customer who placed the order.
     - name: order_date
