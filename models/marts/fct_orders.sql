@@ -1,20 +1,15 @@
-with orders as  (
-   
-   select id as order_id,
-        user_id as customer_id,
+with orders as (
+    select order_id as order_id,
+        customer_id,
         order_date,
         status
-   from raw.jaffle_shop.orders
-
+    from {{ ref('stg_orders') }}
 ),
-
 final as (
-
-   select
-       orders.*
-   from orders
-   
+    select
+        orders.*
+    from orders
 )
 
-select * 
+select *
 from final
