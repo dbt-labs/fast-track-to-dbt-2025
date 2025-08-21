@@ -10,9 +10,7 @@ with customers as (
         customer_id,
         first_name,
         last_name
-
-from {{ ref('stg_customers') }}
-    --from raw.jaffle_shop.customers
+    from {{ ref('stg_customers') }}
 
 ),
 
@@ -24,7 +22,6 @@ orders as (
         order_date,
         status
     from {{ ref('stg_orders') }}
-    --from raw.jaffle_shop.orders
 
 ),
 
@@ -32,15 +29,11 @@ customer_orders as (
 
     select
         customer_id,
-
         min(order_date) as first_order_date,
         max(order_date) as most_recent_order_date,
         count(order_id) as number_of_orders
-
     from orders
-
     group by 1
-
 ),
 
 final as (
@@ -57,7 +50,22 @@ final as (
 
     left join customer_orders using (customer_id)
 
+),
+
+ranked_customers as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        rank() over (order by number_of_orders desc) as customer_rank
+    from final
+
 )
 
-select * 
-from final
+select *
+from ranked_customers
+order by customer_rank

@@ -3,5 +3,5 @@ select
     first_name,
     last_name
 
-from {{ source('jaffle_shop','customers') }}
+from {{ source('jaffle_shop', 'customers') }}
 --raw.jaffle_shop.customers
