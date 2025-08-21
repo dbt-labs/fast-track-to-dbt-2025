@@ -1,0 +1,35 @@
+models:
+- name: fct_orders
+  description: This model provides a refined view of order data, consolidating essential
+    order details for analysis. It includes information about each order's unique
+    identifier, the customer who placed the order, the date the order was made, and
+    the current status of the order. This model is useful for tracking order history
+    and status updates.
+  columns:
+  - name: order_id
+    description: A unique identifier for each order.
+  - name: customer_id
+    description: The identifier for the customer who placed the order.
+  - name: order_date
+    description: The date on which the order was placed.
+  - name: status
+    description: The current status of the order, indicating its progress or completion.
+
+- name: dim_customers
+  description: This model provides a comprehensive view of customers, including their
+    personal details and order history. It combines customer information with their
+    order data to offer insights into customer behavior, such as the date of their
+    first and most recent orders, and the total number of orders placed.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer.
+  - name: first_name
+    description: The first name of the customer.
+  - name: last_name
+    description: The last name of the customer.
+  - name: first_order_date
+    description: The date when the customer placed their first order.
+  - name: most_recent_order_date
+    description: The date when the customer placed their most recent order.
+  - name: number_of_orders
+    description: The total number of orders placed by the customer.
