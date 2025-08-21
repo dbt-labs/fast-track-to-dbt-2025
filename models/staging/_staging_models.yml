@@ -1,0 +1,35 @@
+models:
+  - name: stg_customers
+    description: This model serves as a staging layer for customer data, 
+      transforming and preparing it for further analysis. 
+      It extracts customer information from the source system, ensuring that each customer 
+      is uniquely identified and their names are accurately captured.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ["completed", "returned", "return_pending", "shipped", "placed"]
