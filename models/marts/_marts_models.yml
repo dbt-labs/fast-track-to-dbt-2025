@@ -6,6 +6,10 @@ models:
     columns:
       - name: customer_id
         description: A unique identifier for each customer.
+        test:
+          - unique
+          - not_null
+          
       - name: first_name
         description: The first name of the customer.
       - name: last_name
@@ -18,4 +22,21 @@ models:
         description: The total number of orders placed by the customer.
       - name: customer_rank
         description: The rank of the customer based on the number of orders, with 1 being the highest.
-    
+        
+  - name: fct_orders
+    description: This model provides a refined view of orders, including essential details
+      such as order ID, customer ID, order date, and status. It serves as a foundational
+      dataset for analyzing order-related metrics and trends.
+    columns:
+    - name: order_id
+      description: A unique identifier for each order.
+      test:
+        - unique
+        - not_null
+    - name: customer_id
+      description: The identifier for the customer who placed the order.
+    - name: order_date
+      description: The date when the order was placed.
+    - name: status
+      description: The current status of the order, indicating its progress in the fulfillment
+        process.
