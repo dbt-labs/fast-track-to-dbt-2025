@@ -1,0 +1,19 @@
+models:
+  - name: stg_customers
+    description: This model serves as a staging layer for customer data, transforming and preparing it for downstream analysis. It extracts customer information from the source system, ensuring data consistency and quality.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer, used to track customer-specific data across the system.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer.
+        tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer.
+        tests:
+          - not_null
+
+  
