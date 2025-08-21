@@ -1,7 +1,6 @@
 models:
   - name: dim_customers
     description: This model provides a comprehensive view of customers, including their personal details and order history. It ranks customers based on the number of orders they have placed, allowing for easy identification of top customers.
-    columns:
   - name: customer_id
     description: A unique identifier for each customer.
   - name: first_name
@@ -19,7 +18,6 @@ models:
       the highest.
   - name: fct_orders
     description: This model provides a comprehensive view of orders, including details such as order ID, customer ID, order date, and status. It serves as a foundational dataset for analyzing order-related metrics and trends.
-    columns:
   - name: order_id
     description: A unique identifier for each order.
   - name: customer_id
