@@ -4,6 +4,9 @@ models:
     providing a comprehensive view of each customer's first and most recent order
     dates, as well as the total number of orders placed. It is useful for analyzing
     customer behavior and order patterns.
+  data_tests:
+    - unique
+    - not_null
   columns:
   - name: customer_id
     description: A unique identifier for each customer. (Primary key)
@@ -22,6 +25,9 @@ models:
   description: This model provides a comprehensive view of orders, including details
     such as order ID, customer ID, order date, and status. It is designed to facilitate
     analysis of order data, enabling insights into customer behavior and order processing.
+  data_tests:
+    - unique
+    - not_null    
   columns:
   - name: order_id
     description: A unique identifier for each order.
