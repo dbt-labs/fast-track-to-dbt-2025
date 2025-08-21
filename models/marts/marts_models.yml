@@ -6,6 +6,9 @@ models:
   columns:
   - name: customer_id
     description: A unique identifier for each customer.
+    - not_null
+    - unique
+    
   - name: first_name
     description: The first name of the customer.
   - name: last_name
