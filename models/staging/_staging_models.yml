@@ -1,0 +1,11 @@
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+  
