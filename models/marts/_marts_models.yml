@@ -37,7 +37,6 @@ models:
   - name: customer_id
     description: The identifier for the customer who placed the order.
     data_tests:
-      - unique
       - not_null
   - name: order_date
     description: The date on which the order was placed.
