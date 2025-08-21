@@ -36,6 +36,6 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              values: ['completed', 'returned', 'returned_pending', 'shipped', 'placed']
+              values: ['completed', 'returned', 'return_pending', 'shipped', 'placed']
           
   
