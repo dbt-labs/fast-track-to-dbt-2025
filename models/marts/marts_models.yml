@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Staging model for orders data."
+    columns:
+      - name: order_id
+        description: "Primary key for the order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key to the customer."
+        tests:
+          - not_null
+      - name: order_date
+        description: "The date when the order was placed."
+        tests:
+          - not_null
+      - name: status
+        description: "The status of the order."
