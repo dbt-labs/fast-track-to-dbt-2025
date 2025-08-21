@@ -1,0 +1,16 @@
+models:
+- name: stg_orders
+  description: This model serves as a staging layer for order data, transforming raw
+    order information into a more structured format for analysis. It includes key
+    details about each order, such as the unique order identifier, the customer who
+    placed the order, the date the order was made, and the current status of the order.
+  columns:
+  - name: order_id
+    description: A unique identifier for each order.
+  - name: customer_id
+    description: The identifier for the customer who placed the order.
+  - name: order_date
+    description: The date on which the order was placed.
+  - name: status
+    description: The current status of the order, indicating its progress in the order
+      lifecycle.
