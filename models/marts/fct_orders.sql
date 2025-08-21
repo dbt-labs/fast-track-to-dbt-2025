@@ -1,20 +1,36 @@
-with orders as  (
-   
-   select id as order_id,
-        user_id as customer_id,
-        order_date,
-        status
-   from raw.jaffle_shop.orders
-
+with orders as (
+    select 
+        order_id,
+        customer_id
+    from {{ ref('stg_orders') }}
 ),
 
-final as (
+customer_order_counts as (
+    select 
+        customer_id,
+        count(order_id) as total_orders
+    from orders
+    group by customer_id
+),
 
-   select
-       orders.*
-   from orders
-   
+ranked_customers as (
+    select 
+        customer_id,
+        total_orders,
+        rank() over (order by total_orders desc) as customer_rank
+    from customer_order_counts
 )
 
-select * 
-from final
+select 
+    dim_customers.customer_id,
+    dim_customers.first_name, -- Assuming customer_name exists
+    ranked_customers.total_orders,
+    ranked_customers.customer_rank
+from 
+    {{ ref('dim_customers') }}
+inner join 
+    ranked_customers
+on 
+    dim_customers.customer_id = ranked_customers.customer_id
+order by 
+    ranked_customers.customer_rank

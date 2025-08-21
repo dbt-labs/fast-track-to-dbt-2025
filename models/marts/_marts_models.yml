@@ -1,0 +1,35 @@
+models:
+- name: dim_customers
+  description: This model provides a comprehensive view of customers, including their
+    personal details and order history. It combines customer information with their
+    order data to offer insights into customer behavior, such as the date of their
+    first and most recent orders, and the total number of orders placed.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer.
+  - name: first_name
+    description: The first name of the customer.
+  - name: last_name
+    description: The last name of the customer.
+  - name: first_order_date
+    description: The date when the customer placed their first order. This is NULL if no order exists
+  - name: most_recent_order_date
+    description: The date when the customer placed their most recent order. This is NULL if no order exists
+  - name: number_of_orders
+    description: The total number of orders placed by the customer.
+- name: fct_orders
+  description: This model provides a ranked list of customers based on their total
+    number of orders. It combines customer information with order data to determine
+    the rank of each customer by the number of orders they have placed, facilitating
+    insights into customer activity and engagement.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer, used to join customer data
+      with order data.
+  - name: first_name
+    description: The first name of the customer.
+  - name: total_orders
+    description: The total number of orders placed by the customer.
+  - name: customer_rank
+    description: The rank of the customer based on the total number of orders, with
+      1 being the highest.
