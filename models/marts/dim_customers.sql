@@ -3,7 +3,7 @@
         materialized='table'
     )
 }}
-with customers as (
+/*with customers as (
 
     select
         customer_id,
@@ -55,7 +55,7 @@ final as (
 
     left join customer_orders using (customer_id)
 
-)
+)*/
 
 with customers as (
 
