@@ -1,5 +1,7 @@
 models:
   - name: dim_customers
+    time_spine:
+      standard_granularity_column: first_order_date # column for the standard grain of your table
     columns:
       - name: customer_id
         description: A unique identifier for each customer.
@@ -15,6 +17,7 @@ models:
         data_tests:
           - not_null
       - name: first_order_date
+        granularity: day # set granularity at column-level for standard_granularity_column
         description: The date when the customer placed their first order. Null if no order.
       - name: most_recent_order_date
         description: The date when the customer placed their most recent order.
@@ -38,11 +41,3 @@ models:
     - name: status
       description: The current status of the order, such as pending, completed, or cancelled.
 
-
-# Daily time spine
-  - name: time_spine_daily
-    time_spine:
-      standard_granularity_column: order_date # column for the standard grain of your table
-    columns:
-      - name: order_date
-        granularity: day # set granularity at column-level for standard_granularity_column

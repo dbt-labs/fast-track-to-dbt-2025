@@ -1,5 +1,5 @@
 semantic_models:
-- name: dim_customers
+- name: customers_entity
   description: This model provides a comprehensive view of customers, including their
     personal details and order history. It ranks customers based on the number of
     orders they have placed, allowing for easy identification of top customers.
@@ -41,4 +41,4 @@ semantic_models:
     agg: count
     create_metric: true
     expr: customer_id
-  primary_entity: customer
+  
