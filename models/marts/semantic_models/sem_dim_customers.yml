@@ -1,0 +1,44 @@
+semantic_models:
+- name: dim_customers
+  description: This model provides a comprehensive view of customers, including their
+    personal details and order history. It ranks customers based on the number of
+    orders they have placed, allowing for easy identification of top customers.
+  model: ref('dim_customers')
+  defaults:
+    agg_time_dimension: first_order_date
+  entities:
+  - name: customer
+    type: primary
+    expr: customer_id
+  dimensions:
+  - name: first_name
+    description: The first name of the customer.
+    type: categorical
+  - name: last_name
+    description: The last name of the customer.
+    type: categorical
+  - name: first_order_date
+    description: The date when the customer placed their first order. Null if no order.
+    type: time
+    type_params:
+      time_granularity: day
+  - name: most_recent_order_date
+    description: The date when the customer placed their most recent order.
+    type: time
+    type_params:
+      time_granularity: day
+  measures:
+  - name: number_of_orders
+    description: The total number of orders placed by the customer.
+    agg: sum
+    create_metric: true
+  - name: customer_rank
+    description: The rank of the customer based on the number of orders, with 1 being
+      the highest.
+    agg: min
+    create_metric: true
+  - name: count_customer
+    agg: count
+    create_metric: true
+    expr: customer_id
+  primary_entity: customer
