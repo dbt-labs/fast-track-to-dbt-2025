@@ -24,8 +24,8 @@ models:
       - name: order_date
         data_tests:
           - not_null
-      - name: status
-          - - accepted_values:
-              values: ['completed','returned','return_pending']
+      - name: "status"
         data_tests:
           - not_null
+          - accepted_values:
+              values: ['completed','returned','return_pending']
