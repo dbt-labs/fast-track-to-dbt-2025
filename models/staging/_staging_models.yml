@@ -1,5 +1,7 @@
 models:
   - name: stg_customers
+    description: This model serves as a staging area for customer data, providing a clean and standardised format for downstream analysis.
+      It extracts customer infomration from the source system, ensuring that each customer is uniqiuely identified.
     columns:
       - name: customer_id
         data_tests:
@@ -13,6 +15,8 @@ models:
           - not_null
 
   - name: stg_orders
+    description: This model serves as a staging area for customer data, providing a clean and standardised format for downstream analysis.
+      It extracts customer infomration from the source system, ensuring that each order is uniqiuely identified and ensures foreign key relationship for customer_id.
     columns:
       - name: order_id
         data_tests:
