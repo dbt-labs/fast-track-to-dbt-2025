@@ -27,7 +27,7 @@ models:
         description: A unique identifier for the customer who placed the order.
         data_tests:
           - not_null
-          - relationships:
+          - relationships:  
               to: ref('stg_customers')
               field: customer_id
       - name: order_date
