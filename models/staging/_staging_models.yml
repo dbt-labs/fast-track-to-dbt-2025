@@ -36,4 +36,4 @@ models:
           - not_null
           - accepted_values:
               values:
-                - ('completed', 'returned', 'return_pending')
+                - ('completed', 'returned', 'return_pending','shipped','placed')
