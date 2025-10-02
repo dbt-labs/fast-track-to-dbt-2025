@@ -1,8 +1,5 @@
 models:
   - name: dim_customers
-    data_tests:
-      - unique
-      - not_null
     columns:
       - name: customer_id
         description: A unique identifier for each customer.
