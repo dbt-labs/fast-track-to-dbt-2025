@@ -1,0 +1,36 @@
+models:
+  - name: stg_customers
+    description: This model extracts and prepares customer data from the 'jaffle_shop' source, providing a standardized format for customer information. It includes unique identifiers and basic personal details for each customer, facilitating easy integration with other models and analyses.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+  - name: stg_orders
+    description: This model extracts and prepares order data from the 'jaffle_shop' source, providing a standardized format for order information. It includes unique identifiers for each order and customer, along with the order date and current status, facilitating easy integration with other models and analyses.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_customers')
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                ["completed", "returned", "return_pending", "shipped", "placed"]
