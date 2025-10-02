@@ -2,6 +2,7 @@ models:
   - name: stg_customers
     columns:
       - name: customer_id
+        description: One record per customer. Includes cancelled and deleted customers.
         data_tests:
           - unique
           - not_null
@@ -16,7 +17,7 @@ models:
     description: This model serves as a staging layer for order data from the 'jaffle_shop' source. It standardizes and prepares order information for further analysis, including details about the order's unique identifier, the customer who placed the order, the date the order was made, and its current status.
     columns:
       - name: order_id
-        description: A unique identifier for each order.
+        description: One record per order. Includes cancelled and deleted orders.
         data_tests:
           - unique
           - not_null
