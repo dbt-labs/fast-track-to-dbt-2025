@@ -26,8 +26,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              field: customer_id
-              to: ref('stg_customers')
+               arguments: 
+                field: customer_id
+                to: ref('stg_customers')
       - name: order_date
         description: The date on which the order was placed.
         data_tests:
