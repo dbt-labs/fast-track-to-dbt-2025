@@ -1,0 +1,19 @@
+models:
+  - name: stg_orders
+    description: This is the model descritpion and should be very nice.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['completed', 'returned', 'return_pending', 'shipped', 'placed']
