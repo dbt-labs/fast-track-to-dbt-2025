@@ -1,5 +1,5 @@
 models:
-  - name: stg_customers
+  - name: stg_customers.sql
     description: This model serves as a staging layer for customer data, transforming and preparing it for downstream analysis. It extracts customer information from the source system, ensuring data consistency and readiness for further processing.
     columns:
       - name: customer_id
