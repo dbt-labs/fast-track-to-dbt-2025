@@ -4,6 +4,9 @@ models:
     columns:
       - name: customer_id
         description: A unique identifier for each customer. (Primary key)
+        data_tests:
+          - unique
+          - not_null
       - name: first_name
         description: The first name of the customer.
       - name: last_name
@@ -21,8 +24,11 @@ models:
       assigns a rank to each customer based on this count, allowing for easy identification
       of top customers by order volume.
     columns:
-    - name: customer_id
-      description: A unique identifier for each customer.
+    - name: order_id
+      data_tests:
+        - unique
+        - not_null
+      description: A unique identifier for each order.
     - name: total_orders
       description: The total number of orders placed by the customer.
     - name: customer_rank
