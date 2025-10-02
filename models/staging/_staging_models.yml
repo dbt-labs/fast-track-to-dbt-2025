@@ -1,0 +1,45 @@
+models:
+  - name: stg_customers
+    description: This model consolidates customer information with their order history,
+      providing a comprehensive view of each customer's first and most recent order
+      dates, as well as the total number of orders placed. It is useful for analyzing
+      customer behavior and order patterns.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_customers')
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - returned
+                - return_pending
+                - completed
+                - shipped
+                - placed
