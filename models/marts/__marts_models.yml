@@ -1,0 +1,34 @@
+models:
+- name: dim_customers
+  description: This model consolidates customer information with their order history,
+    providing a comprehensive view of each customer's first and most recent order
+    dates, as well as the total number of orders placed. It is useful for analyzing
+    customer behavior and order patterns.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer.
+  - name: first_name
+    description: The first name of the customer.
+  - name: last_name
+    description: The last name of the customer.
+  - name: first_order_date
+    description: The date when the customer placed their first order.
+  - name: most_recent_order_date
+    description: The date when the customer placed their most recent order.
+  - name: number_of_orders
+    description: The total number of orders placed by the customer.
+
+- name: fct_orders
+  description: This model consolidates order information, providing a comprehensive
+    view of each order placed by customers. It includes details such as the order
+    ID, customer ID, order date, and current status, which are essential for tracking
+    and managing customer orders.
+  columns:
+  - name: order_id
+    description: A unique identifier for each order placed by a customer.
+  - name: customer_id
+    description: The unique identifier of the customer who placed the order.
+  - name: order_date
+    description: The date on which the order was placed.
+  - name: status
+    description: The current status of the order, indicating its progress or completion.
