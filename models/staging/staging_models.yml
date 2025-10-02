@@ -1,0 +1,41 @@
+      
+models:      
+      - name: order_id
+        description: A unique identifier for each order.
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+      - name: order_date
+        description: The date when the order was placed.
+      - name: status
+        description: The current status of the order, indicating its progress in the fulfillment process.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+
+      - name: stg_orders
+    
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_customers')
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - ('completed', 'returned', return_pending', 'shipped', 'placed')
