@@ -6,6 +6,9 @@ models:
   columns:
   - name: customer_id
     description: A unique identifier for each customer.
+    data_tests:
+      - unique
+      - not_null
   - name: total_orders
     description: The total number of orders placed by the customer.
   - name: customer_rank
