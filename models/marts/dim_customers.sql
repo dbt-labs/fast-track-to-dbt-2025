@@ -1,4 +1,3 @@
-
 {{
     config(
         materialized='table'
@@ -23,9 +22,8 @@ orders as (
         customer_id,
         order_date,
         status
-        from {{ ref('stg_orders') }}
 
-    
+    from {{ ref('stg_orders') }}
 
 ),
 
@@ -58,7 +56,23 @@ final as (
 
     left join customer_orders using (customer_id)
 
+),
+
+ranked_customers as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        rank() over (order by number_of_orders desc) as customer_rank
+    
+    from final
+
 )
 
-select * 
-from final
+select *
+from ranked_customers
+order by customer_rank
