@@ -24,7 +24,7 @@ models:
       assigns a rank to each customer based on this count, allowing for easy identification
       of top customers by order volume.
     columns:
-    - name: order_id
+    - name: customer_id
       data_tests:
         - unique
         - not_null
