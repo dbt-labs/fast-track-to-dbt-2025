@@ -26,8 +26,8 @@ models:
         data_tests:
           - not_null
           - relationships:
-              field: customer_id
               to: ref('stg_customers')
+              field: customer_id              
       - name: order_date
         data_tests:
           - not_null
