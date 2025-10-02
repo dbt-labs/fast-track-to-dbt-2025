@@ -1,20 +1,29 @@
-with orders as  (
-   
-   select id as order_id,
-        user_id as customer_id,
+with orders as (
+    select
+        order_id,
+        customer_id,
         order_date,
         status
-   from raw.jaffle_shop.orders
-
+    from {{ ref('stg_orders') }}
 ),
 
-final as (
+customer_order_counts as (
+    select
+        customer_id,
+        count(order_id) as total_orders
+    from orders
+    group by customer_id
+),
 
-   select
-       orders.*
-   from orders
-   
+ranked_customers as (
+    select
+        customer_id,
+        total_orders,
+        rank() over (order by total_orders desc) as customer_rank
+    from customer_order_counts
 )
 
-select * 
-from final
+select
+    *
+from ranked_customers
+order by customer_rank
