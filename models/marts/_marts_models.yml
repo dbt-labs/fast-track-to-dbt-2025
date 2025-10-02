@@ -6,6 +6,9 @@ models:
     of orders, and ranks customers based on the number of orders they have placed.
   columns:
   - name: customer_id
+    data_tests:
+      - unique
+      - not_null 
     description: A unique identifier for each customer.
   - name: first_name
     description: The first name of the customer.
