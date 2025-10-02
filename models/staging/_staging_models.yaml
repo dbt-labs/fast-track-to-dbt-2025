@@ -1,0 +1,12 @@
+models:
+- name: stg_customers
+  description: This model serves as a staging layer for customer data, transforming
+    and preparing it for further analysis. It extracts customer information from the
+    'jaffle_shop' source, focusing on customer identification and names.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer, derived from the source data.
+  - name: first_name
+    description: The first name of the customer.
+  - name: last_name
+    description: The last name of the customer.
