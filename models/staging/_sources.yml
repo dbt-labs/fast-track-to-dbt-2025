@@ -6,8 +6,6 @@ sources:
     tables:
       - name: customers
         description: One record per customer.
-        columns: 
-        - name: id
 
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
