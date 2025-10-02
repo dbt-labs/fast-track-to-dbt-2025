@@ -6,6 +6,7 @@ models:
       of orders, and ranks customers based on the number of orders they have placed.
     columns:
       - name: customer_id
+        description: a unique id
         data_tests:
           - unique
           - not_null
@@ -16,15 +17,24 @@ models:
         data_tests:
           - not_null
       - name: first_order_date
+        data_tests:
+          - not_null
       - name: most_recent_order_date
+        data_tests:
+          - not_null
       - name: number_of_orders
+        data_tests:
+          - not_null
       - name: customer_rank
+        data_tests:
+          - not_null
   - name: fct_orders
     description: This model provides a refined view of order data, consolidating essential
       order details such as order ID, customer ID, order date, and status. It serves
       as a foundational dataset for analyzing order trends and customer purchasing behavior.
     columns:
       - name: order_id
+        description: a unique id
         data_tests:
           - unique
           - not_null
