@@ -1,0 +1,18 @@
+models:
+- name: dim_customers
+  description: This model consolidates customer information and their order history,
+    providing a comprehensive view of each customer including their first and most
+    recent order dates, and the total number of orders placed.
+  columns:
+  - name: customer_id
+    description: A unique identifier for each customer.
+  - name: first_name
+    description: The first name of the customer.
+  - name: last_name
+    description: The last name of the customer.
+  - name: first_order_date
+    description: The date when the customer placed their first order. This is NULL bla bla bla. 
+  - name: most_recent_order_date
+    description: The date when the customer placed their most recent order.
+  - name: number_of_orders
+    description: The total number of orders placed by the customer.
