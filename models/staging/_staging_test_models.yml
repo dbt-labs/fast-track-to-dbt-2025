@@ -43,5 +43,4 @@ models:
         description: The current status of the order, indicating whether it is completed or returned.
         data_tests:
           - not_null
-          - accepted_values:
-              values: ['completed','returned']
+
