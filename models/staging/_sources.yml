@@ -6,5 +6,17 @@ sources:
     tables:
       - name: customers
         description: One record per customer.
+        columns:
+          - name: id
+            data_tests:
+            - unique
+            - not_null
+            
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            data_tests:
+            - unique
+            - not_null
+            
