@@ -1,0 +1,15 @@
+models:
+- name: stg_orders
+  description: This model consolidates order information from the 'jaffle_shop' source,
+    providing a structured view of each order, including its unique identifier, the
+    customer who placed it, the date it was made, and its current status. This is
+    useful for tracking order history and customer activity.
+  columns:
+  - name: order_id
+    description: A unique identifier for each order.
+  - name: customer_id
+    description: The identifier for the customer who placed the order.
+  - name: order_date
+    description: The date when the order was placed.
+  - name: status
+    description: The current status of the order, indicating its progress or completion.
