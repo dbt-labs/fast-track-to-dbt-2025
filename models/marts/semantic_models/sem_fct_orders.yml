@@ -102,10 +102,10 @@ saved_queries:
       metrics:
         - order_total
       group_by:
-        - "Dimension('fct_orders__order_date')"
+        - "TimeDimension('order_id__order_date', 'day')"
       where:
-        - "{{ Dimension('fct_orders__order_date', 'DAY') }} <= now()"
-        - "{{ Dimension('fct_orders__order_date', 'DAY') }} >= '2020-01-01'"
+        - "{{ TimeDimension('order_id__order_date', 'day') }} <= now()"
+        - "{{ TimeDimension('order_id__order_date', 'day') }} >= '2020-01-01'"
     exports:
       - name: my_export
         config:
