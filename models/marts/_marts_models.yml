@@ -1,5 +1,7 @@
 models:
 - name: dim_customers
+  config:
+    group: finance
   description: This model consolidates customer information and their order history,
     providing insights into customer activity and engagement. It ranks customers based
     on the number of orders they have placed, allowing for easy identification of
@@ -21,6 +23,8 @@ models:
     description: The rank of the customer based on the number of orders, with 1 being
       the highest.
 - name: fct_orders
+  config:
+    group: finance
   description: This model provides a comprehensive view of orders, including details
     such as order ID, customer ID, order date, and status. It serves as a foundational
     dataset for analyzing order-related metrics and trends.

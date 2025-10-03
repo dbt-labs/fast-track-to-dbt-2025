@@ -1,0 +1,7 @@
+groups:
+  - name: finance
+    owner:
+      # 'name' or 'email' is required; additional properties will no longer be allowed in a future release
+      email: finance@jaffleshop.com
+
+
