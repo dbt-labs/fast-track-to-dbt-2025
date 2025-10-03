@@ -90,3 +90,25 @@ metrics:
       metrics:
         - name: large_orders
         - name: order_count
+
+saved_queries:
+  - name: saved_order_sum
+    description: Saved query test
+    label: Orders sum saved query
+    config:
+      cache:
+        enabled: false
+    query_params:
+      metrics:
+        - order_total
+      group_by:
+        - "Dimension('fct_orders__order_date')"
+      where:
+        - "{{ Dimension('fct_orders__order_date', 'DAY') }} <= now()"
+        - "{{ Dimension('fct_orders__order_date', 'DAY') }} >= '2020-01-01'"
+    exports:
+      - name: my_export
+        config:
+          export_as: table 
+          alias: my_export_alias
+          schema: my_export_schema_name

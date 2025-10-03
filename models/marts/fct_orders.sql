@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='table',
+        docs={'saved_query_description': 'red'}
+    )
+}}
+
 with orders as  (
    
    select order_id,

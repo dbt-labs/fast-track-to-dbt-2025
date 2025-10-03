@@ -16,8 +16,7 @@ models:
         data_tests:
           - not_null
   - name: stg_orders
-    description: This model extracts and stages order data from the 'jaffle_shop' source, providing a 
-      foundational dataset for analyzing customer orders. It includes key details such as order identifiers, customer associations, order dates, and current status, which are essential for tracking and managing order lifecycles.
+    description: This model extracts and stages order data from the 'jaffle_shop' source, providing a foundational dataset for analyzing customer orders. It includes key details such as order identifiers, customer associations, order dates, and current status, which are essential for tracking and managing order lifecycles.
     columns:
       - name: order_id
         description: A unique identifier for each order.
@@ -29,8 +28,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              field: customer_id
-              to: ref('stg_customers')
+              arguments:
+                field: customer_id
+                to: ref('stg_customers')
       - name: order_date
         description: The date on which the order was placed.
         data_tests:
@@ -40,9 +40,10 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              values:
-                - returned
-                - completed
-                - return_pending
-                - shipped
-                - placed
+              arguments:
+                values:
+                  - returned
+                  - completed
+                  - return_pending
+                  - shipped
+                  - placed
