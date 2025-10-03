@@ -1,8 +1,11 @@
 with
     orders as (
-        select order_id, customer_id, order_date, status from {{ ref("stg_orders") }}
-    ),
+        select customer_sk, order_id, order_date, status 
+        from {{ ref("stg_orders") }} 
+        left join {{ ref('dim_customers') }} using (customer_id)
+    )
 
-    final as (select orders.* from orders)
+    --,final as (select orders.* from orders)
 
-select * from final
+select * from  orders
+--final

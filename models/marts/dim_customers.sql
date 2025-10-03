@@ -27,6 +27,7 @@ with
     final as (
 
         select
+            row_number() over(order by customer_id) customer_sk,
             customers.customer_id,
             customers.first_name,
             customers.last_name,
