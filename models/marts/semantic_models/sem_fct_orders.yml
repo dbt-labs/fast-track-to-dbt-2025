@@ -1,0 +1,92 @@
+semantic_models:
+  - name: orders
+    defaults:
+      agg_time_dimension: order_date
+    description: |
+      Order fact table. This table’s grain is one row per order
+    model: ref('fct_orders')
+    entities:
+      - name: order_id
+        type: primary
+      - name: customer
+        expr: customer_id
+        type: foreign
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: order_total
+        description: The total amount for each order including taxes.
+        agg: sum
+        expr: amount
+      - name: order_count
+        expr: 1
+        agg: sum
+      - name: customers_with_orders
+        description: Distinct count of customers placing orders
+        agg: count_distinct
+        expr: customer_id
+      - name: order_value_p99
+        expr: amount
+        agg: percentile
+        agg_params:
+          percentile: 0.99
+          use_discrete_percentile: True
+          use_approximate_percentile: False
+# Newly added          
+metrics: 
+  # Simple type metrics
+  - name: "order_total"
+    description: "Sum of orders value"
+    type: simple
+    label: "order_total"
+    type_params:
+      measure:
+        name: order_total
+  - name: "order_count"
+    description: "number of orders"
+    type: simple
+    label: "order_count"
+    type_params:
+      measure:
+        name: order_count
+  - name: large_orders
+    description: "Count of orders with order total over 20."
+    type: simple
+    label: "Large Orders"
+    type_params:
+      measure:
+        name: order_count
+    filter: |
+      {{ Metric('order_total', group_by=['order_id']) }} >=  20
+  # Ratio type metric
+  - name: "avg_order_value"
+    label: "avg_order_value"
+    description: "average value of each order"
+    type: ratio
+    type_params:
+      numerator: 
+        name: order_total
+      denominator: 
+        name: order_count
+  # Cumulative type metrics
+  - name: "cumulative_order_amount_mtd"
+    label: "cumulative_order_amount_mtd"
+    description: "The month to date value of all orders"
+    type: cumulative
+    type_params:
+      measure:
+        name: order_total
+      grain_to_date: month
+  # Derived metric
+  - name: "pct_of_orders_that_are_large"
+    label: "pct_of_orders_that_are_large"
+    description: "percent of orders that are large"
+    type: derived
+    type_params:
+      expr: large_orders/order_count
+      metrics:
+        - name: large_orders
+        - name: order_count
