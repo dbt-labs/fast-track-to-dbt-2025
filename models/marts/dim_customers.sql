@@ -1,29 +1,19 @@
 {{
     config(
-        materialized='table'
+        materialized='view'
     )
 }}
+-- config changed to view
 
 with customers as (
 
-    select
-        customer_id,
-        first_name,
-        last_name
-    from {{ ref('stg_customers') }} -- reference the table name with reference
-    --from raw.jaffle_shop.customers
+select * from {{ ref('stg_jaffel_shop__customers') }}
 
 ),
 
 orders as (
 
-    select
-        order_id,
-        customer_id,
-        order_date,
-        status
-    from {{ ref('stg_orders') }}
-    --from raw.jaffle_shop.orders
+select * from {{ ref('stg_jaffel_shop__orders') }}
 
 ),
 
@@ -42,6 +32,7 @@ customer_orders as (
 
 ),
 
+
 final as (
 
     select
@@ -58,5 +49,4 @@ final as (
 
 )
 
-select * 
-from final
+select * from final
