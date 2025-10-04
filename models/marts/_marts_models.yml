@@ -6,6 +6,9 @@ models:
   columns:
   - name: customer_id
     description: A unique identifier for each customer.
+    data_tests:
+      - not_null
+      - unique
   - name: first_name
     description: The first name of the customer.
   - name: last_name
@@ -28,6 +31,9 @@ models:
   columns:
   - name: order_id
     description: A unique identifier for each order.
+    data_tests:
+      - not_null
+      - unique
   - name: customer_id
     description: The unique identifier of the customer who placed the order.
   - name: order_date
