@@ -62,4 +62,4 @@ ranked_customers as (
 
 select * 
 from ranked_customers
-order by customer_rank;
+order by customer_rank
