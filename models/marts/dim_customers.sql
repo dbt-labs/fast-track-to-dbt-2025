@@ -73,4 +73,3 @@ ranked_customers as (
 
 select *
 from ranked_customers
-;
