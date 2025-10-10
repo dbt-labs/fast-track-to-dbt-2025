@@ -14,7 +14,7 @@ models:
 
       - name: order_id
         data_type: number
-        description: ""
+        description: "order id for each transaction"
         data_tests:
           - not_null
           

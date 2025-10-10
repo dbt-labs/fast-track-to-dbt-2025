@@ -4,7 +4,7 @@ sources:
     database: raw
     tables:
       - name: payment
-        description: payment transaction for each order
+        description: RAW table payment transaction for each order
         freshness:
           warn_after:
             count: 12
