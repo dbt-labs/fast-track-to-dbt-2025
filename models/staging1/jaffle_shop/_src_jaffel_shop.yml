@@ -4,12 +4,14 @@ sources:
   - name: jaffle_shop
     database: raw
     schema: jaffle_shop
+    description: A clone of snowflake application data.
     tables:
       - name: customer_web_activity
       - name: customers
+        description: Raw customers data.
         columns:
           - name: id
-            description: primary key
+            description: primary key for the customer data.
             data_tests:
               - unique
               - not_null
@@ -18,9 +20,10 @@ sources:
       - name: locations
       - name: order_items
       - name: orders
+        description: Raw orders data.
         columns:
           - name: id
-            description: primary key
+            description: primary key for the order data.
             data_tests:
               - unique
               - not_null
