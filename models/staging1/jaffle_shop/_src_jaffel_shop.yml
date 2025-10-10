@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: jaffle_shop
+    database: raw
+    schema: jaffle_shop
+    tables:
+      - name: customer_web_activity
+      - name: customers
+        columns:
+          - name: id
+            description: primary key
+            data_tests:
+              - unique
+              - not_null
+              
+      - name: items
+      - name: locations
+      - name: order_items
+      - name: orders
+        columns:
+          - name: id
+            description: primary key
+            data_tests:
+              - unique
+              - not_null
+              
