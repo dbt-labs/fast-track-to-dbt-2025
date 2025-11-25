@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: # available in v1.10.5 and higher. Older versions can set the <argument_name> as the top-level property.
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
