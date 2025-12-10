@@ -11,7 +11,7 @@ with customers as (
         first_name,
         last_name
 
-    from {{ ref('stg_customers') }}
+    from {{ ref('stg_customers') }} 
 
 ),
 
@@ -42,17 +42,6 @@ customer_orders as (
 
 ),
 
-ranked_customers as (
-
-    select
-        customer_id,
-        number_of_orders,
-        rank() over (order by number_of_orders desc) as customer_rank
-    
-    from customer_orders
-
-),
-
 final as (
 
     select
@@ -61,16 +50,28 @@ final as (
         customers.last_name,
         customer_orders.first_order_date,
         customer_orders.most_recent_order_date,
-        coalesce(customer_orders.number_of_orders, 0) as number_of_orders,
-        ranked_customers.customer_rank
+        coalesce(customer_orders.number_of_orders, 0) as number_of_orders
 
     from customers
 
     left join customer_orders using (customer_id)
-    left join ranked_customers using (customer_id)
+
+),
+
+ranked_customers as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        rank() over (order by number_of_orders desc) as customer_rank
+    
+    from final
 
 )
 
-select * 
-from final
-order by customer_rank
+select *
+from ranked_customers
