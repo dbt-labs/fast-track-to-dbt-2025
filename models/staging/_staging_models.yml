@@ -4,20 +4,17 @@ models:
     columns:
       - name: customer_id
         description: A unique identifier for each customer.
+        data_tests:
+          - unique
+          - not_null
       - name: first_name
+        data_tests:
+          - not_null
         description: The first name of the customer.
       - name: last_name
         description: The last name of the customer.
-    - name: customer_id
-      data_tests:
-        - unique
-        - not_null
-    - name: first_name
-      data_tests:
-        - not_null
-    - name: last_name
-      data_tests:
-        - not_null
+        data_tests:
+          - not_null
   - name: stg_orders
     columns:
     - name: order_id
