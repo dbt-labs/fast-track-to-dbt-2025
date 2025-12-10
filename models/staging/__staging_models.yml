@@ -1,5 +1,8 @@
 models:
 - name: staging_customers
+  description: This model serves as a staging layer for customer data, transforming
+    and preparing it for downstream analysis. It extracts customer information from
+    the source system, ensuring consistency and readiness for further processing.
   columns:
     - name: customer_id
       tests:
@@ -11,7 +14,12 @@ models:
     - name: last_name
       tests:
         - not_null
+
 - name: staging_orders
+  description: This model serves as a staging layer for order data, transforming raw
+    order information into a more structured format for analysis. It includes key
+    details about each order, such as the unique order identifier, the customer who
+    placed the order, the date the order was made, and the current status of the order.
   columns:
     - name: order_id
       data_tests:
@@ -20,9 +28,14 @@ models:
     - name: customer_id
       data_tests:
         - not_null
+        - relationships:
+            field: customer_id
+            to: ref('stg_customers')
     - name: order_date
       data_tests:
         - not_null
     - name: status
       data_tests:
         - not_null
+        - accepted_values:
+            values: ['return_pending', 'returned', 'completed', 'shipped', 'placed']
