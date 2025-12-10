@@ -37,6 +37,15 @@ with
 
     ),
 
+    ranked_customers as (
+
+        select
+            customer_id,
+            row_number() over (order by number_of_orders desc) as customer_rank
+        from customer_orders
+
+    ),
+
     final as (
 
         select
@@ -45,11 +54,13 @@ with
             customers.last_name,
             customer_orders.first_order_date,
             customer_orders.most_recent_order_date,
-            coalesce(customer_orders.number_of_orders, 0) as number_of_orders
+            coalesce(customer_orders.number_of_orders, 0) as number_of_orders,
+            ranked_customers.customer_rank
 
         from customers
 
         left join customer_orders using (customer_id)
+        left join ranked_customers using (customer_id)
 
     )
 
