@@ -11,7 +11,7 @@ with customers as (
         first_name,
         last_name
 
-    from {{ ref('stg_customers') }} 
+    from {{ ref('stg_customers') }}
 
 ),
 
@@ -23,7 +23,7 @@ orders as (
         order_date,
         status
 
-    from {{ ref('stg_orders') }} 
+    from {{ ref('stg_orders') }}
 
 ),
 
@@ -58,5 +58,8 @@ final as (
 
 )
 
-select * 
+select 
+    *,
+    rank() over (order by number_of_orders desc) as customer_rank
 from final
+order by customer_rank
