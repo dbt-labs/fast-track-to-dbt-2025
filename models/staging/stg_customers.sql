@@ -3,4 +3,5 @@ select
     first_name,
     last_name
 
-from raw.jaffle_shop.customers
+--use the 'source' macro because we're selecting from a raw source
+from {{ source('jaffle_shop', 'customers') }}
