@@ -59,5 +59,21 @@ final as (
 
 )
 
-select * 
-from final
+--select * 
+--from final
+,ranked_customers as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        rank() over (order by number_of_orders desc) as customer_rank
+    from final
+
+)
+
+select *
+from ranked_customers
