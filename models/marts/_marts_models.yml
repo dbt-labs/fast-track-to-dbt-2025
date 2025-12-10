@@ -1,5 +1,5 @@
 models:
-  - name: stg_customers
+  - name: dim_customers
     columns:
       - name: customer_id
         tests:
@@ -11,7 +11,19 @@ models:
       - name: last_name
         tests:
           - not_null
-  - name: stg_orders
+      - name: first_order_date
+        tests:
+          - not_null
+      - name: most_recent_order_date
+        tests:
+          - not_null
+      - name: number_of_orders
+        tests:
+          - not_null
+      - name: customer_rank
+        tests:
+          - not_null
+  - name: fct_orders
     columns:
       - name: order_id
         tests:
@@ -20,14 +32,9 @@ models:
       - name: customer_id
         tests:
           - not_null
-          - relationships:
-              field: customer_id
-              to: ref('stg_customers')
       - name: order_date
         tests:
           - not_null
       - name: status
         tests:
           - not_null
-          - accepted_values:
-              values: ['returned_pending', 'returned', 'completed', 'shipped', 'placed']
