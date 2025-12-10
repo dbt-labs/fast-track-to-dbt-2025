@@ -8,28 +8,28 @@ sources:
         description: One record per customer.
         columns:
         - name: id
-           tests:
+          tests:
             - unique
-           - not_null
+            - not_null
         - name: first_name
-           tests:
+          tests:
            - not_null
-          - name: last_name
-            tests:
-              - not_null
+        - name: last_name
+          tests:
+           - not_null
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
         - name: id
-         data_tests:
+        data_tests:
             - unique
             - not_null
-        - name: user_id
+      - name: user_id
+        data_tests:
+           - not_null
+      - name: order_date
         data_tests:
           - not_null
-        - name: order_date
-        data_tests:
-          - not_null
-       - name: status
+      - name: status
         data_tests:
           - not_null
