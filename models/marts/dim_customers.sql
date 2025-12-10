@@ -1,11 +1,18 @@
+--  adding a config setting here overrides what is in the yml file
+{{
+    config(
+        materialized='view'
+    )
+}} 
+
 with customers as (
 
     select
-        id as customer_id,
+        customer_id,
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+    from {{ ref('stg_customers') }} -- ref is a function that allows you to reference a model name that is internal to this instance
 
 ),
 
@@ -17,7 +24,7 @@ orders as (
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    from {{ ref('stg_orders') }} -- can either "copy as ref" from the tables on the left or type __ref enter
 
 ),
 
