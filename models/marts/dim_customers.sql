@@ -62,3 +62,18 @@ final as (
 
 select * 
 from final
+
+with customer_order_counts as (
+    select
+        user_id as customer_id,
+        count(id) as order_count
+    from {{ source('jaffle_shop', 'orders') }}
+    group by user_id
+)
+
+select
+    customer_id,
+    order_count,
+    rank() over (order by order_count desc) as customer_rank
+from customer_order_counts
+order by customer_rank;
