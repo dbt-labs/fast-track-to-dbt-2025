@@ -18,7 +18,7 @@ with customers as (
 orders as (
 
     select
-        id as order_id,
+        order_id,
         customer_id,
         order_date,
         status
@@ -56,7 +56,14 @@ final as (
 
     left join customer_orders using (customer_id)
 
+),
+
+ranked_customers as (
+    select
+        final.*,
+        rank() over (order by number_of_orders desc) as customer_rank
+    from final
 )
 
-select * 
-from final
+select *
+from ranked_customers
