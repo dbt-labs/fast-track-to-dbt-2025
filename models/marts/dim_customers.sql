@@ -1,3 +1,8 @@
+{{
+    config(
+        materialized='table'
+    )
+}}
 with customers as (
 
     select
@@ -5,8 +10,8 @@ with customers as (
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
-
+    --from raw.jaffle_shop.customers
+      from {{ ref('stg_customers') }}
 ),
 
 orders as (
@@ -17,7 +22,8 @@ orders as (
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    --from raw.jaffle_shop.orders
+    from {{ ref('stg_orders') }}
 
 ),
 
@@ -25,7 +31,7 @@ customer_orders as (
 
     select
         customer_id,
-
+order_id,
         min(order_date) as first_order_date,
         max(order_date) as most_recent_order_date,
         count(order_id) as number_of_orders
