@@ -34,4 +34,4 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values: ['returned_pending', 'returned', 'completed', 'shipped', 'placed']
+                  values: ['return_pending', 'returned', 'completed', 'shipped', 'placed']
