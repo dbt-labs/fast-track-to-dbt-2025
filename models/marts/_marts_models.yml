@@ -21,17 +21,22 @@ models:
         data_tests:
           - not_null
   - name: fct_orders
+    description: This model provides a detailed view of orders, including their unique identifiers, associated customers, order dates, and current status. It is used to track and analyze order information for business insights and operational purposes.
     columns:
       - name: order_id
+        description: A unique identifier for each order.
         tests:
           - unique
           - not_null
       - name: customer_id
+        description: The identifier for the customer who placed the order.
         tests:
           - not_null
       - name: order_date
+        description: The date when the order was placed.
         tests:
           - not_null
       - name: status
+        description: The current status of the order, indicating its progress or completion.
         tests:
           - not_null

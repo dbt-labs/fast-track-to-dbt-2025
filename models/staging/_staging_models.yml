@@ -16,21 +16,26 @@ models:
           tests:
             - not_null
   - name: stg_orders
+    description: This model serves as a staging layer for order data, transforming raw order information from the source into a standardized format for downstream analysis. It includes essential order identifiers, customer references, order dates, and status information.
     columns:
         - name: order_id
+          description: A unique identifier for each order.
           tests:
             - unique
             - not_null
         - name: customer_id
+          description: A unique identifier for the customer who placed the order.
           tests:
             - not_null
             - relationships:
                 field: customer_id
                 to: ref('stg_customers')
         - name: order_date
+          description: The date when the order was placed.
           tests:
             - not_null
         - name: status
+          description: The current status of the order, indicating its progress in the fulfillment process.
           tests:
             - not_null
             - accepted_values:
