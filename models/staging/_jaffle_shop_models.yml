@@ -1,0 +1,54 @@
+models:
+- name: customers
+  description: A staging table for customer data, including customer ID, first name,
+    and last name.
+  model: ref('stg_customers')
+  entities:
+  - name: customer
+    type: primary
+    expr: customer_id
+  dimensions:
+  - name: first_name
+    type: categorical
+  - name: last_name
+    type: categorical
+  measures:
+  - name: count_customer
+    agg: count
+    create_metric: true
+    expr: customer_id
+- name: orders
+  description: Orders fact table at the order level. This table contains one row per
+    order and includes the order date and status.
+  model: ref('stg_orders')
+  defaults:
+    agg_time_dimension: date
+  entities:
+  - name: order
+    type: primary
+    expr: order_id
+  - name: customer
+    type: foreign
+    expr: customer_id
+  dimensions:
+  - name: date
+    expr: order_date
+    type: time
+    type_params:
+      time_granularity: day
+  - name: status
+    type: categorical
+  measures:
+  - name: order_count
+    description: The total number of orders.
+    agg: count
+    create_metric: true
+    expr: order_id
+  - name: count_order
+    agg: count
+    create_metric: true
+    expr: order_id
+  - name: count_customer
+    agg: count_distinct
+    create_metric: true
+    expr: customer_id
