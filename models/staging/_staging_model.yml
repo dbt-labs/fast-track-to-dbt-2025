@@ -1,0 +1,15 @@
+models:
+  - name: stg_orders  # Replace with the actual staging model name if different
+    description: "A staging model for orders data from the jaffle_shop source."
+    columns:
+      - name: order_id
+        description: "The unique identifier for an order."
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "The unique identifier for a customer associated with the order."
+      - name: order_date
+        description: "The date when the order was placed."
+      - name: status
+        description: "The current status of the order."
