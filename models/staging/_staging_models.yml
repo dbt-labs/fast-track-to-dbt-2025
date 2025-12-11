@@ -26,3 +26,5 @@ models:
       - name: status
         data_tests:
           - not_null
+          - accepted_values:
+              values: ['return_pending', 'returned', 'completed', 'shipped', 'placed']
