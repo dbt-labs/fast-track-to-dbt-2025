@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 with customers as (
 
     select
@@ -5,7 +11,10 @@ with customers as (
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+--    from raw.jaffle_shop.customers
+
+    --demo following
+from {{ ref('stg_customers') }}
 
 ),
 
@@ -35,7 +44,7 @@ customer_orders as (
     group by 1
 
 ),
-
+--why have another cte for this?
 final as (
 
     select
