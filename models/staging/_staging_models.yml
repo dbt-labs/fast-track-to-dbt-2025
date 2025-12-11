@@ -1,0 +1,42 @@
+models:
+  - name: stg_customers
+    description: This model serves as a staging layer for customer data, transforming raw customer information into a structured format for analysis. It includes key details such as customer identifiers and names, facilitating downstream processes like customer segmentation and personalized marketing.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer.
+        data_tests:
+          - not_null
+  - name: stg_orders
+    description: This model serves as a staging layer for order data, transforming raw order information into a structured format for analysis. It includes key details such as order identifiers, customer associations, order dates, and current status, facilitating downstream processes like sales analysis and customer behavior tracking.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              field: Customer_id
+              to: ref('stg_customers')
+      - name: order_date
+        description: The date when the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: The current status of the order, indicating its progress in the fulfillment process.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['return_pending','returned','completed','shipped','placed']
