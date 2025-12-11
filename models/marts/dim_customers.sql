@@ -56,7 +56,19 @@ final as (
 
     left join customer_orders using (customer_id)
 
+),
+
+ranked_customers as (
+
+    select
+        customer_id,
+        first_name,
+        last_name,
+        number_of_orders,
+        row_number() over (order by number_of_orders desc) as customer_rank
+    from final
+
 )
 
-select * 
-from final
+select *
+from ranked_customers
