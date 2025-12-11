@@ -6,5 +6,32 @@ sources:
     tables:
       - name: customers
         description: One record per customer.
+        columns:
+          - name: id
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            data_tests:
+              - not_null
+          - name: last_name
+            data_tests:
+              - not_null
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            data_tests:
+              - not_null
+          - name: order_date
+            data_tests:
+              - not_null
+          - name: status
+            data_tests:
+              - not_null
+              - accepted_values:
+                  values: ['returned_pending', 'returned', 'completed', 'shipped', 'placed']
