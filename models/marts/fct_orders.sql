@@ -6,7 +6,6 @@ with orders as  (
         status
    from {{ ref('stg_orders') }}
 
-
 ),
 
 final as (
