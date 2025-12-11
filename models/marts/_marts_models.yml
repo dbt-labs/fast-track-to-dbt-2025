@@ -24,9 +24,9 @@ models:
         data_tests:
           - not_null
       - name: first_order_date
-        description: The date when the customer placed their first order.
+        description: The date when the customer placed their first order. Can be null.
       - name: most_recent_order_date
-        description: The date when the customer placed their most recent order.
+        description: The date when the customer placed their most recent order. Can be null.
   - name: fct_orders
     description: This model consolidates order data, providing a comprehensive view of each order placed by customers. It includes essential details such as the order ID, customer ID, order date, and current status, facilitating order tracking and analysis.
     columns:
