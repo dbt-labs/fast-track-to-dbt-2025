@@ -33,4 +33,3 @@ sources:
           - name: status
             data_tests:
               - not_null
-              
