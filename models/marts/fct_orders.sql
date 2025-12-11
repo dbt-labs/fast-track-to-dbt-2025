@@ -5,7 +5,7 @@ with orders as  (
         customer_id,
         order_date,
         status
-   from ref{{ ('stg_orders') }}
+   from {{ref("stg_orders")}}
 
 ),
 
