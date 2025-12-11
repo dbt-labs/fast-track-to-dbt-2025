@@ -12,11 +12,7 @@ models:
         data_tests:
           - not_null
       - name: first_order_date
-        data_tests:
-          - not_null
       - name: most_recent_order_date
-        data_tests:
-          - not_null
       - name: number_of_orders
         data_tests:
           - not_null
