@@ -35,8 +35,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 # continue to be built as views. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
+# For all the models in my project, I can do config folder by folder (e.g. marts folder)
 models:
   my_new_project:
     # Applies to all files under models/example/
-    example:
-      +materialized: table
+    marts:
+      +materialized: table # Plus signs means it's a configuration, not a folder path
+    staging:
+      +materialized: view
