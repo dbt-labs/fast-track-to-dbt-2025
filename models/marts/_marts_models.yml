@@ -17,20 +17,14 @@ models:
           - not_null
       - name: first_order_date
         description: The date when the customer placed their first order. Can be null.
-        data_tests:
-          - not_null
       - name: most_recent_order_date
         description: The date when the customer placed their most recent order. Can be null.
-        data_tests:
-          - not_null
       - name: number_of_orders
         description: The total number of orders placed by the customer.
         data_tests:
           - not_null
       - name: customer_rank
         description: The rank of the customer based on the frequency of their orders, with 1 being the highest. Can be null.
-        data_tests:
-          - not_null
   - name: fct_orders
     description: This model provides a refined view of orders, including essential details such as order ID, customer ID, order date, and status. It serves as a foundational dataset for analyzing order-related metrics and trends.
     columns:
