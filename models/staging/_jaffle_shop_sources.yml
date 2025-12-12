@@ -8,25 +8,31 @@ sources:
         description: One record per customer.
         columns:
         - name: id
-          tests:
+          data_tests:
             - unique
             - not_null
         - name: first_name
-          tests:
+          data_tests:
             - not_null
         - name: last_name
-          tests:
+          data_tests:
             - not_null
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
         - name: id
-          tests:
+          data_tests:
             - unique
             - not_null
+        - name: user_id
+          data_tests:
+            - not_null
+            - relationships:
+                to: ref('stg_customers')
+                field: customer_id
         - name: order_date
-          tests:
+          data_tests:
             - not_null
         - name: status
-          tests:
+          data_tests:
             - not_null
