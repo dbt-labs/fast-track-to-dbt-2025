@@ -1,54 +1,38 @@
 models:
-- name: customers
-  description: A staging table for customer data, including customer ID, first name,
-    and last name.
-  model: ref('stg_customers')
-  entities:
-  - name: customer
-    type: primary
-    expr: customer_id
-  dimensions:
-  - name: first_name
-    type: categorical
-  - name: last_name
-    type: categorical
-  measures:
-  - name: count_customer
-    agg: count
-    create_metric: true
-    expr: customer_id
-- name: orders
-  description: Orders fact table at the order level. This table contains one row per
-    order and includes the order date and status.
-  model: ref('stg_orders')
-  defaults:
-    agg_time_dimension: date
-  entities:
-  - name: order
-    type: primary
-    expr: order_id
-  - name: customer
-    type: foreign
-    expr: customer_id
-  dimensions:
-  - name: date
-    expr: order_date
-    type: time
-    type_params:
-      time_granularity: day
-  - name: status
-    type: categorical
-  measures:
-  - name: order_count
-    description: The total number of orders.
-    agg: count
-    create_metric: true
-    expr: order_id
-  - name: count_order
-    agg: count
-    create_metric: true
-    expr: order_id
-  - name: count_customer
-    agg: count_distinct
-    create_metric: true
-    expr: customer_id
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+  - name: stg_orders
+    description: This model serves as a staging layer for order data, transforming and preparing it for further analysis. It includes key details about each order, such as the unique order identifier, the customer who placed the order, the date the order was made, and the current status of the order. This model is essential for tracking order history and status updates.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_date
+        description: The date on which the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: The current status of the order, indicating its progress in the fulfillment process.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['return_pending', 'returned', 'completed', 'shipped', 'placed']

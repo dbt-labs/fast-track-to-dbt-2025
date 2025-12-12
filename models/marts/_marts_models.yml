@@ -1,0 +1,53 @@
+models:
+  - name: dim_customers
+    description: This model consolidates customer information with their order history, providing insights into customer activity and engagement. It includes personal details such as first and last names, and order-related metrics like the date of the first and most recent orders, total number of orders, and a rank based on order frequency.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: The date when the customer placed their first order.
+        data_tests:
+          - not_null
+      - name: most_recent_order_date
+        description: The date when the customer placed their most recent order.
+        data_tests:
+          - not_null
+      - name: number_of_orders
+        description: The total number of orders placed by the customer.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: The rank of the customer based on the frequency of their orders, with 1 being the highest.
+        data_tests:
+          - not_null
+  - name: fct_orders
+    description: This model provides a refined view of orders, including essential details such as order ID, customer ID, order date, and status. It serves as a foundational dataset for analyzing order-related metrics and trends.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: order_date
+        description: The date when the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: The current status of the order.
+        data_tests:
+          - not_null
