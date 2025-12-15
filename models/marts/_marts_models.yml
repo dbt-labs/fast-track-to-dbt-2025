@@ -21,17 +21,22 @@ models:
         data_tests:
           - not_null
   - name: fct_orders
+    description: This model provides a detailed view of orders, including their unique identifiers, associated customers, order dates, and current statuses. It serves as a foundational dataset for analyzing order trends, customer purchasing behavior, and order fulfillment processes.
     columns:
       - name: order_id
+        description: A unique identifier for each order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: The identifier for the customer who placed the order.
         data_tests:
           - not_null
       - name: order_date
+        description: The date when the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: The current status of the order, indicating its progress in the fulfillment process.
         data_tests:
           - not_null
