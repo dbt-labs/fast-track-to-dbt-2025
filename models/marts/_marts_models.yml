@@ -1,0 +1,45 @@
+models:
+  - name: dim_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+      - name: first_order_date
+        data_tests:
+          - not_null
+      - name: most_recent_order_date
+        data_tests:
+          - not_null
+      - name: number_of_orders
+        data_tests:
+          - not_null
+      - name: customer_rank
+        data_tests:
+          - not_null
+  - name: fct_orders
+    description: This model provides a detailed view of customer orders, including the order ID, customer ID, order date, and status. It serves as a foundational dataset for analyzing order trends and customer purchasing behavior.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: order_date
+        description: The date when the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: The current status of the order, such as pending, completed, or cancelled.
+        data_tests:
+          - not_null
