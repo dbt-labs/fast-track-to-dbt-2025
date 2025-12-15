@@ -59,5 +59,8 @@ final as (
 
 )
 
-select * 
+select 
+    *,
+    rank() over (order by number_of_orders desc) as customer_rank
 from final
+order by customer_rank
