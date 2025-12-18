@@ -1,7 +1,6 @@
 {{ config(
     materialized='table'
-    ) 
-}}
+) }}
 
 with
     customers as (
@@ -58,5 +57,7 @@ with
 
     )
 
-select *
+select 
+    *,
+    rank() over (order by number_of_orders desc) as customer_rank
 from final
