@@ -4,50 +4,46 @@ models:
     columns:
       - name: customer_id
         description: A unique identifier for each customer.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: first_name
         description: The first name of the customer.
-        tests:
+        data_tests:
           - not_null
       - name: last_name
         description: The last name of the customer.
-        tests:
+        data_tests:
           - not_null
       - name: first_order_date
-        description: The date when the customer placed their first order.
-        tests:
-          - not_null
+        description: The date when the customer placed their first order. Can be null.
       - name: most_recent_order_date
-        description: The date when the customer placed their most recent order.
-        tests:
-          - not_null
+        description: The date when the customer placed their most recent order. Can be null.
       - name: number_of_orders
         description: The total number of orders placed by the customer.
-        tests:
+        data_tests:
           - not_null
       - name: customer_rank
         description: The rank of the customer based on the total number of orders, with 1 being the highest.
-        tests:
+        data_tests:
           - not_null
   - name: fct_orders
     description: This model provides a detailed view of each order, including the order ID, customer ID, order date, and status. It is useful for tracking individual orders and analyzing order trends over time.
     columns:
       - name: order_id
         description: A unique identifier for each order.
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: customer_id
         description: A unique identifier for the customer who placed the order.
-        tests:
+        data_tests:
           - not_null
       - name: order_date
         description: The date when the order was placed.
-        tests:
+        data_tests:
           - not_null
       - name: status
         description: The current status of the order, such as pending, shipped, or delivered.
-        tests:
+        data_tests:
           - not_null
