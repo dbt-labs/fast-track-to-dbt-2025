@@ -1,0 +1,42 @@
+models: 
+  - name: stg_customers
+    description: This model serves as a staging layer for customer data, transforming raw customer information from the source into a standardized format for downstream analysis. It includes customer identifiers and names, ensuring data consistency and quality for further processing.
+    columns:
+      - name: customer_id
+        description: A unique identifier for each customer, used to track customer-specific data across various models.
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The first name of the customer, used for personalization and identification purposes.
+        tests:
+          - not_null
+      - name: last_name
+        description: The last name of the customer, used for personalization and identification purposes.
+        tests:
+          - not_null
+  - name: stg_orders
+    description: This model serves as a staging layer for order data, transforming raw order information from the source into a standardized format for downstream analysis. It includes order identifiers, customer references, order dates, and status, ensuring data consistency and quality for further processing.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order, used to track order-specific data across various models.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: A unique identifier for each customer associated with the order, ensuring accurate customer-order relationships.
+        tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_customers')
+      - name: order_date
+        description: The date when the order was placed, used for tracking and analysis of order timelines.
+        tests:
+          - not_null
+      - name: status
+        description: The current status of the order, indicating its progress in the order lifecycle, such as 'return_pending', 'returned', or 'completed'.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['return_pending', 'returned',completed']
