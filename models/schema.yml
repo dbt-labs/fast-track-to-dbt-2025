@@ -2,8 +2,10 @@ version: 2
  
 models:
   - name: customers
+    description: １レコードが１件の顧客を示す
     columns:
       - name: customer_id
+        description: 顧客IDを示す主キー
         data_tests:
           - unique
           - not_null
