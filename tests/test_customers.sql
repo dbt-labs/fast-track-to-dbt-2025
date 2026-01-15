@@ -5,7 +5,7 @@ with customer_order_dates as (
        most_recent_order_date
    from {{ ref('customers') }}
 )
-
+ 
 select
    customer_id,
    first_order_date,
