@@ -1,0 +1,47 @@
+version: 2
+ 
+models:
+  - name: customers
+    description: １レコードが１件の顧客を示す
+    columns:
+      - name: customer_id
+        description: 顧客IDを示す主キー
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: 初回の注文日で、NULLは顧客がまだ注文したことがないを示す
+      - name: most_recent_order_date
+      - name: number_of_orders
+ 
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+ 
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments: # available in v1.10.5 and higher. Older versions can set the <argument_name> as the top-level property.
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
