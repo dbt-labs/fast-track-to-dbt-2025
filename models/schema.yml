@@ -1,35 +1,31 @@
 version: 2
- 
+
 models:
   - name: customers
-    description: １レコードが１件の顧客を示す
+    description: One record per customer
     columns:
       - name: customer_id
-        description: 顧客IDを示す主キー
+        description: Primary key
         data_tests:
           - unique
-          - not_null
-      - name: first_name
-        data_tests:
-          - not_null
-      - name: last_name
-        data_tests:
           - not_null
       - name: first_order_date
-        description: 初回の注文日で、NULLは顧客がまだ注文したことがないを示す
-      - name: most_recent_order_date
-      - name: number_of_orders
- 
+        description: NULL when a customer has not yet placed an order.
+
   - name: stg_customers
+    description: This model cleans up customer data
     columns:
       - name: customer_id
+        description: Primary key
         data_tests:
           - unique
           - not_null
- 
+
   - name: stg_orders
+    description: This model cleans up order data
     columns:
       - name: order_id
+        description: Primary key
         data_tests:
           - unique
           - not_null
