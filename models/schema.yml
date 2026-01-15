@@ -19,7 +19,7 @@ models:
         description: 初回の注文日で、NULLは顧客がまだ注文したことがないを示す
       - name: most_recent_order_date
       - name: number_of_orders
-     
+ 
   - name: stg_customers
     columns:
       - name: customer_id
