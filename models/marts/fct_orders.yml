@@ -1,0 +1,21 @@
+models:
+  - name: fct_orders
+    description: This model consolidates order data from the staging layer, providing a clean and organized view of orders for analysis. It includes essential details such as order ID, customer ID, order date, and status, ensuring data integrity with unique and not-null constraints.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        tests:
+          - not_null
+      - name: order_date
+        description: The date when the order was placed.
+        tests:
+          - not_null
+      - name: status
+        description: The current status of the order, indicating its progress in the order lifecycle.
+        tests:
+          - not_null
