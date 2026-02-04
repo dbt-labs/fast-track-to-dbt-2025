@@ -1,0 +1,25 @@
+models:
+  - name: stg_jaffle_shop__orders
+    description: This model stages the orders data from the 'jaffle_shop' source, preparing it for further transformations and analysis. It includes essential order details such as the order ID, user ID, order date, status, and the timestamp when the data was loaded into the system.
+    columns:
+      - name: id
+        description: Unique identifier for each order.
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: Identifier for the user who placed the order.
+        data_tests:
+          - not_null
+      - name: order_date
+        description: The date when the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current status of the order.
+        data_tests:
+          - not_null
+      - name: _etl_loaded_at
+        description: Timestamp indicating when the data was loaded into the system.
+        data_tests:
+          - not_null
