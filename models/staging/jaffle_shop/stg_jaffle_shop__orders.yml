@@ -26,7 +26,7 @@ models:
               values:
                 - returned
                 - completed
-                - returned_pending
+                - return_pending
                 - shipped
                 - placed
       - name: _etl_loaded_at
