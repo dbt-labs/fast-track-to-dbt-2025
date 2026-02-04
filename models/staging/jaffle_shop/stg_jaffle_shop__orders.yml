@@ -1,0 +1,22 @@
+models:
+  - name: stg_jaffle_shop__orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_jaffle_shop__customers')
+      - name: order_date
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+      - name: _etl_loaded_at
+        tests:
+          - not_null
