@@ -1,0 +1,23 @@
+models:
+  - name: dim_customers
+    description: One row per customer. Table of costumers, where not all have neccesarily placed an order.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
+      - name: first_order_date
+        description: The first time a customer placed an order.
+      - name: most_recent_order_date
+        description: The most recent a customer placed an order.
+      - name: number_of_orders
+        description: The total number of orders IS the customer has places any. If none, the fiels will be 0.
+        data_tests:
+          - not_null
+      
