@@ -1,0 +1,21 @@
+models:
+  - name: stg_jaffle_shop__orders
+    description: This model serves as a staging layer for the orders data from the Jaffle Shop source. It renames and selects relevant fields to prepare the data for further transformations and analysis.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        tests:
+          - not_null
+      - name: order_date
+        description: The date when the order was placed.
+        tests:
+          - not_null
+      - name: status
+        description: The current status of the order, such as 'completed' or 'pending'.
+        tests:
+          - not_null
