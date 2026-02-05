@@ -1,56 +1,63 @@
-with customers as (
+{{ config(materialized="view") }}
 
-    select
-        id as customer_id,
-        first_name,
-        last_name
+with
+    customers as (
 
-    from raw.jaffle_shop.customers
+        select customer_id, first_name, last_name from {{ ref("stg_jaffle_shop__customers") }}
 
-),
+    ),
 
-orders as (
+    orders as (
 
-    select
-        id as order_id,
-        user_id as customer_id,
-        order_date,
-        status
+        select order_id, user_id as customer_id, order_date, status
 
-    from raw.jaffle_shop.orders
+        from {{ ref("stg_orders") }}
 
-),
+    ),
 
-customer_orders as (
+    customer_orders as (
 
-    select
-        customer_id,
+        select
+            customer_id,
 
-        min(order_date) as first_order_date,
-        max(order_date) as most_recent_order_date,
-        count(order_id) as number_of_orders
+            min(order_date) as first_order_date,
+            max(order_date) as most_recent_order_date,
+            count(order_id) as number_of_orders
 
-    from orders
+        from orders
 
-    group by 1
+        group by 1
 
-),
+    ),
 
-final as (
+    ranked_customers as (
 
-    select
-        customers.customer_id,
-        customers.first_name,
-        customers.last_name,
-        customer_orders.first_order_date,
-        customer_orders.most_recent_order_date,
-        coalesce(customer_orders.number_of_orders, 0) as number_of_orders
+        select
+            customer_id,
+            number_of_orders,
+            rank() over (order by number_of_orders desc) as customer_rank
+        from customer_orders
 
-    from customers
+    ),
 
-    left join customer_orders using (customer_id)
+    final as (
 
-)
+        select
+            customers.customer_id,
+            customers.first_name,
+            customers.last_name,
+            customer_orders.first_order_date,
+            customer_orders.most_recent_order_date,
+            coalesce(customer_orders.number_of_orders, 0) as number_of_orders,
+            coalesce(ranked_customers.customer_rank, 0) as customer_rank
 
-select * 
-from final
+        from customers
+
+        left join customer_orders using (customer_id)
+        left join ranked_customers using (customer_id)
+
+    ),
+
+ranked_customers as (
+    select *, rank() over (order by numnber_of_orders desc) as customer_rank
+    from final)
