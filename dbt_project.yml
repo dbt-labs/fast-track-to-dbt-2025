@@ -36,9 +36,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
-  +freshness:
-    build_after:
-      count: 4
-      period: hour
   jaffle_shop:
     +materialized: table
