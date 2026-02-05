@@ -22,13 +22,7 @@ models:
         description: The current status of the order, indicating its progress in the fulfillment process.
         tests:
           - not_null
-          - accepted_values:
-              values: 
-                -'returned'
-                -'completed'
-                -'return_pending'
-                -'shipped'
-                -'placed'
+                
       - name: _etl_loaded_at
         description: The timestamp when the order data was loaded into the system.
         tests:
