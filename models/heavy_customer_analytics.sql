@@ -17,6 +17,8 @@
     State-aware orchestration のデモ用に、変更がない場合は
     再ビルドをスキップすることで時間を節約できることを示します。
     
+    上流: int_customer_heavy_metrics (中間層)
+    
     処理行数: 約5000万行（2000日 × 25 × 10 × 100顧客）
     実行時間: 約1分以上（Snowflake）
     
@@ -49,6 +51,7 @@ multiplier_2 as (
 
 -- 顧客 × 日付 × 100 × 10 = 数千万行を生成
 -- 複数のハッシュ計算で CPU 負荷を増加
+-- int_customer_metrics を参照（中間層経由）
 massive_combinations as (
     select
         c.customer_id,
@@ -62,20 +65,10 @@ massive_combinations as (
         md5(concat(c.customer_id::string, d.date_day::string, m1.mult_id_1::string)) as hash_1,
         sha1(concat(c.first_name, c.last_name, d.day_seq::string)) as hash_2,
         md5(concat(hash(c.customer_id)::string, m2.mult_id_2::string)) as hash_3
-    from {{ ref('stg_customers') }} c
+    from {{ ref('int_customer_heavy_metrics') }} c
     cross join date_spine d
     cross join multiplier_1 m1
     cross join multiplier_2 m2
-),
-
--- 注文データ
-orders_data as (
-    select
-        o.order_id,
-        o.customer_id,
-        o.order_date,
-        o.status
-    from {{ ref('stg_orders') }} o
 ),
 
 -- 重い集計処理（複数の window 関数）
@@ -87,15 +80,8 @@ heavy_aggregation as (
         mc.date_day,
         mc.mult_id_1,
         mc.mult_id_2,
-        -- 複数の集計関数
-        count(distinct o.order_id) as orders_on_day,
         count(*) as row_count,
         -- 複数の window 関数（非常に重い）
-        sum(count(distinct o.order_id)) over (
-            partition by mc.customer_id 
-            order by mc.date_day, mc.mult_id_1, mc.mult_id_2
-            rows between unbounded preceding and current row
-        ) as cumulative_orders,
         row_number() over (
             partition by mc.customer_id 
             order by mc.date_day, mc.mult_id_1, mc.mult_id_2
@@ -113,9 +99,6 @@ heavy_aggregation as (
             order by mc.date_day, mc.mult_id_1, mc.mult_id_2
         ) as next_date
     from massive_combinations mc
-    left join orders_data o 
-        on mc.customer_id = o.customer_id 
-        and mc.date_day = o.order_date
     group by 1, 2, 3, 4, 5, 6
 ),
 
@@ -126,7 +109,6 @@ secondary_aggregation as (
         first_name,
         last_name,
         date_day,
-        max(cumulative_orders) as max_cumulative,
         avg(row_num) as avg_row_num,
         count(distinct day_rank) as unique_days,
         -- さらにハッシュ計算
@@ -142,7 +124,6 @@ final as (
         first_name,
         last_name,
         max(date_day) as latest_date,
-        max(max_cumulative) as total_orders,
         sum(unique_days) as days_tracked,
         count(*) as total_records_processed,
         current_timestamp as processed_at
