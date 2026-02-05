@@ -19,17 +19,17 @@
     
     上流: int_customer_heavy_metrics (中間層)
     
-    処理行数: 約5000万行（2000日 × 25 × 10 × 100顧客）
-    実行時間: 約1分以上（Snowflake）
+    処理行数: 約1億行（2000日 × 50 × 10 × 100顧客）
+    実行時間: 約2分以上（Snowflake）
     
     処理内容:
-    - 5000万行のデータを生成
+    - 1億行のデータを生成
     - 複数の window 関数で重い計算
     - 複数のハッシュ関数で CPU 負荷を増加
 */
 
 -- 大量の行を生成（約5.5年分の日付）
--- 合計: 2000日 × 25 × 10 × 100顧客 = 5000万行
+-- 合計: 2000日 × 50 × 10 × 100顧客 = 1億行
 with date_spine as (
     select
         dateadd(day, seq4(), '2020-01-01'::date) as date_day,
@@ -37,10 +37,10 @@ with date_spine as (
     from table(generator(rowcount => 2000))  -- 約5.5年分
 ),
 
--- 行数を25倍に増やす
+-- 行数を50倍に増やす
 multiplier_1 as (
     select seq4() + 1 as mult_id_1
-    from table(generator(rowcount => 25))
+    from table(generator(rowcount => 50))
 ),
 
 -- さらに10倍に増やす
