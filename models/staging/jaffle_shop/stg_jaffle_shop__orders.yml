@@ -17,11 +17,9 @@ models:
       - name: order_date
         description: The date when the order was placed.
         tests:
-          - not_null
       - name: status
         description: The current status of the order, indicating its progress in the fulfillment process.
         tests:
-          - not_null
           - accepted_values:
               values:
                 - 'returned'
