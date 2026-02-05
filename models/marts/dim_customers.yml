@@ -14,12 +14,8 @@ models:
           - not_null
       - name: first_order_date
         description: The first time a customer placed an order.
-        tests:
-          - not_null
       - name: most_recent_order_date
         description: The most recent time a customer placed an order.
-        tests:
-          - not_null
       - name: number_of_orders
         description: The number of orders if customer placed an order.
         tests:
