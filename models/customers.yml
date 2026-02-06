@@ -1,0 +1,11 @@
+models:
+  - name: customers
+    description: １レコードが１件の顧客を示す
+    columns:
+      - name: customer_id
+        description: 顧客IDを示す主キ
+        data_tests:
+          - unique
+          - not_null
+      - name: first_order_date
+        description: NULL when a customer has not yet placed an order.
