@@ -1,0 +1,15 @@
+models:
+  - name: customers
+    description: １レコードが１件の顧客を示す
+    columns:
+      - name: CUSTOMER_ID
+        description: 顧客IDを示す主キー
+        data_tests:
+          - unique
+          - not_null
+      - name: FIRST_NAME
+      - name: LAST_NAME
+      - name: FIRST_ORDER_DATE
+        description: 初回の注文日。NULLは顧客がまだ注文したことが無いことを示す
+      - name: MOST_RECENT_ORDER_DATE
+      - name: NUMBER_OF_ORDERS
