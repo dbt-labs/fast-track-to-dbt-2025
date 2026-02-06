@@ -37,5 +37,5 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   jaffle_shop:
-    +materialized: table
-    +freshness: null  # SAO無効 → 毎回ビルド
+    # +materialized: table
+
