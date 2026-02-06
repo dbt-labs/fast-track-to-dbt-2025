@@ -1,0 +1,6 @@
+models:
+- name: sample2
+  description: This model is designed to process and transform data for analysis.
+    It serves as an intermediary step in the data pipeline, preparing data for further
+    analysis or reporting.
+  columns: []
