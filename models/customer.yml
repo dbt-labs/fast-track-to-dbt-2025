@@ -1,0 +1,12 @@
+models:
+  - name: customer
+    columns:
+      - name: CUSTOMER_ID
+        data_tests:
+          - unique
+          - not_null
+      - name: FIRST_NAME
+      - name: LAST_NAME
+      - name: FIRST_ORDER_DATE
+      - name: MOST_RECENT_ORDER_DATE
+      - name: NUMBER_OF_ORDERS
