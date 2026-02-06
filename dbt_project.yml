@@ -38,3 +38,10 @@ clean-targets:         # directories to be removed by `dbt clean`
 # models:
 #   jaffle_shop:
 #     # +materialized: table
+models:
+ jaffle_shop:
+   # +materialized: table
+   +freshness:
+     build_after:
+       count: 1
+       period: minute
