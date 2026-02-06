@@ -131,4 +131,4 @@ final as (
     group by 1, 2, 3
 )
 
-select * from final;
+select * from final
