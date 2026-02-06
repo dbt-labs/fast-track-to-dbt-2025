@@ -35,6 +35,14 @@ clean-targets:         # directories to be removed by `dbt clean`
 # continue to be built as views. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
-models:
-  jaffle_shop:
+#models:
+#  jaffle_shop:
   #  +materialized: table
+
+models:
+ jaffle_shop:
+   # +materialized: table
+   +freshness:
+     build_after:
+       count: 1
+       period: minute
