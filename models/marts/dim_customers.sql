@@ -80,7 +80,7 @@ ranked_customers as (
 
 select * from ranked_customers
 
-select * 
-from final
+-- select * 
+-- from final
 
 -- when you build upstream here, it fails because there is noth
