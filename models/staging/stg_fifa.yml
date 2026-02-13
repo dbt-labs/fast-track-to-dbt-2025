@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: event
+
+  - name: stg_event_type
+    description: ""
+    columns:
+      - name: event_type_id
+        tests:
+          - unique
+          - not_null
+  
+
+  - name: stg_team
+    description: ""
+    columns:
+      - name: team_id
+        tests:
+          - unique
+          - not_null

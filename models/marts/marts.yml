@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fct_events
+    columns:
+      - name: event_pk
+        tests:
+        - not_null
+        - unique
+      - name: event_type_name
+        description: "this indicates various events on the field tracked by our cameras and AI models"

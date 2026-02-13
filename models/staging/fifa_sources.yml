@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: fifa
+    database: Opta_Data_FIFA_Mens_World_Cup__SAMPLE
+    schema: world_cup
+    quoting:
+      database: true
+    
+    tables:
+      - name: event_type
+      - name: team
+      - name: player
+      - name: event
