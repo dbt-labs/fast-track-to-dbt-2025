@@ -1,0 +1,20 @@
+models:
+  - name: dim_customers
+    description: One row per customer, may or may not have placed an order.
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
+      - name: first_order_date
+        description: the first time a customer placed an order
+      - name: most_recent_order_date
+        description: the most recent time a customer placed an order
+      - name: number_of_orders
+        description: The number of orders placed by the customer
