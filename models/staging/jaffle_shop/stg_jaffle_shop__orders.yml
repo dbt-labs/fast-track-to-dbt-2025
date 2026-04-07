@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
           - relationships:
-              field: cusomter_id
+              field: customer_id
               to: ref('stg_jaffle_shop__customers')
       - name: order_date
         description: The date when the order was placed.
