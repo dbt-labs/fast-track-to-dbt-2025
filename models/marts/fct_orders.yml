@@ -1,5 +1,5 @@
 models:
-  - name: dim_orders
+  - name: fct_orders
     description: "Table containing customer orders"
     columns:
       - name: order_id

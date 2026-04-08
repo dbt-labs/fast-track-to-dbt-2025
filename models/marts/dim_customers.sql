@@ -45,7 +45,7 @@ customer_orders as (
 
 ),
 
-final as (
+consolidated_customer_orders as (
 
     select
         customers.customer_id,
@@ -61,12 +61,12 @@ final as (
 
 ),
 
-ranked_customers as (
+final as (
     select 
-        *,
+        cco.*,
         rank() over(order by number_of_orders desc) as customer_rank
-    from final
+    from consolidated_customer_orders cco
 )
 
-select * from ranked_customers
+select * from final
 
