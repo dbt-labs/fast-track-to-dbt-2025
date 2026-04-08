@@ -1,17 +1,19 @@
+
 {{
     config(
         materialized='view'
     )
 }}
 
-customers as (
-
+with customers as (
     select
-        customer_id,
+        id as customer_id,
+        --customer_id,
         first_name,
         last_name
     from {{ ref('stg_jaffle_shop__customers') }}
 ),
+
 
 orders as (
 
@@ -20,6 +22,7 @@ orders as (
         customer_id,
         order_date,
         status
+   -- from raw.jaffle_shop.orders
     from {{ ref('stg_jaffle_shop__orders') }}
 ),
 
