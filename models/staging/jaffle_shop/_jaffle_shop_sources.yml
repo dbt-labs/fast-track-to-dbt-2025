@@ -1,0 +1,22 @@
+sources:
+  - name: jaffle_shop
+    description: This is a replica of the Postgres database used by our app
+    database: raw
+    # If there is no schema specified, it will use the name in this case name is jaffle_shop
+    schema: jaffle_shop
+    tables:
+      - name: customers
+        description: One record per customer.
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+      - name: orders
+        description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            data_tests:
+              - not_null
+              - unique
+              
