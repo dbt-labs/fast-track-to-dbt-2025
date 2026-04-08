@@ -1,0 +1,28 @@
+models:
+  - name: dim_customers
+    description: "Table containing customer information"
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: "Customer first name"
+        tests:
+          - not_null
+
+      - name: last_name
+        description: "Customer last name"
+        tests:
+          - not_null
+
+      - name: first_order_date
+        description: The date when the customer placed their first order
+      - name: most_recent_order_date
+        description: The date when the customer placed their most recent order
+      - name: number_of_orders
+        description: The total number of orders placed by the customer
+      - name: customer_rank
+        description: The rank of the customer based on the number of orders, with 1 being the highest
