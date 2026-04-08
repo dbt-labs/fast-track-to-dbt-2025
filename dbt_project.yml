@@ -30,8 +30,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   fifa:
+    +static_analysis: strict
     # Applies to all files under models/staging/
     staging:
       +materialized: view
-flags:
-  require_generic_test_arguments_property: true
