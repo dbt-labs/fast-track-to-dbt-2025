@@ -1,0 +1,16 @@
+models:
+  - name: fct_orders
+    columns:
+      - name: id
+        data_tests:
+          - unique
+          - not_null
+      - name: user_id
+        data_tests:
+          - not_null
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
