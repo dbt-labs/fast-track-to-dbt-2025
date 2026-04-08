@@ -1,0 +1,19 @@
+models:
+  - name: stg_jaffle_shop__customers
+    description: "Table containing customer information"
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: "Customer first name"
+        tests:
+          - not_null
+
+      - name: last_name
+        description: "Customer last name"
+        tests:
+          - not_null
