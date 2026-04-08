@@ -1,10 +1,9 @@
 {% snapshot player_status_history %}
     {{
-        config(
-            target_schema='snapshots',            
+        config(          
             unique_key='player_id',
             strategy='check',
-            check_cols=['status'],
+            check_cols=['status']
         )
     }}
 

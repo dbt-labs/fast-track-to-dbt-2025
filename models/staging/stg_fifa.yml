@@ -1,7 +1,6 @@
-version: 2
-
 models:
   - name: event
+    description: ""
 
   - name: stg_event_type
     description: ""
