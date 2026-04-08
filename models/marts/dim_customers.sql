@@ -1,23 +1,28 @@
 with customers as (
 
     select
-        id as customer_id,
+        customer_id,
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+   -- from raw.jaffle_shop.customers
+   {# from {{ source('jaffle_shop', 'customers') }} -- we want the lineage to show stg and not source directly, we made a few
+   -- changes in stg and we now need to use those in marts so dont use this #}
+      from {{ ref('stg_jaffle_shop__customers') }}
+      
 
 ),
 
 orders as (
 
     select
-        id as order_id,
-        user_id as customer_id,
+        order_id,
+        customer_id,
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    -- from raw.jaffle_shop.orders
+       from {{ ref('stg_jaffle_shop__orders') }}
 
 ),
 
@@ -51,6 +56,5 @@ final as (
     left join customer_orders using (customer_id)
 
 )
-
-select * 
+select *
 from final
