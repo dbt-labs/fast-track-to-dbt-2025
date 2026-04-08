@@ -15,7 +15,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['returned', 'completed', 'return_pending']
+              values: ['returned', 'completed', 'return_pending', 'shipped','placed']
       - name: _etl_loaded_at
         tests:
           - not_null
