@@ -3,14 +3,14 @@ models:
     description: ONe row per customer. Table of customers, where not all have neccessary placed an order.
     columns:
       - name: customer_id
-        tests:
+        data_tests:
           - unique
           - not_null
       - name: first_name
-        tests:
+        data_tests:
           - not_null
       - name: last_name
-        tests:
+        data_tests:
           - not_null
       - name: first_order_date
         description: The first time a customer placed an order.
