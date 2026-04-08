@@ -9,7 +9,6 @@ with customers as (
         customer_id,
         first_name,
         last_name
-
     from {{ ref('stg_jaffle_shop__customers') }}
 
 ),
@@ -57,8 +56,5 @@ final as (
 
 )
 
-select 
-    *,
-    rank() over (order by number_of_orders desc) as ranked_columns
-from final
-order by ranked_columns;
+select * from final
+
