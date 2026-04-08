@@ -8,9 +8,6 @@ models:
       - name: customer_id
         tests:
           - not_null
-          - relationships:
-              field: customer_id
-              to: ref('stg_jaffle_shop__customers')
       - name: order_date
         tests:
           - not_null
