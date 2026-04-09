@@ -18,3 +18,18 @@ models:
         tests:
           - unique
           - not_null
+
+
+  - name: stg_player
+    description: ""
+    columns:
+      - name: player_id
+        description: "id of the player"
+        tests:
+          - unique
+          - not_null
+
+      - name: full_name
+        description: "player fullname"
+        tests:
+          - not_null
