@@ -38,7 +38,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   ks_test_project:
     # Applies to all files under models/example/
-    matrts:
+    marts:
       +materialized: table
     staging:
       +materialized: view
