@@ -1,0 +1,30 @@
+models:
+  - name: stg_jaffle_shop__orders
+    description: This model stages order data from the 'jaffle_shop' source, renaming and selecting relevant fields for downstream analysis. It provides a structured view of customer orders, including order status and timestamps for data loading.
+    columns:
+      - name: order_id
+        description: A unique identifier for each order.
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier for the customer who placed the order.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jaffle_shop__customers')
+              field: customer_id
+      - name: order_date
+        description: The date when the order was placed.
+        tests:
+          - not_null
+      - name: status
+        description: The current status of the order, such as 'returned', 'completed', 'return_pending', 'shipped', or 'placed'.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['returned','completed','return_pending','shipped','placed']
+      - name: _etl_loaded_at
+        description: The timestamp indicating when the order data was loaded into the system.
+        tests:
+          - not_null
