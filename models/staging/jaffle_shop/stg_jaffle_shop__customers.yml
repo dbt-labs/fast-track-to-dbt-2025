@@ -1,0 +1,13 @@
+models:
+  - name: stg_jaffle_shop__customers
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        tests:
+          - not_null
+      - name: last_name
+        tests:
+          - not_null
