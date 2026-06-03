@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: one record per customer from the jaffle shop application.
+    columns:
+      - name: id
+        description: unique identifier for a customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: customer's given name.
+      - name: last_name
+        description: customer's family name.

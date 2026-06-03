@@ -1,3 +1,8 @@
+{{
+    config(
+        materialized='view'
+    )
+}}
 with customers as (
 
     select
@@ -5,19 +10,19 @@ with customers as (
         first_name,
         last_name
 
-    from raw.jaffle_shop.customers
+    from {{ ref('stg_jaffle_shop__customers') }}
 
 ),
 
 orders as (
 
     select
-        id as order_id,
-        user_id as customer_id,
+        order_id,
+        customer_id,
         order_date,
         status
 
-    from raw.jaffle_shop.orders
+    from {{ ref('stg_jaffle_shop__orders') }}
 
 ),
 
@@ -50,7 +55,16 @@ final as (
 
     left join customer_orders using (customer_id)
 
+),
+
+ranked_customers as (
+
+    select
+        *,
+        rank() over (order by number_of_orders desc) as customer_rank
+    from final
+
 )
 
-select * 
-from final
+select *
+from ranked_customers
