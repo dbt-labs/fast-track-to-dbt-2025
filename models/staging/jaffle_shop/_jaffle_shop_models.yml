@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: Standardized customer records from the `jaffle_shop.customers` source. This staging model renames the raw source key to `customer_id` and preserves one row per customer.
+    columns:
+      - name: customer_id
+        description: Unique identifier for a customer, renamed from the raw `id` column.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer first name as captured in the source system.
+      - name: last_name
+        description: Customer last name as captured in the source system.
+
+  - name: stg_jaffle_shop__orders
+    description: Standardized order records from the `jaffle_shop.orders` source. This staging model renames raw identifiers, preserves one row per order, and exposes the customer foreign key for downstream joins.
+    columns:
+      - name: order_id
+        description: Unique identifier for an order, renamed from the raw `id` column.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Customer who placed the order, renamed from the raw `user_id` column.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Order lifecycle status from the source system.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+      - name: _etl_loaded_at
+        description: Timestamp when the record was loaded into the raw warehouse layer by the ingestion process.
