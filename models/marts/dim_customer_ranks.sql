@@ -15,7 +15,7 @@ final as (
         most_recent_order_date,
         number_of_orders,
         rank() over (
-            order by number_of_orders desc, customer_id
+            order by number_of_orders desc
         ) as customer_order_rank
     from customers
 
