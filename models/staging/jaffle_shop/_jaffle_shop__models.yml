@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: Staged customer records from the jaffle_shop application source with basic column cleanup.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from the source system.
+      - name: last_name
+        description: Customer last name from the source system.
+
+  - name: stg_jaffle_shop__orders
+    description: Staged order records from the jaffle_shop application source with basic column cleanup.
+    columns:
+      - name: order_id
+        description: Primary key for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer identifier associated with the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                field: customer_id
+                to: ref('stg_jaffle_shop__customers')
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status from the source system.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - 'returned'
+                  - 'completed'
+                  - 'return_pending'
+                  - 'shipped'
+                  - 'placed'
+      - name: _etl_loaded_at
+        description: Timestamp when the record was loaded by the ingestion process.

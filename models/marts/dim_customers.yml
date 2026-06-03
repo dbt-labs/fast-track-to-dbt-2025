@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One record per customer with order activity metrics and a rank based on total number of orders.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Date of the customer's first order.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent order.
+      - name: number_of_orders
+        description: Total number of orders placed by the customer.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Rank of the customer when ordered by descending number of orders.
+        data_tests:
+          - not_null
