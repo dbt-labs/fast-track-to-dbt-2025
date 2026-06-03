@@ -1,0 +1,26 @@
+models:
+  - name: stg_jaffle_shop__orders
+    description: orders placed by customers in the jaffle shop application.
+    columns:
+      - name: order_id
+        description: unique identifier for an order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: unique identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+
+      - name: order_date
+        description: date the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: current lifecycle status of the order.
+        data_tests:
+          - not_null
+      - name: _etl_loaded_at
+        description: timestamp when the record was loaded into the warehouse.
