@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      One record per order, with the customer associated to the order, the order
+      date, and the current order status.
+    columns:
+      - name: order_id
+        description: Primary key for the order.
+      - name: customer_id
+        description: Foreign key to the customer who placed the order.
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current status of the order.

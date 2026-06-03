@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      One record per customer, including their first and most recent order dates,
+      lifetime order count, and a rank based on total orders in descending order.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+      - name: first_name
+        description: Customer's first name from the staged customers model.
+      - name: last_name
+        description: Customer's last name from the staged customers model.
+      - name: first_order_date
+        description: Date of the customer's first recorded order.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent recorded order.
+      - name: number_of_orders
+        description: Total number of orders recorded for the customer.
+      - name: customer_order_rank
+        description: Rank of the customer by total orders in descending order, with customer_id used to break ties.
