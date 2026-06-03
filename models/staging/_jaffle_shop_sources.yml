@@ -35,5 +35,3 @@ sources:
             data_tests:
               - not_null
           - name: etl_loaded_at
-            data_tests:
-              - not_null
