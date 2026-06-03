@@ -1,0 +1,34 @@
+models:
+  - name: stg_jaffle_shop__orders
+    description: one record per order from the jaffle shop application
+    columns:
+      - name: id
+        description: unique identifier for the order
+        data_tests:
+          - unique
+          - not_null
+
+      - name: user_id
+        description: unique identifier for the customer who placed the order
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jaffle_shop__customers')
+              field: id
+
+      - name: order_date
+        description: date the order was placed
+        data_tests:
+          - not_null
+
+      - name: status
+        description: current lifecycle status of the order
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+      - name: _etl_loaded_at
+        description: timestamp when the order record was loaded into the warehouse
+        data_tests:
+          - not_null
