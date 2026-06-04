@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__customers')
+                field: customer_id
+
+      - name: first_name
+        data_tests:
+          - not_null
+
+      - name: last_name
+        data_tests:
+          - not_null
+
+      - name: first_order_date
+        description: The first time the customer placed an order. 
+          
+
+      - name: most_recent_order_date
+        description: dummy texts.
+
+      - name: number_of_orders
+        data_tests:
+          - not_null
