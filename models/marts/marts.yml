@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One record per order.
+    columns:
+      - name: order_id
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: order_date
+        description: Date the order was placed.
+
+      - name: status
+        description: Current order status.
+
+  - name: dim_customers
+    description: One record per customer with order history rollups.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__customers')
+                field: id
+
+      - name: first_name
+        description: Customer first name.
+
+      - name: last_name
+        description: Customer last name.
+
+      - name: first_order_date
+        description: Date of the customer's first order.
+
+      - name: most_recent_order_date
+        description: Date of the customer's most recent order.
+
+      - name: number_of_orders
+        description: Total number of orders placed by the customer.
+        data_tests:
+          - not_null
+
+      - name: customer_rank
+        description: Rank of the customer by descending number of orders.
+        data_tests:
+          - not_null

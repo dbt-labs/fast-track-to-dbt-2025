@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: Standardized customer records from the `jaffle_shop.customers` source, with raw fields retained at customer grain for downstream marts.
+    columns:
+      - name: id
+        description: Stable identifier for a customer from the source system.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: first_name
+        description: Customer's given name as captured in the source system.
+
+      - name: last_name
+        description: Customer's family name as captured in the source system.
+
+  - name: stg_jaffle_shop__orders
+    description: Staged order records from the jaffle_shop source.
+    columns:
+      - name: order_id
+        description: Primary key for the order record.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: Current order status.
+        data_tests:
+          - not_null
+
+      - name: _etl_loaded_at
+        description: Timestamp when the source row was loaded.
