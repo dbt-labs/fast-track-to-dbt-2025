@@ -1,7 +1,7 @@
 {{
     config(
-        materialized='view',
-        description:'One record per customer.'
+        materialized= 'view',
+        description= 'One record per customer.'
     )
 }}
 
