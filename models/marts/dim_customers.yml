@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer with customer order summary fields.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer dimension.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer first name.
+
+      - name: last_name
+        description: Customer last name.
+
+      - name: first_order_date
+        description: Date of the customer's first order.
+
+      - name: most_recent_order_date
+        description: Date of the customer's most recent order.
+
+      - name: number_of_orders
+        description: Count of orders placed by the customer.
+        data_tests:
+          - not_null

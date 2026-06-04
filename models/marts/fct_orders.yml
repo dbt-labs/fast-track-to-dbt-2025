@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        description: Primary key for the order fact.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: Foreign key to the customer dimension.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: Order lifecycle status.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'returned', 'return_pending']
+
