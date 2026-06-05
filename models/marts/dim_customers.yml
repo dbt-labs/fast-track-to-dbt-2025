@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: one row per customer with order history and rank by total number of orders.
+    columns:
+      - name: customer_id
+        description: unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: first_name
+        description: customer's given name.
+
+      - name: last_name
+        description: customer's family name.
+
+      - name: first_order_date
+        description: date of the customer's first order.
+
+      - name: most_recent_order_date
+        description: date of the customer's most recent order.
+
+      - name: number_of_orders
+        description: total number of orders placed by the customer.
+        data_tests:
+          - not_null
+
+      - name: customer_order_rank
+        description: dense rank of customers by number of orders in descending order.
+        data_tests:
+          - not_null

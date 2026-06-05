@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: one row per order with the core order details used for reporting and analysis.
+    columns:
+      - name: order_id
+        description: unique identifier for the order.
+
+      - name: customer_id
+        description: unique identifier for the customer who placed the order.
+
+      - name: order_date
+        description: date the order was placed.
+
+      - name: status
+        description: current lifecycle status of the order.
