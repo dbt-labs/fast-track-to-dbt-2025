@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: order fact table with one row per order and core order attributes used for customer and order reporting.
+    columns:
+      - name: order_id
+        description: unique identifier for an order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: unique identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_jaffle_shop__customers')
+              field: customer_id
+
+      - name: order_date
+        description: date the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['completed','returned','return_pending','placed','shipped']

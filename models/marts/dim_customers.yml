@@ -1,0 +1,33 @@
+version: 2
+
+
+models:
+  - name: dim_customers
+    description: customer dimension with one row per customer and summary attributes about their ordering history.
+    columns:
+      - name: customer_id
+        description: unique identifier for a customer.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('stg_jaffle_shop__customers')
+                field: customer_id
+
+      - name: first_name
+        description: customer's first name.
+
+      - name: last_name
+        description: customer's last name.
+
+      - name: first_order_date
+        description: date of the customer's first order.
+
+      - name: most_recent_order_date
+        description: date of the customer's most recent order.
+
+      - name: number_of_orders
+        description: total number of orders placed by the customer.
+        data_tests:
+          - not_null
