@@ -25,7 +25,7 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              arguments: ['completed', 'returned', 'return_pending']
+              values: ['completed', 'returned', 'return_pending', 'shipped', 'placed']
       - name: _etl_loaded_at
         description: timestamp when the order record was loaded into the warehouse.
         data_tests:
