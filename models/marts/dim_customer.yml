@@ -1,0 +1,29 @@
+models:
+  - name: dim_customers
+    description: customer dimension with one row per customer and key attributes for customer activity and ordering behavior.
+    columns:
+      - name: customer_id
+        description: unique identifier for a customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: customer's given name.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: customer's family name.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: date of the customer's first completed order in the business.
+      - name: most_recent_order_date
+        description: date of the customer's most recent completed order in the business.
+      - name: number_of_orders
+        description: total number of orders placed by the customer.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: customer's rank based on total orders relative to other customers.
+        data_tests:
+          - not_null
