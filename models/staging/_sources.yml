@@ -1,24 +1,31 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application’s Postgres database, loaded into the `raw.jaffle_shop` schema. These source tables are the system of record for customers and orders used by the staging layer.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One row per customer registered in the application. This table provides the customer identity and name attributes used across customer reporting.
         columns:
           - name: id
+            description: Unique application identifier for the customer; referenced by `orders.user_id`.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's given name as captured in the application.
+          - name: last_name
+            description: Customer's family name as captured in the application.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: One row per order recorded by the application, including orders in all recorded lifecycle statuses.
         columns:
           - name: id
+            description: Unique application identifier for the order.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Application identifier of the customer who placed the order; joins to `customers.id`.
             data_tests:
               - not_null
               - relationships:
@@ -26,14 +33,17 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed in the application.
             data_tests:
               - not_null
           - name: status
+            description: Current recorded lifecycle status for the order, including fulfillment and return states.
             data_tests:
               - not_null
               - accepted_values:
                   arguments:
                     values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
           - name: _etl_loaded_at
+            description: Timestamp when the record was loaded into the raw warehouse; use for ingestion monitoring rather than order-event timing.
             data_tests:
               - not_null
