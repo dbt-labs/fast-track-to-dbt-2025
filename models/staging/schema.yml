@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: One record per customer, cleaned and renamed from the raw jaffle_shop customers source.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+
+  - name: stg_orders
+    description: One record per order, cleaned and renamed from the raw jaffle_shop orders source.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+      - name: order_date
+        description: Date on which the order was placed.
+      - name: status
+        description: Current lifecycle status of the order.

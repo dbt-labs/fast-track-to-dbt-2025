@@ -1,12 +1,14 @@
 models:
   - name: fct_orders
-    description: One record per order.
+    description: One record per order, providing the core order facts and its associated customer.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -14,9 +16,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -24,20 +28,31 @@ models:
                 values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
 
   - name: dim_customers
-    description: One record per customer with order activity rollups.
+    description: One record per customer, including customer attributes and rollups of their order activity.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has not placed an order.
       - name: number_of_orders
+        description: Total number of orders placed by the customer.
         data_tests:
           - not_null
 
   - name: customer_order_rankings
-    description: One record per customer with an order-volume rank.
+    description: One record per customer, ranked by total order volume across all customers.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - unique
           - not_null
@@ -45,9 +60,15 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
       - name: number_of_orders
+        description: Total number of orders placed by the customer.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Rank of the customer by descending total order volume; customers with equal counts share a rank.
         data_tests:
           - not_null

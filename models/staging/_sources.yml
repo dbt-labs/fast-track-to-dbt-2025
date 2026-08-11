@@ -8,6 +8,7 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary Key for the customers table
             data_tests:
               - unique
               - not_null
