@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: Customer order-volume ranking, with one row per customer.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: total_orders
+        description: Total number of orders placed by the customer, including cancelled and deleted orders.
+      - name: customer_order_rank
+        description: Dense rank of customers by total order count, where 1 is the highest count.
+        data_tests:
+          - not_null
