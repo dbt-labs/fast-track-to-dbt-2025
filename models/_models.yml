@@ -1,0 +1,83 @@
+models:
+  - name: stg_customers
+    description: Staged customer records with one row per customer.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_orders
+    description: Staged order records with one row per order.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: fct_orders
+    description: Order fact table with one row per order.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: dim_customers
+    description: Customer dimension with order activity aggregated to one row per customer.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+      - name: number_of_orders
+        data_tests:
+          - not_null
+
+  - name: customer_order_rankings
+    description: Customer order totals and dense rank, with one row per customer.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        data_tests:
+          - not_null
