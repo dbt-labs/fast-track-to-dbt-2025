@@ -1,0 +1,90 @@
+models:
+  - name: dim_customers
+    description: One row per customer, enriched with their first and most recent order dates and lifetime order count.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer's given name.
+        data_tests:
+          - not_null
+
+      - name: last_name
+        description: Customer's family name.
+        data_tests:
+          - not_null
+
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has no orders.
+
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has no orders.
+
+      - name: number_of_orders
+        description: Lifetime count of orders placed by the customer, including all order statuses.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, containing the customer, order date, and current order status.
+    columns:
+      - name: order_id
+        description: Primary key for the order.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: order_date
+        description: Date on which the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: Current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: customer_order_rankings
+    description: One row per customer, ranked by descending lifetime order count. Customers with the same order count share a rank.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer and the key used to join to customer attributes.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: first_name
+        description: Customer's given name.
+
+      - name: last_name
+        description: Customer's family name.
+
+      - name: total_number_of_orders
+        description: Lifetime count of orders for the customer; zero when the customer has no orders.
+        data_tests:
+          - not_null
+
+      - name: customer_order_rank
+        description: Dense rank of the customer by descending lifetime order count, where equal totals share a rank.
+        data_tests:
+          - not_null
