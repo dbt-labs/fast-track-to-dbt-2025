@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: Cleaned customer source records for downstream modeling. One row per customer, with the source identifier renamed to customer_id.
+    columns:
+      - name: customer_id
+        description: Stable identifier for the customer, renamed from the source id field.
+
+      - name: first_name
+        description: Customer's given name from the source record.
+
+      - name: last_name
+        description: Customer's family name from the source record.
+
+  - name: stg_orders
+    description: Cleaned order source records for downstream modeling. One row per source order, with source identifiers renamed for consistent joins.
+    columns:
+      - name: order_id
+        description: Stable identifier for the order, renamed from the source id field.
+
+      - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from the source user_id field.
+
+      - name: order_date
+        description: Calendar date on which the order was recorded in the source system.
+
+      - name: status
+        description: Current lifecycle status assigned to the order in the source system.
