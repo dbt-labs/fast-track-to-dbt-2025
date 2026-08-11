@@ -1,24 +1,31 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Raw application tables replicated from the Jaffle Shop Postgres database.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: Source customer records at one row per customer; used to establish the customer dimension.
         columns:
           - name: id
+            description: Application-assigned identifier for the customer; the source table's unique key.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer-provided first name from the application profile.
+          - name: last_name
+            description: Customer-provided last name from the application profile.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: Source order records at one row per order, including every lifecycle status used in customer order history.
         columns:
           - name: id
+            description: Application-assigned identifier for the order; the source table's unique key.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer associated with the order; links to `customers.id`.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +33,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was recorded in the application.
             data_tests:
               - not_null
           - name: status
+            description: Lifecycle status recorded for the order in the application.
             data_tests:
               - not_null
               - accepted_values:
