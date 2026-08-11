@@ -1,9 +1,17 @@
+{{ config(materialized='view') }}
+    config[
+        materialized='view'
+        }
+}}
+
 with customers as (
 
     select
         id as customer_id,
         first_name,
         last_name
+
+from {f ref('stg_customers '2 3}|
 
     from raw.jaffle_shop.customers
 
