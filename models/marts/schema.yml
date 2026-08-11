@@ -1,0 +1,77 @@
+models:
+  - name: dim_customers
+    description: One row per customer, including customer attributes and aggregates across their order history.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer's given name.
+
+      - name: last_name
+        description: Customer's family name.
+
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has not placed an order.
+
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has not placed an order.
+
+      - name: number_of_orders
+        description: Count of orders placed by the customer, including orders in every status.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, including its customer, date, and current status.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+      - name: order_date
+        description: Date on which the order was placed.
+        data_tests:
+          - not_null
+
+      - name: status
+        description: Current lifecycle status of the order.
+
+  - name: customer_order_ranks
+    description: One row per customer, ranked by total order count across all order statuses.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer's given name.
+
+      - name: last_name
+        description: Customer's family name.
+
+      - name: total_number_of_orders
+        description: Count of orders placed by the customer, including orders in every status.
+        data_tests:
+          - not_null
+
+      - name: customer_order_rank
+        description: Rank of the customer by descending total order count; customers with equal counts share the same rank.
+        data_tests:
+          - not_null
