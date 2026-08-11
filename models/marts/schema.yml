@@ -5,12 +5,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
-        description: Primary key for the order.
+        description: Primary key for the orders table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer that placed the order.
+        description: Customer that placed the order. Foreign key for the customers table
         data_tests:
           - not_null
           - relationships:
@@ -45,6 +45,11 @@ models:
         description: Customer's last name.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has not placed an order.
+
       - name: number_of_orders
         description: Total lifetime orders placed by the customer.
         data_tests:
