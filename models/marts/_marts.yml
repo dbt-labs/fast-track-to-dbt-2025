@@ -1,12 +1,14 @@
 models:
   - name: fct_orders
-    description: One record per order.
+    description: One record per order, providing the canonical order attributes for downstream reporting.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer who placed the order; joins to `dim_customers`.
         data_tests:
           - not_null
           - relationships:
@@ -14,9 +16,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -24,28 +28,37 @@ models:
                 values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
 
   - name: dim_customers
-    description: One record per customer, including customers with no orders.
+    description: One record per customer, including customers with no orders, with lifetime order activity summarized for customer-level analysis.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has not placed an order.
       - name: number_of_orders
+        description: Lifetime count of orders placed by the customer; zero for customers with no orders.
         data_tests:
           - minimum_value:
               arguments:
                 minimum_value: 0
 
   - name: customer_order_rankings
-    description: One record per customer with their order-volume rank.
+    description: One record per customer, ranked by lifetime order volume for customer engagement analysis; customers with no orders are retained.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer; joins to `dim_customers`.
         data_tests:
           - unique
           - not_null
@@ -54,17 +67,21 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
       - name: number_of_orders
+        description: Lifetime count of orders placed by the customer; zero for customers with no orders.
         data_tests:
           - minimum_value:
               arguments:
                 minimum_value: 0
       - name: customer_order_rank
+        description: Rank of the customer by lifetime order count in descending order; customers tied on order count share the same rank.
         data_tests:
           - not_null
           - minimum_value:
