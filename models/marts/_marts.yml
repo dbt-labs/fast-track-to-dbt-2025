@@ -2,15 +2,15 @@ version: 2
 
 models:
   - name: fct_orders
-    description: One row per order.
+    description: Order fact table at one row per order, with the customer, order date, and current lifecycle status.
     columns:
       - name: order_id
-        description: Unique identifier for the order.
+        description: Primary key for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier for the customer that placed the order.
+        description: Foreign key to the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -18,7 +18,7 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
@@ -30,23 +30,31 @@ models:
                 values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
 
   - name: dim_customers
-    description: One row per customer, including order activity summaries.
+    description: Customer dimension at one row per customer, including order activity summaries.
     columns:
       - name: customer_id
-        description: Unique identifier for the customer.
+        description: Primary key for the customer.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has not placed an order.
       - name: number_of_orders
-        description: Total number of orders placed by the customer.
+        description: Total number of recorded orders placed by the customer.
         data_tests:
           - not_null
 
   - name: customer_order_rankings
-    description: One row per customer, ranked by total order count.
+    description: Customer ranking mart at one row per customer, ordered by descending total order count.
     columns:
       - name: customer_id
-        description: Unique identifier for the customer.
+        description: Primary key for the ranked customer and foreign key to dim_customers.
         data_tests:
           - unique
           - not_null
@@ -54,11 +62,15 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
       - name: total_orders
-        description: Total number of orders placed by the customer.
+        description: Total number of recorded orders placed by the customer.
         data_tests:
           - not_null
       - name: customer_order_rank
-        description: Rank of the customer by descending total order count; tied counts share a rank.
+        description: Rank by descending total order count; customers with equal counts share a rank.
         data_tests:
           - not_null
