@@ -11,10 +11,12 @@ models:
     description: Staged order records with one row per order.
     columns:
       - name: order_id
+        description: Unique identifier for the order, renamed from the source `id` column.
         data_tests:
           - not_null
           - unique
       - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from source `user_id` for consistency with customer models.
         data_tests:
           - not_null
           - relationships:
@@ -22,9 +24,11 @@ models:
                 to: ref('stg_customers')
                 field: customer_id
       - name: order_date
+        description: Date the order was created in the source application.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order, including placed, shipped, completed, and return-related states.
         data_tests:
           - accepted_values:
               arguments:
