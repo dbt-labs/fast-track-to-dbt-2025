@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: Customer dimension with each customer's first and most recent order dates and lifetime order count. One row per customer.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Date of the customer's first recorded order; null when the customer has not ordered.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent recorded order; null when the customer has not ordered.
+      - name: number_of_orders
+        description: Lifetime count of orders placed by the customer.
+
+  - name: fct_orders
+    description: Order fact table. One row per order.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Identifier of the customer that placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current lifecycle status of the order.
+
+  - name: customer_order_rankings
+    description: Customer order-volume ranking based on lifetime order count. One row per customer.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: total_orders
+        description: Lifetime count of orders placed by the customer.
+      - name: customer_order_rank
+        description: Dense rank of the customer by descending lifetime order count.
