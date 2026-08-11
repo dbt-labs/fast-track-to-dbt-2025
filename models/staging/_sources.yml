@@ -8,17 +8,24 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Unique identifier for the customer in the source application.
             data_tests:
               - not_null
               - unique
+          - name: first_name
+            description: Customer's given name.
+          - name: last_name
+            description: Customer's family name.
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Unique identifier for the order in the source application.
             data_tests:
               - not_null
               - unique
           - name: user_id
+            description: Identifier of the customer who placed the order; references `customers.id`.
             data_tests:
               - not_null
               - relationships:
@@ -26,10 +33,14 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was created in the source application.
             data_tests:
               - not_null
           - name: status
+            description: Current lifecycle status of the order, including placed, shipped, completed, and return-related states.
             data_tests:
               - accepted_values:
                   arguments:
                     values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+          - name: _etl_loaded_at
+            description: Timestamp when the record was loaded into the raw warehouse by the ETL process.
