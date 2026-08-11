@@ -1,0 +1,33 @@
+models:
+  - name: dim_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'shipped', 'returned', 'return_pending']
+
+  - name: customer_order_rankings
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
