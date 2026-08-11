@@ -2,11 +2,11 @@ with customer_orders as (
 
     select
         customer_id,
-        first_name,
-        last_name,
-        number_of_orders
+        count(order_id) as number_of_orders
 
-    from {{ ref('dim_customers') }}
+    from {{ ref('fct_orders') }}
+
+    group by 1
 
 ),
 
@@ -14,8 +14,6 @@ final as (
 
     select
         customer_id,
-        first_name,
-        last_name,
         number_of_orders,
         row_number() over (
             order by number_of_orders desc, customer_id
