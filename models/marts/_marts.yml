@@ -3,10 +3,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
+        description: primary key for the orders tabel.
         data_tests:
           - not_null
           - unique
       - name: customer_id
+        description: foreign key for the customers tabel.
         data_tests:
           - not_null
           - relationships:
