@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier for the customer that placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: dim_customers
+    description: One row per customer, including order activity summaries.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Total number of orders placed by the customer.
+        data_tests:
+          - not_null
+
+  - name: customer_order_rankings
+    description: One row per customer, ranked by total order count.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: Total number of orders placed by the customer.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Rank of the customer by descending total order count; tied counts share a rank.
+        data_tests:
+          - not_null
