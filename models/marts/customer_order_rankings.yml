@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: One record per customer ranked by total lifetime orders, including customers with no orders.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: number_of_orders
+        description: Total lifetime orders placed by the customer.
+      - name: customer_order_rank
+        description: Dense rank of the customer by total lifetime orders, descending; ties share the same rank.
+        data_tests:
+          - not_null
