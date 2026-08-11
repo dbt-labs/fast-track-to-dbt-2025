@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One record per customer with order activity rolled up from the order fact.
+    columns:
+      - name: customer_id
+        description: Primary key from the customer source; identifies the customer represented by this row.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name as recorded in the source system.
+      - name: last_name
+        description: Customer's last name as recorded in the source system.
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has never placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has never placed an order.
+      - name: number_of_orders
+        description: Count of orders placed by the customer, set to zero when the customer has no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One record per order.
+    columns:
+      - name: order_id
+        description: Primary key for the orders table.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key for the customers table.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was recorded in the source system.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the order from the source system.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: customer_order_rankings
+    description: One record per customer with order-count ranking.
+    columns:
+      - name: customer_id
+        description: Foreign key to the customer ranked in this row.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's first name as recorded in the source system.
+      - name: last_name
+        description: Customer's last name as recorded in the source system.
+      - name: total_orders
+        description: Count of orders placed by the customer, set to zero when the customer has no orders.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Descending dense rank by total order count; customers with the same count share a rank.
+        data_tests:
+          - not_null
