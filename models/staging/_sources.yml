@@ -1,31 +1,43 @@
+version: 2
+
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application’s Postgres database, providing the raw customer and order records used by the analytics project.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: Raw application customer records at one row per customer. This table is standardized by `stg_customers` before downstream use.
         columns:
           - name: id
+            description: Source-system identifier for the customer; used as the primary key and renamed to `customer_id` in staging.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's given name as recorded in the application.
+          - name: last_name
+            description: Customer's family name as recorded in the application.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: Raw application order records at one row per order, including orders in all lifecycle states. This table is standardized by `stg_orders` before downstream use.
         columns:
           - name: id
+            description: Source-system identifier for the order; used as the primary key and renamed to `order_id` in staging.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Source-system identifier for the customer that placed the order; renamed to `customer_id` in staging.
             data_tests:
               - not_null
               - relationships:
                   arguments:
                     to: source('jaffle_shop', 'customers')
                     field: id
+          - name: order_date
+            description: Calendar date on which the order was placed in the application.
           - name: status
+            description: Current lifecycle status assigned to the order in the application.
             data_tests:
               - accepted_values:
                   arguments:

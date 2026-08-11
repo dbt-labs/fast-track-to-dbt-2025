@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, enriched with the first, most recent, and total order activity from `stg_orders`. Customers without orders are retained with `number_of_orders` set to zero and null order dates.
+    columns:
+      - name: customer_id
+        description: Stable identifier for the customer; the grain-defining key for this dimension.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's given name as provided in the source customer record.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer's family name as provided in the source customer record.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has not placed an order.
+      - name: number_of_orders
+        description: Count of recorded orders for the customer, with zero assigned to customers without order activity.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3, 4, 5]
+                quote: false
+
+  - name: fct_orders
+    description: One row per order from `stg_orders`, providing the order's customer, placement date, and current lifecycle status for order-level analysis.
+    columns:
+      - name: order_id
+        description: Stable identifier for the order; the grain-defining key for this fact table.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Identifier of the customer that placed the order; joins to `dim_customers.customer_id`.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Calendar date on which the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status assigned to the order in the source system.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: customer_order_rankings
+    description: One row per customer with order volume ranked across the full customer base. Customers without orders are included with a total of zero; tied totals share the same dense rank.
+    columns:
+      - name: customer_id
+        description: Stable identifier for the customer; the grain-defining key for this ranking table.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's given name, included to make ranking output readable without an additional dimension join.
+      - name: last_name
+        description: Customer's family name, included to make ranking output readable without an additional dimension join.
+      - name: total_orders
+        description: Count of recorded orders for the customer, with zero assigned to customers without order activity.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3, 4, 5]
+                quote: false
+      - name: customer_order_rank
+        description: Dense rank of `total_orders` in descending order across all customers; customers with equal totals receive the same rank.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false
