@@ -8,6 +8,7 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for the customers source table.
             data_tests:
               - unique
               - not_null
@@ -16,10 +17,12 @@ sources:
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Primary key for the orders source table.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; renamed to `customer_id` in `stg_orders`.
             data_tests:
               - not_null
               - relationships:
@@ -27,9 +30,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed, retained as `order_date` in `stg_orders`.
             data_tests:
               - not_null
           - name: status
+            description: Current fulfillment or return status recorded for the order.
             data_tests:
               - not_null
               - accepted_values:

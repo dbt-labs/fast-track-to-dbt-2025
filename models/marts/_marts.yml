@@ -5,16 +5,24 @@ models:
     description: One record per customer with order history aggregates.
     columns:
       - name: customer_id
+        description: Stable identifier for the customer; customers without orders remain included in this dimension.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's first name as provided in the source customer record.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's last name as provided in the source customer record.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has not placed an order.
       - name: number_of_orders
+        description: Count of recorded orders for the customer, with zero assigned to customers without order history.
         data_tests:
           - not_null
           - accepted_values:
@@ -26,10 +34,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer who placed the order, joining to `dim_customers`.
         data_tests:
           - not_null
           - relationships:
@@ -37,9 +47,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current fulfillment or return status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -50,6 +62,7 @@ models:
     description: One record per customer ranked by descending order count.
     columns:
       - name: customer_id
+        description: Identifier of the ranked customer, joining to `dim_customers`.
         data_tests:
           - unique
           - not_null
@@ -57,7 +70,12 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's first name, included to make the ranking directly consumable.
+      - name: last_name
+        description: Customer's last name, included to make the ranking directly consumable.
       - name: total_orders
+        description: Count of recorded orders for the customer, with zero assigned when no order history exists.
         data_tests:
           - not_null
           - accepted_values:
@@ -65,6 +83,7 @@ models:
                 values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 quote: false
       - name: customer_order_rank
+        description: Customer's ordinal rank by total orders descending; ties are broken by ascending `customer_id`.
         data_tests:
           - unique
           - not_null
