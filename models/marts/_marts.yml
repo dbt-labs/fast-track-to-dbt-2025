@@ -5,10 +5,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier for the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -16,9 +18,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current fulfillment or return status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -29,10 +33,20 @@ models:
     description: One record per customer, with their order history summary.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has no orders.
       - name: number_of_orders
+        description: Total count of recorded orders placed by the customer.
         data_tests:
           - not_null
           - accepted_values:
@@ -46,6 +60,7 @@ models:
     description: One record per customer, ranked by their total number of orders.
     columns:
       - name: customer_id
+        description: Unique identifier for the ranked customer.
         data_tests:
           - unique
           - not_null
@@ -53,7 +68,12 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
       - name: number_of_orders
+        description: Total count of recorded orders placed by the customer.
         data_tests:
           - not_null
           - accepted_values:
@@ -63,6 +83,7 @@ models:
               config:
                 where: "number_of_orders <= 1"
       - name: customer_order_rank
+        description: Customer's dense rank by total order count, where 1 is the highest order volume and ties share a rank.
         data_tests:
           - not_null
           - accepted_values:

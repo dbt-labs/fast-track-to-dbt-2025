@@ -8,17 +8,24 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Unique identifier for the customer in the application database.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's given name as recorded in the application.
+          - name: last_name
+            description: Customer's family name as recorded in the application.
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Unique identifier for the order in the application database.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier for the customer who placed the order.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +33,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date on which the order was placed.
             data_tests:
               - not_null
           - name: status
+            description: Current fulfillment or return status of the order.
             data_tests:
               - not_null
               - accepted_values:
