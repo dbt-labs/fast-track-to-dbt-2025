@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One record per customer with their order history summary.
+    columns:
+      - name: customer_id
+        description: The unique identifier for a customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: The total number of orders placed by the customer.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One record per order.
+    columns:
+      - name: order_id
+        description: The unique identifier for an order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+  - name: customer_order_rankings
+    description: One record per customer, ranked by total order count.
+    columns:
+      - name: customer_id
+        description: The unique identifier for a customer.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: The total number of orders placed by the customer.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: The customer's rank by total orders.
+        data_tests:
+          - not_null
