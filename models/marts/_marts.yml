@@ -2,36 +2,40 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer with order activity summary fields.
+    description: One row per customer, combining customer attributes with lifetime order activity. Customers with no orders are retained with zero orders and null order dates.
     columns:
       - name: customer_id
-        description: Unique identifier for the customer.
+        description: Primary key for the customer; sourced from the raw customer identifier.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer's first name.
+        description: Customer's given name as recorded in the source application.
         data_tests:
           - not_null
       - name: last_name
-        description: Customer's last name.
+        description: Customer's family name as recorded in the source application.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Earliest order date for the customer; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Latest order date for the customer; null when the customer has not placed an order.
       - name: number_of_orders
-        description: Lifetime count of orders placed by the customer.
+        description: Lifetime count of orders placed by the customer; zero when no orders exist.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order.
+    description: One row per order, carrying the customer, order date, and current lifecycle status from the staged orders data.
     columns:
       - name: order_id
-        description: Unique identifier for the order.
+        description: Primary key for the order; sourced from the raw order identifier.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier for the customer who placed the order.
+        description: Identifier of the customer who placed the order; joins to `dim_customers.customer_id`.
         data_tests:
           - not_null
           - relationships:
@@ -39,11 +43,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
-        description: Current lifecycle status of the order.
+        description: Current lifecycle status of the order in the source application.
         data_tests:
           - not_null
           - accepted_values:
@@ -51,10 +55,10 @@ models:
                 values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
 
   - name: customer_order_rankings
-    description: One row per customer, ranked by lifetime total number of orders.
+    description: One row per customer, ranking customers by lifetime order count. Customers with no orders are retained and share the lowest dense rank.
     columns:
       - name: customer_id
-        description: Unique identifier for the customer.
+        description: Primary key for the customer; joins to `dim_customers.customer_id`.
         data_tests:
           - not_null
           - unique
@@ -63,18 +67,18 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: total_number_of_orders
-        description: Lifetime count of orders placed by the customer.
+        description: Lifetime count of orders placed by the customer; zero when no orders exist.
         data_tests:
           - not_null
       - name: customer_order_rank
-        description: Dense rank of customers by lifetime order count, descending.
+        description: Dense rank by lifetime order count in descending order; customers with equal counts receive the same rank.
         data_tests:
           - not_null
       - name: first_name
-        description: Customer's first name.
+        description: Customer's given name as recorded in the source application.
         data_tests:
           - not_null
       - name: last_name
-        description: Customer's last name.
+        description: Customer's family name as recorded in the source application.
         data_tests:
           - not_null

@@ -1,25 +1,34 @@
+version: 2
+
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Raw application data replicated from the Jaffle Shop PostgreSQL database.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One row per customer account in the source application.
         columns:
           - name: id
+            description: Primary key for the customer account; renamed to `customer_id` in staging.
             data_tests:
               - unique
               - not_null
-              
+          - name: first_name
+            description: Customer's given name as stored by the source application.
+          - name: last_name
+            description: Customer's family name as stored by the source application.
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: One row per order in the source application, including orders in every recorded lifecycle status.
         columns:
           - name: id
+            description: Primary key for the order; renamed to `order_id` in staging.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; renamed to `customer_id` in staging.
             data_tests:
               - not_null
               - relationships:
@@ -27,11 +36,56 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date on which the order was placed.
             data_tests:
               - not_null
           - name: status
+            description: Current lifecycle status of the order in the source application.
             data_tests:
               - not_null
               - accepted_values:
                   arguments:
                     values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+
+models:
+  - name: stg_customers
+    description: One row per customer from `jaffle_shop.customers`, with the raw identifier renamed to `customer_id`.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer; renamed from `jaffle_shop.customers.id`.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's given name as recorded in the source application.
+      - name: last_name
+        description: Customer's family name as recorded in the source application.
+
+  - name: stg_orders
+    description: One row per order from `jaffle_shop.orders`, with raw identifiers renamed to analytics-standard keys.
+    columns:
+      - name: order_id
+        description: Primary key for the order; renamed from `jaffle_shop.orders.id`.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order; renamed from `jaffle_shop.orders.user_id`.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        description: Date on which the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the order in the source application.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
