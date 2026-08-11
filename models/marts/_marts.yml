@@ -1,0 +1,71 @@
+models:
+  - name: dim_customers
+    description: >
+      One row per customer with fulfilled or in-flight order activity summarized across completed,
+      placed, and shipped orders. Returned and return-pending orders are excluded from customer
+      activity metrics.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Date of the customer's earliest completed, placed, or shipped order.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent completed, placed, or shipped order.
+      - name: number_of_orders
+        description: Count of the customer's completed, placed, and shipped orders; returned and return-pending orders are excluded.
+
+  - name: fct_orders
+    description: >
+      One row per order for operational order reporting. Includes every source order, including
+      returned and return-pending orders, so analysts can evaluate lifecycle outcomes.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: >
+          Operational lifecycle status: `placed` is awaiting fulfillment, `shipped` is in transit,
+          `completed` is fulfilled, `returned` has been returned, and `return_pending` is awaiting
+          return resolution. Customer activity metrics include only placed, shipped, and completed orders.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'shipped', 'returned', 'return_pending']
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer ranked by completed, placed, and shipped orders. Returned and
+      return-pending orders are excluded, and customers with no eligible orders remain in the output.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: total_number_of_orders
+        description: Count of the customer's completed, placed, and shipped orders; returned and return-pending orders are excluded.
+      - name: customer_order_rank
+        description: Dense rank by total eligible orders, ordered descending; tied customers share a rank.

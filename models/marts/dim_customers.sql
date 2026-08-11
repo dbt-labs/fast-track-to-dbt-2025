@@ -25,6 +25,8 @@ orders as (
 
     from {{ ref('stg_orders') }}
 
+    where status in ('placed', 'shipped', 'completed')
+
 ),
 
 customer_orders as (

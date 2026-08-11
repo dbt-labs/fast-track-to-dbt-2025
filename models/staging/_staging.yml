@@ -1,0 +1,22 @@
+models:
+  - name: stg_customers
+    description: Cleaned customer records from the application source. One row per customer.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer, renamed from the source `id` column.
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+
+  - name: stg_orders
+    description: Cleaned order records from the application source. One row per order.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order, renamed from the source `id` column.
+      - name: customer_id
+        description: Identifier for the customer who placed the order, renamed from the source `user_id` column.
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Lifecycle status of the order as supplied by the application source.
