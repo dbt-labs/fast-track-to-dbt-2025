@@ -11,10 +11,16 @@ models:
           - not_null
       - name: first_name
         description: Customer's first name.
+        data_tests:
+          - not_null
       - name: last_name
         description: Customer's last name.
+        data_tests:
+          - not_null
       - name: number_of_orders
         description: Total lifetime orders placed by the customer.
+        data_tests:
+          - not_null
       - name: customer_order_rank
         description: Dense rank of the customer by total lifetime orders, descending; ties share the same rank.
         data_tests:
