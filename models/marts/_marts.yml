@@ -2,29 +2,50 @@ version: 2
 
 models:
   - name: dim_customers
+    description: One row per customer, enriched with their first and most recent order dates and lifetime order count. Customers without orders are retained with an order count of zero.
     columns:
       - name: customer_id
+        description: Stable identifier for the customer and primary key of this dimension.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name as recorded in the source system.
+      - name: last_name
+        description: Customer's family name as recorded in the source system.
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has not placed an order.
+      - name: number_of_orders
+        description: Lifetime count of recorded orders for the customer, with zero for customers without orders.
 
   - name: fct_orders
+    description: One row per order, containing the customer who placed it, the order date, and its current status.
     columns:
       - name: order_id
+        description: Stable identifier for the order and primary key of this fact table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer associated with the order.
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date on which the order was recorded.
+      - name: status
+        description: Current lifecycle status of the order.
 
   - name: customer_order_rankings
+    description: One row per customer, ranked by lifetime order count. Customers with the same order total share the same dense rank, including rank one for the highest total.
     columns:
       - name: customer_id
+        description: Identifier for the ranked customer and primary key of this mart.
         data_tests:
           - unique
           - not_null
@@ -32,9 +53,15 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's given name, included to make the ranking easy to consume.
+      - name: last_name
+        description: Customer's family name, included to make the ranking easy to consume.
       - name: total_orders
+        description: Lifetime count of recorded orders for the customer, with zero for customers without orders.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Dense rank of the customer by lifetime order count in descending order; tied order totals receive the same rank.
         data_tests:
           - not_null
