@@ -1,24 +1,31 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application's Postgres database containing operational customer and order records.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: Raw application customer records, with one row per customer.
         columns:
           - name: id
+            description: Unique identifier for the customer in the application database.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's given name as recorded in the application.
+          - name: last_name
+            description: Customer's family name as recorded in the application.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: Raw application order records, with one row per order and records retained across all order statuses.
         columns:
           - name: id
+            description: Unique identifier for the order in the application database.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +33,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed in the application.
             data_tests:
               - not_null
           - name: status
+            description: Current lifecycle status of the order in the application.
             data_tests:
               - not_null
               - accepted_values:
