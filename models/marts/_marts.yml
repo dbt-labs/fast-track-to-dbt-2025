@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer with their order history summary.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        data_tests:
+          - not_null
+      - name: last_name
+        data_tests:
+          - not_null
+      - name: number_of_orders
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: customer_order_rankings
+    description: One row per customer ranked by total order count.
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        data_tests:
+          - not_null
