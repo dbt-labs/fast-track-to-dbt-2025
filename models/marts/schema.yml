@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: One record per customer, ranked by total number of orders.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: total_orders
+        description: Total number of orders placed by the customer.
+      - name: customer_order_rank
+        description: Customer's rank by total orders, ordered by customer ID to break ties.
