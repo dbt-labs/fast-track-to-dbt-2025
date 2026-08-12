@@ -1,0 +1,99 @@
+models:
+  - name: fct_orders
+    description: One record per order, providing the canonical order-level fact table for analytics.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Unique identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Calendar date on which the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: dim_customers
+    description: One record per customer, with customer attributes and a summary of their order history.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's given name.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer's family name.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Calendar date of the customer's earliest recorded order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Calendar date of the customer's latest recorded order; null when the customer has not placed an order.
+      - name: number_of_orders
+        description: Total count of orders placed by the customer, including all order statuses.
+        data_tests:
+          - not_null
+
+  - name: customer_order_rankings
+    description: One record per customer, ranked by total order count for customer-order volume analysis.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's given name.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer's family name.
+        data_tests:
+          - not_null
+      - name: total_number_of_orders
+        description: Total count of orders placed by the customer, including all order statuses.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Customer's rank by total order count in descending order; customers with equal totals share the same rank.
+        data_tests:
+          - not_null
+
+  - name: Untitled-1
+    description: Direct copy of the raw customer table.
+    columns:
+      - name: id
+        description: Unique identifier for the customer in the raw application database.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's given name from the raw application database.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer's family name from the raw application database.
+        data_tests:
+          - not_null
