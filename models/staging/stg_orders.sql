@@ -1,6 +1,6 @@
 select
-    id as order_id,
-    user_id as customer_id,
+    id,
+    user_id,
     order_date,
     status
 
