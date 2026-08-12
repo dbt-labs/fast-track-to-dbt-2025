@@ -1,24 +1,37 @@
 models:
   - name: dim_customers
+    description: One row per customer, including customer identity attributes and lifetime order activity.
     columns:
       - name: customer_id
+        description: Primary key for the customer.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's first name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's last name.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has no orders.
+      - name: number_of_orders
+        description: Total number of orders placed by the customer.
 
   - name: fct_orders
+    description: One row per order, with its customer, order date, and current order status.
     columns:
       - name: order_id
+        description: Primary key for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Foreign key to the customer that placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -26,9 +39,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -36,8 +51,10 @@ models:
                 values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
 
   - name: customer_order_ranks
+    description: One row per customer, ranked by total order count from highest to lowest; customers with equal counts share a rank.
     columns:
       - name: customer_id
+        description: Primary key for the customer.
         data_tests:
           - unique
           - not_null
@@ -46,15 +63,18 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
+        description: Customer's first name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's last name.
         data_tests:
           - not_null
       - name: total_number_of_orders
+        description: Total number of orders placed by the customer.
         data_tests:
           - not_null
-
       - name: customer_order_rank
+        description: Dense rank of the customer by total order count, where 1 is the highest count.
         data_tests:
           - not_null

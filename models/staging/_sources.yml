@@ -40,3 +40,27 @@ sources:
               - accepted_values:
                   arguments:
                     values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+
+models:
+  - name: stg_customers
+    description: One row per customer, with source identifiers standardized for downstream use.
+    columns:
+      - name: customer_id
+        description: Primary key for the customer, renamed from the source `id` column.
+      - name: first_name
+        description: Customer's first name from the source system.
+      - name: last_name
+        description: Customer's last name from the source system.
+
+  - name: stg_orders
+    description: One row per order, with source identifiers standardized for downstream use.
+    columns:
+      - name: order_id
+        description: Primary key for the order, renamed from the source `id` column.
+      - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from the source `user_id` column.
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current lifecycle status of the order.
