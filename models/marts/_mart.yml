@@ -1,27 +1,43 @@
+version: 2
+
 models:
   - name: dim_customers
+    description: >
+      Customer dimension at one row per customer. Includes customers with no orders,
+      with order activity summarized as first order date, most recent order date, and total order count.
     columns:
       - name: customer_id
+        description: Primary key for the customer.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has never placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has never placed an order.
       - name: number_of_orders
+        description: Total number of orders placed by the customer, including orders in every status.
         data_tests:
           - not_null
 
   - name: fct_orders
+    description: One row per order, carrying the order's customer, date, and current status for order-level analysis.
     columns:
       - name: order_id
+        description: Primary key for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Foreign key to the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -29,9 +45,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -44,20 +62,28 @@ models:
                   - shipped
 
   - name: customer_order_rankings
+    description: >
+      Customer-level order-volume ranking. Includes every customer and assigns a dense rank based on
+      total orders, with customers who have not ordered ranked at the bottom.
     columns:
       - name: customer_id
+        description: Primary key for the ranked customer.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
       - name: total_number_of_orders
+        description: Total number of orders placed by the customer; zero when the customer has no orders.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Dense rank of the customer by total order count in descending order; tied customers share a rank.
         data_tests:
           - not_null

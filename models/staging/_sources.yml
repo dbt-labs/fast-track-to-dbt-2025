@@ -1,27 +1,40 @@
+version: 2
+
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application Postgres database containing raw customer and order records.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One row per customer account from the application database.
         columns:
           - name: id
+            description: Primary key for the customer record.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's given name as recorded in the application.
+          - name: last_name
+            description: Customer's family name as recorded in the application.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: One row per order from the application database, including orders that were cancelled or deleted.
         columns:
           - name: id
+            description: Primary key for the order record.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Foreign key to the customer who placed the order.
             data_tests:
               - not_null
               - relationships:
                   arguments:
                     to: source('jaffle_shop', 'customers')
                     field: id
+          - name: order_date
+            description: Date on which the order was created in the application.
+          - name: status
+            description: Current lifecycle status of the order in the application.
