@@ -8,6 +8,7 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for the customers source table.
             data_tests:
               - not_null
               - unique
@@ -16,6 +17,7 @@ sources:
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Primary key for the orders source table.
             data_tests:
               - not_null
               - unique
