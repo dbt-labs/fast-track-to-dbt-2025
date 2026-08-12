@@ -5,12 +5,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
-        description: Unique identifier for the order.
+        description: (PK) Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier for the customer who placed the order.
+        description: (Fk customers) Identifier for the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -36,6 +36,15 @@ models:
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order.
+
       - name: number_of_orders
         description: Total number of orders placed by the customer.
         data_tests:
@@ -53,6 +62,11 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Ranked customer's given name.
+      - name: last_name
+        description: Ranked customer's family name.
+
       - name: total_orders
         description: Total number of orders used to determine ranking.
         data_tests:
