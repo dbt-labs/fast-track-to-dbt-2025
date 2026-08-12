@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: Order fact table at one row per order, including the customer, order date, and current order status.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: dim_customers
+    description: Customer dimension at one row per customer, with their first and most recent order dates plus lifetime order count.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has not placed an order.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has not placed an order.
+      - name: number_of_orders
+        description: Lifetime count of orders placed by the customer.
+        data_tests:
+          - not_null
+
+  - name: customer_order_rankings
+    description: Customer ranking table at one row per customer, ordered by lifetime order count with customer ID used to break ties.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the ranked customer.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
+      - name: total_number_of_orders
+        description: Lifetime count of orders placed by the customer, used to determine ranking.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Customer's rank by lifetime order count, with lower values representing more orders.
+        data_tests:
+          - unique
+          - not_null
