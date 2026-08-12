@@ -1,37 +1,61 @@
 models:
   - name: dim_customers
-    description: One row per customer, including customer attributes and order history summary.
+    description: One row per customer, combining customer attributes with summary order history across all orders in the source data.
     columns:
       - name: customer_id
+        description: Stable identifier for the customer and primary key of this dimension.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name from the source customer record.
+      - name: last_name
+        description: Customer's family name from the source customer record.
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has no orders.
+      - name: number_of_orders
+        description: Count of all recorded orders for the customer, including orders in every source status.
 
   - name: fct_orders
-    description: One row per order.
+    description: One row per recorded order, including orders in all source statuses.
     columns:
       - name: order_id
+        description: Stable identifier for the order and primary key of this fact table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer who placed the order; joins to dim_customers.customer_id.
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date the order was recorded in the source system.
+      - name: status
+        description: Current order lifecycle status from the source system.
 
   - name: customer_order_rankings
-    description: One row per customer with total order count and rank by order volume.
+    description: One row per customer, ranking customers by their total recorded order volume. Customers with no orders are retained with a count of zero.
     columns:
       - name: customer_id
+        description: Stable identifier for the customer and primary key of this ranking dataset.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name from dim_customers.
+      - name: last_name
+        description: Customer's family name from dim_customers.
       - name: total_orders
+        description: Count of all recorded orders for the customer, with zero for customers who have no orders.
         data_tests:
           - not_null
       - name: order_rank
+        description: Dense rank of the customer by total order count in descending order; customers with equal counts share the same rank.
         data_tests:
           - not_null
