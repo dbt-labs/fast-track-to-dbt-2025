@@ -1,0 +1,54 @@
+models:
+  - name: fct_orders
+    description: One record per order.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: dim_customers
+    description: One record per customer, including customers without orders.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        data_tests:
+          - not_null
+
+  - name: ranked_customers
+    description: One record per customer with an ordinal rank by order count.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: number_of_orders
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        data_tests:
+          - unique
+          - not_null
