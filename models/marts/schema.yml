@@ -5,10 +5,12 @@ models:
     description: One record per order.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Unique identifier for the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
@@ -16,23 +18,36 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Calendar date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
               arguments:
                 values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
 
+
   - name: dim_customers
     description: One record per customer, including customers without orders.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
+      - name: first_order_date
+        description: Date of the customer's earliest order; null when the customer has not ordered.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order; null when the customer has not ordered.
       - name: number_of_orders
+        description: Total number of orders placed by the customer.
         data_tests:
           - not_null
 
@@ -40,6 +55,7 @@ models:
     description: One record per customer ranked by total order count.
     columns:
       - name: customer_id
+        description: Unique identifier for the ranked customer.
         data_tests:
           - unique
           - not_null
@@ -47,9 +63,15 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's given name.
+      - name: last_name
+        description: Customer's family name.
       - name: total_orders
+        description: Total number of orders placed by the customer.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Rank of the customer by total order count, with tied counts sharing a rank.
         data_tests:
           - not_null
