@@ -8,6 +8,7 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for the customers source table.
             data_tests:
               - unique
               - not_null
@@ -15,6 +16,7 @@ sources:
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Primary key for the orders source table.
             data_tests:
               - unique
               - not_null
@@ -34,3 +36,26 @@ sources:
               - accepted_values:
                   arguments:
                     values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+models:
+  - name: stg_customers
+    description: One row per customer from the application source, with the source primary key renamed to `customer_id` for consistent downstream joins.
+    columns:
+      - name: customer_id
+        description: Customer identifier renamed from the source `id` field; used as the customer key throughout the project.
+      - name: first_name
+        description: Customer's given name from the application source.
+      - name: last_name
+        description: Customer's family name from the application source.
+
+  - name: stg_orders
+    description: One row per application order, with source identifiers renamed to the project-standard `order_id` and `customer_id` fields.
+    columns:
+      - name: order_id
+        description: Order identifier renamed from the source `id` field.
+      - name: customer_id
+        description: Customer identifier renamed from the source `user_id` field; links each order to its customer.
+      - name: order_date
+        description: Date the order was recorded in the application source.
+      - name: status
+        description: Current lifecycle status recorded for the order in the application source.
