@@ -1,0 +1,37 @@
+models:
+  - name: dim_customers
+    description: One row per customer, including customer attributes and order history summary.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+  - name: customer_order_rankings
+    description: One row per customer with total order count and rank by order volume.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        data_tests:
+          - not_null
+      - name: order_rank
+        data_tests:
+          - not_null
