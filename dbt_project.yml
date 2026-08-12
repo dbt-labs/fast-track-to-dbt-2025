@@ -37,6 +37,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   my_new_project:
+    +static_analysis: strict
     # Applies to all files under models/example/
-    example:
+    marts:
       +materialized: table
