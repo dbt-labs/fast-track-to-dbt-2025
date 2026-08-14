@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: customer_order_ranks
+    description: Customer ranking by all-time order count. One row per customer, including customers with no orders.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: total_orders
+        description: Total number of orders placed by the customer.
+      - name: customer_order_rank
+        description: Dense rank of the customer by total orders, ordered from most to fewest orders.
