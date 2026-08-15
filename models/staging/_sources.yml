@@ -8,13 +8,16 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for the customer record; renamed to `customer_id` in the staging model.
             data_tests:
               - not_null
               - unique
           - name: first_name
+            description: Customer's given name as captured by the application.
             data_tests:
               - not_null
           - name: last_name
+            description: Customer's family name as captured by the application.
             data_tests:
               - not_null
 
@@ -22,10 +25,12 @@ sources:
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Primary key for the order record; renamed to `order_id` in the staging model.
             data_tests:
               - not_null
               - unique
           - name: user_id
+            description: Foreign key to the customer who placed the order; renamed to `customer_id` in the staging model.
             data_tests:
               - not_null
               - relationships:
@@ -33,9 +38,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was created in the application.
             data_tests:
               - not_null
           - name: status
+            description: Current lifecycle status of the order, including fulfillment and return states.
             data_tests:
               - not_null
               - accepted_values:

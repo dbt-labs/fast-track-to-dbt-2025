@@ -1,11 +1,14 @@
 models:
   - name: fct_orders
+    description: One row per order, providing the canonical order-level fact table for customer and order-status analysis.
     columns:
       - name: order_id
+        description: Unique identifier for the order.
         data_tests:
           - not_null
           - unique
       - name: customer_id
+        description: Identifier of the customer who placed the order; joins to `dim_customers`.
         data_tests:
           - not_null
           - relationships:
@@ -13,9 +16,11 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date on which the order was placed.
         data_tests:
           - not_null
       - name: status
+        description: Current lifecycle status of the order.
         data_tests:
           - not_null
           - accepted_values:
@@ -23,24 +28,35 @@ models:
                 values: ['placed', 'shipped', 'completed', 'returned', 'return_pending']
 
   - name: dim_customers
+    description: One row per customer, enriched with the first order date, most recent order date, and total number of orders. Customers without orders are retained with a zero order count.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer.
         data_tests:
           - not_null
           - unique
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
+      - name: first_order_date
+        description: Date of the customer's earliest recorded order; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's latest recorded order; null when the customer has no orders.
       - name: number_of_orders
+        description: Total number of recorded orders for the customer, including zero for customers with no orders.
         data_tests:
           - not_null
 
   - name: customer_order_rankings
+    description: One row per customer, ranking customers by total recorded orders in descending order. Customers with equal order counts share the same rank.
     columns:
       - name: customer_id
+        description: Unique identifier for the customer; joins to `dim_customers`.
         data_tests:
           - not_null
           - unique
@@ -49,14 +65,18 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
+        description: Customer's given name.
         data_tests:
           - not_null
       - name: last_name
+        description: Customer's family name.
         data_tests:
           - not_null
       - name: total_orders
+        description: Total number of recorded orders for the customer, including zero for customers with no orders.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Customer's rank by total orders in descending order; tied order counts receive the same rank.
         data_tests:
           - not_null
