@@ -18,6 +18,10 @@ models:
 
       - name: number_of_orders
         description: Total number of orders associated with the customer.
+        data_tests:
+          - not_null
 
       - name: customer_order_rank
         description: Customer's rank by descending total order count; customers with equal counts share a rank.
+        data_tests:
+          - not_null
