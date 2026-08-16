@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: Customer-level order rankings, with one row per customer and zero-order customers included.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: first_name
+        description: Customer's first name.
+
+      - name: last_name
+        description: Customer's last name.
+
+      - name: number_of_orders
+        description: Total number of orders associated with the customer.
+
+      - name: customer_order_rank
+        description: Customer's rank by descending total order count; customers with equal counts share a rank.
