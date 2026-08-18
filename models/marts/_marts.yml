@@ -1,0 +1,21 @@
+models:
+  - name: customer_order_rankings
+    description: One row per customer, ranked by total orders across all order statuses.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Date of the customer's first order.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent order.
+      - name: total_orders
+        description: Total number of orders associated with the customer in fct_orders.
+      - name: customer_order_rank
+        description: Customer rank by total orders descending; ties receive the same rank.
