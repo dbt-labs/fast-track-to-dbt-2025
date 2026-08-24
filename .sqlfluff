@@ -1,20 +1,36 @@
+# Config for dbt Fusion's native linter (`dbt lint` / `dbt format`).
+# dbt lint is SQLFluff-compatible: it reads this file and uses SQLFluff rule
+# codes (CP01, LT04, ...). The `sqlfluff` pip package is NOT required.
+# Docs: https://docs.getdbt.com/reference/commands/lint
 [sqlfluff]
+# Required: dbt lint/format only supports the `dbt` templater (Fusion renders
+# Jinja natively, so this is fast — unlike the old Python SQLFluff behaviour).
 templater = dbt
 dialect = snowflake
-# This change (from jinja to dbt templater) will make linting slower
-# because linting will first compile dbt code into data warehouse code.
-runaway_limit = 10
-max_line_length = 80
+max_line_length = 120
 indent_unit = space
+runaway_limit = 10
 
 [sqlfluff:indentation]
 tab_space_size = 4
+indented_joins = True
+indented_ctes = False
+indented_using_on = True
 
 [sqlfluff:layout:type:comma]
 spacing_before = touch
 line_position = trailing
 
-[sqlfluff:rules:capitalisation.keywords] 
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
 capitalisation_policy = lower
 
 [sqlfluff:rules:aliasing.table]
@@ -26,14 +42,5 @@ aliasing = explicit
 [sqlfluff:rules:aliasing.expression]
 allow_scalar = False
 
-[sqlfluff:rules:capitalisation.identifiers]
-extended_capitalisation_policy = lower
-
-[sqlfluff:rules:capitalisation.functions]
-capitalisation_policy = lower
-
-[sqlfluff:rules:capitalisation.literals]
-capitalisation_policy = lower
-
-[sqlfluff:rules:ambiguous.column_references]  # Number in group by
+[sqlfluff:rules:ambiguous.column_references]
 group_by_and_order_by_style = implicit

@@ -1,0 +1,20 @@
+# Local hooks so they use the dbt Fusion binary already on your PATH
+# (~/.local/bin/dbt). Install with: pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: dbt-lint
+        name: dbt lint (changed files)
+        entry: dbt lint --changed --no-version-check
+        language: system
+        pass_filenames: false
+        types: [sql]
+
+      # Reports formatting drift without rewriting files. Run `dbt format`
+      # yourself to apply the changes.
+      - id: dbt-format-check
+        name: dbt format --check
+        entry: dbt format --check --no-version-check
+        language: system
+        pass_filenames: false
+        types: [sql]

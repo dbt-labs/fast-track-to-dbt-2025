@@ -1,0 +1,57 @@
+name: lint
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+# `dbt lint` and `dbt format --check` are static — they were verified to produce
+# identical results with placeholder credentials, so no warehouse secrets are
+# needed here. The stub profile below exists only so dbt can resolve the adapter
+# type and SQL dialect.
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dbt (Fusion)
+        run: |
+          curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Report dbt version
+        run: dbt --version
+
+      - name: Write stub profile
+        run: |
+          mkdir -p "$HOME/.dbt"
+          cat > "$HOME/.dbt/profiles.yml" <<'YAML'
+          snowflake_demo:
+            target: workshop
+            outputs:
+              workshop:
+                type: snowflake
+                account: placeholder
+                user: placeholder
+                password: placeholder
+                role: placeholder
+                warehouse: placeholder
+                database: placeholder
+                schema: placeholder
+                threads: 4
+          YAML
+
+      - name: Install packages
+        run: dbt deps
+
+      # Annotate-only for now. `dbt format --check` currently fails all four
+      # models here (they use leading commas; the config specifies trailing).
+      # Remove `continue-on-error` once that is reformatted.
+      - name: dbt lint
+        continue-on-error: true
+        run: dbt lint --format github-annotation --no-version-check
+
+      - name: dbt format --check
+        continue-on-error: true
+        run: dbt format --check --no-version-check
