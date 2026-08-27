@@ -1,24 +1,32 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Raw Snowflake replica of the customer and order tables from the application Postgres database. Staging models rename source identifiers before downstream use.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: Customer accounts from the application database at one row per customer, including customers who have not placed an order.
         columns:
           - name: id
+            description: Primary key identifying a customer in the source application.
             data_tests:
-            - unique
-            - not_null 
+              - unique
+              - not_null
+          - name: first_name
+            description: Customer's first name as recorded in the source application.
+          - name: last_name
+            description: Customer's last name as recorded in the source application.
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: Order records from the application database at one row per order across all validated lifecycle statuses.
         columns:
           - name: id
+            description: Primary key identifying an order in the source application.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Customer who placed the order. References the id column in the customers source table.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +34,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Calendar date recorded for the order by the source application.
             data_tests:
               - not_null
           - name: status
+            description: Order lifecycle status from the source application. Expected values are completed, placed, return_pending, returned, and shipped.
             data_tests:
               - not_null
               - accepted_values:

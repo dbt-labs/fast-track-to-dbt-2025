@@ -1,28 +1,61 @@
 models:
   - name: fct_orders
+    description: Order-level fact table used for order lifecycle analysis. One row per order, with no status-based filtering.
     columns:
       - name: order_id
+        description: Primary key identifying an order from the source application.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Customer associated with the order; joins to dim_customers.
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date recorded for the order by the source application.
+      - name: status
+        description: Order lifecycle status from the source application. No statuses are filtered from this model.
 
   - name: dim_customers
+    description: Customer dimension with one row per customer, including customers without orders. Order dates and counts summarize all staged order records.
     columns:
       - name: customer_id
+        description: Primary key identifying a customer from the source application.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name from the source application.
+      - name: last_name
+        description: Customer's last name from the source application.
+      - name: first_order_date
+        description: Earliest order date associated with the customer. Null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Latest order date associated with the customer. Null when the customer has no orders.
+      - name: number_of_orders
+        description: Count of order records associated with the customer. Defaults to 0 when the customer has no orders.
 
   - name: customer_order_rankings
+    description: Customer-level mart for comparing order activity. One row per customer with a dense rank based on total order count, so tied customers share a rank and ranks have no gaps.
     columns:
       - name: customer_id
+        description: Primary key identifying the ranked customer.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name from the source application.
+      - name: last_name
+        description: Customer's last name from the source application.
+      - name: first_order_date
+        description: Earliest order date associated with the customer. Null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Latest order date associated with the customer. Null when the customer has no orders.
+      - name: total_number_of_orders
+        description: Count of order records associated with the customer. Defaults to 0 when the customer has no orders.
+      - name: customer_order_rank
+        description: Dense rank of customers by total order count in descending order. Tied customers share a rank and subsequent ranks have no gaps.
