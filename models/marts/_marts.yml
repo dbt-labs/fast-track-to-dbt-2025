@@ -1,0 +1,87 @@
+models:
+  - name: dim_customers
+    description: Customer-level dimension enriched with order history. One row per customer, including customers with no orders; their order dates are null and number_of_orders is zero.
+    columns:
+      - name: customer_id
+        description: Stable customer key that defines the model grain and joins customer activity across marts.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name as recorded in the application database.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer last name as recorded in the application database.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Earliest recorded order date for the customer; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Most recent recorded order date for the customer; null when the customer has no orders.
+      - name: number_of_orders
+        description: Total number of orders associated with the customer, defaulted to zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: Order-level fact table containing one row per staged order and preserving each order's customer, date, and lifecycle status.
+    columns:
+      - name: order_id
+        description: Stable order key that defines the model grain.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer associated with the order, used to join order activity to dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date recorded for the order in the application database.
+        data_tests:
+          - not_null
+      - name: status
+        description: Current order lifecycle status supplied by the application database.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - completed
+                  - placed
+                  - return_pending
+                  - returned
+                  - shipped
+
+  - name: customer_order_rankings
+    description: Customer-level mart ranking all customers by total order count. Customers with no orders are retained with zero orders, and ties receive the same dense rank without gaps.
+    columns:
+      - name: customer_id
+        description: Stable customer key that defines the model grain and joins back to dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name carried from dim_customers for reporting.
+        data_tests:
+          - not_null
+      - name: last_name
+        description: Customer last name carried from dim_customers for reporting.
+        data_tests:
+          - not_null
+      - name: total_orders
+        description: Count of orders associated with the customer, defaulted to zero when no orders exist.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: Dense rank ordered by total_orders descending; customers with equal order counts share a rank.
+        data_tests:
+          - not_null
