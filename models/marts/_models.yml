@@ -1,0 +1,17 @@
+models:
+  - name: customer_rankings
+    description: One row per customer, ranked by lifetime order count. Customers with the same number of orders share a rank.
+    columns:
+      - name: customer_id
+        description: The unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: The customer's lifetime number of orders, including cancelled and deleted orders.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: Dense rank by lifetime order count in descending order, where 1 is the highest rank.
+        data_tests:
+          - not_null
