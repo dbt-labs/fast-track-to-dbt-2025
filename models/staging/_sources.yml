@@ -10,9 +10,21 @@ sources:
           - name: id
             data_tests:
               - not_null
+              - unique
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
             data_tests:
               - not_null
+              - unique
+          - name: status
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values:
+                      - completed
+                      - shipped
+                      - placed
+                      - returned
+                      - return_pending
