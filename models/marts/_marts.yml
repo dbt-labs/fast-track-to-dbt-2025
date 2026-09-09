@@ -1,0 +1,23 @@
+models:
+  - name: customer_order_rankings
+    description: >-
+      One row per customer ranked by total orders. Includes customers with zero
+      orders and counts all records in fct_orders, including cancelled and deleted orders.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: total_orders
+        description: Total number of order records associated with the customer.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Dense rank by total orders descending; tied customers share a rank.
+        data_tests:
+          - not_null
