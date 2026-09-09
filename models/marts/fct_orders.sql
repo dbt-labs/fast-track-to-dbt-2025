@@ -1,20 +1,21 @@
-with orders as  (
-   
-   select id as order_id,
-        user_id as customer_id,
+with orders as (
+
+    select
+        order_id,
+        customer_id,
         order_date,
         status
-   from {{ ref('stg_orders') }}
+
+    from {{ ref('stg_orders') }}
 
 ),
 
 final as (
 
-   select
-       orders.*
-   from orders
-   
+    select *
+    from orders
+
 )
 
-select * 
+select *
 from final

@@ -1,15 +1,73 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application Postgres database, used as the raw source for customer and order analytics.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One row per customer registered in the application. Names reflect the values supplied by the source system and may be abbreviated.
         columns:
           - name: id
+            description: The source-system identifier that uniquely identifies a customer.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: The customer's first name as recorded in the application.
+          - name: last_name
+            description: The customer's last name or abbreviated last name as recorded in the application.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: One row per order placed through the application, including orders across all lifecycle statuses.
+        columns:
+          - name: id
+            description: The source-system identifier that uniquely identifies an order.
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: The identifier of the customer who placed the order; joins to `customers.id`.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('jaffle_shop', 'customers')
+                    field: id
+          - name: order_date
+            description: The timestamp recorded for the order in the application.
+            data_tests:
+              - not_null
+          - name: status
+            description: The order's current lifecycle status, covering placement, shipping, completion, and return states.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - completed
+                      - placed
+                      - return_pending
+                      - returned
+                      - shipped
+
+
+models:
+  - name: stg_customers
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id

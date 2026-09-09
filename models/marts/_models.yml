@@ -1,17 +1,71 @@
 models:
   - name: customer_rankings
-    description: One row per customer, ranked by lifetime order count. Customers with the same number of orders share a rank.
+    description: One row per customer, ranked by lifetime order count across all order statuses. Customers with the same number of orders share a rank, including customers tied at zero orders.
     columns:
       - name: customer_id
-        description: The unique identifier for the customer.
+        description: The unique identifier for the customer, inherited from `dim_customers`.
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: The customer's first name as recorded in the source application.
+      - name: last_name
+        description: The customer's last name as recorded in the source application.
+      - name: first_order_date
+        description: The earliest order date recorded for the customer across all order statuses; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: The latest order date recorded for the customer across all order statuses; null when the customer has no orders.
       - name: number_of_orders
         description: The customer's lifetime number of orders, including cancelled and deleted orders.
         data_tests:
           - not_null
       - name: customer_rank
-        description: Dense rank by lifetime order count in descending order, where 1 is the highest rank.
+        description: Dense rank by lifetime order count in descending order, where 1 is the highest rank and ties do not create gaps.
         data_tests:
           - not_null
+
+  - name: dim_customers
+    description: One row per customer with source-system names and lifetime order activity across all order statuses. Customers without orders are retained with zero orders and null order dates.
+    columns:
+      - name: customer_id
+        description: The unique identifier for the customer from the source application.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: The customer's first name as recorded in the source application.
+      - name: last_name
+        description: The customer's last name as recorded in the source application.
+      - name: first_order_date
+        description: The earliest order date recorded for the customer across all order statuses; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: The latest order date recorded for the customer across all order statuses; null when the customer has no orders.
+      - name: number_of_orders
+        description: The customer's lifetime number of orders across all statuses, set to zero when the customer has no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order from the source application, preserving every order regardless of lifecycle status for order-level analysis.
+    columns:
+      - name: order_id
+        description: The unique identifier for the order from the source application.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: The date recorded for the order in the source application.
+      - name: status
+        description: The order's current lifecycle status, such as placed, shipped, completed, returned, or cancelled.
