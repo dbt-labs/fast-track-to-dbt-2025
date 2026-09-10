@@ -1,26 +1,35 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Raw Snowflake replica of the Postgres database used by the Jaffle Shop application.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One row per customer account created in the application.
         columns:
           - name: id
+            description: Primary key assigned to the customer by the application.
             data_tests:
               - unique
               - not_null
-              
+
+          - name: first_name
+            description: Customer's first name as entered in the application.
+
+          - name: last_name
+            description: Customer's last name as entered in the application.
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: One row per order placed in the application, including its customer, order date, and current lifecycle status.
         columns:
           - name: id
+            description: Primary key assigned to the order by the application.
             data_tests:
               - unique
               - not_null
 
           - name: user_id
+            description: Customer who placed the order; joins to the customers source on id.
             data_tests:
               - not_null
               - relationships:
@@ -29,10 +38,12 @@ sources:
                     field: id
 
           - name: order_date
+            description: Date the order was placed in the application.
             data_tests:
               - not_null
 
           - name: status
+            description: Current lifecycle status of the order, such as placed, shipped, completed, returned, or pending return.
             data_tests:
               - not_null
               - accepted_values:
@@ -43,3 +54,6 @@ sources:
                       - return_pending
                       - returned
                       - shipped
+
+          - name: _etl_loaded_at
+            description: Timestamp when the source record was loaded into Snowflake by the replication process.
