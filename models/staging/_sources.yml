@@ -8,17 +8,24 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for the customer record in the application database.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's first name as entered in the application.
+          - name: last_name
+            description: Customer's last name as entered in the application.
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Primary key for the order record in the application database.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Foreign key identifying the customer who placed the order.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +33,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date on which the order was placed.
             data_tests:
               - not_null
           - name: status
+            description: Current lifecycle status of the order in the application database.
             data_tests:
               - not_null
               - accepted_values:
@@ -39,3 +48,4 @@ sources:
                       - return_pending
                       - returned
                       - shipped
+

@@ -1,37 +1,64 @@
 models:
   - name: fct_orders
+    description: One row per order, providing the customer, order date, and current order status for order-level analysis.
     columns:
       - name: order_id
+        description: Primary key for the order, inherited from the source order record.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Foreign key identifying the customer who placed the order.
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date on which the order was placed.
+      - name: status
+        description: Current lifecycle status of the order as recorded in the source system.
 
   - name: dim_customers
+    description: One row per customer, combining customer attributes with lifetime order dates and order counts. Customers without orders are retained with a zero order count and null order dates.
     columns:
       - name: customer_id
+        description: Primary key for the customer, inherited from the source customer record.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name as recorded in the source system.
+      - name: last_name
+        description: Customer's last name as recorded in the source system.
+      - name: first_order_date
+        description: Earliest date on which the customer placed an order; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Latest date on which the customer placed an order; null when the customer has no orders.
       - name: number_of_orders
+        description: Lifetime count of orders placed by the customer, set to zero for customers without orders.
         data_tests:
           - not_null
 
   - name: customer_order_rankings
+    description: One row per customer, ranked by lifetime order volume. Customers with the same order count share a dense rank, and customers without orders are included with a zero count.
     columns:
       - name: customer_id
+        description: Primary key for the ranked customer record.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name from the customer dimension.
+      - name: last_name
+        description: Customer's last name from the customer dimension.
       - name: total_number_of_orders
+        description: Lifetime count of orders placed by the customer, set to zero for customers without orders.
         data_tests:
           - not_null
       - name: customer_order_rank
+        description: Dense rank of the customer by lifetime order count in descending order, with tied counts sharing the same rank.
         data_tests:
           - not_null
+
