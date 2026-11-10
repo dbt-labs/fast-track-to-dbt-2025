@@ -1,0 +1,113 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: |
+      Customer-level mart for analyzing the customer base and ordering activity.
+      **Grain:** One row per customer in `stg_customers`, keyed by `customer_id`.
+
+      Use this model for customer counts, customers with and without orders, and
+      first or most recent order analysis. Customer details come from
+      `stg_customers`; order dates and counts are aggregated from `stg_orders`
+      and left joined so customers with no orders remain in the result.
+
+      **Important behavior:** Customers with no orders have `number_of_orders = 0`
+      and null order dates. Order counts and dates include all order statuses,
+      with no completed-order filter or reporting-period filter. They describe
+      the available source history, not necessarily a customer's full lifetime.
+    columns:
+      - name: customer_id
+        description: Unique customer key from stg_customers. Use this column to join customer attributes to fct_orders or customer_order_rankings.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name as provided by stg_customers, with no additional name standardization in this mart.
+      - name: last_name
+        description: Customer's last name as provided by stg_customers, with no additional name standardization in this mart.
+      - name: first_order_date
+        description: Earliest order_date across the customer's available orders, regardless of status. Null for customers with no orders; this is not an account creation date.
+      - name: most_recent_order_date
+        description: Latest order_date across the customer's available orders, regardless of status. Null for customers with no orders; use for order-recency analysis.
+      - name: number_of_orders
+        description: Count of non-null order_id values in stg_orders for the customer across all available dates and statuses. Defaults to zero when no orders match; this is not a completed-order count.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: |
+      Order-level mart for analyzing order volume, order dates, and statuses.
+      **Grain:** One row per order, keyed by `order_id`.
+
+      Use this model for order counts by date or status, or join to `dim_customers`
+      on `customer_id` to include customer attributes. All four columns are passed
+      through from `stg_orders` without additional filtering or aggregation.
+
+      **Important behavior:** All source order statuses are retained. Filter
+      explicitly when an analysis should include only a particular status or
+      reporting period. This model contains no order amounts or payment data
+      and should not be used to calculate revenue. Joining it to a customer-level
+      mart produces order-level rows, so customer-level measures can repeat.
+    columns:
+      - name: order_id
+        description: Unique order key from stg_orders. Use for order-level joins and distinct order counts.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order. Joins to dim_customers.customer_id; a customer can appear on multiple orders.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Order date passed through from stg_orders. Use to group or filter order activity; no date truncation or reporting-period filter is applied in this mart.
+      - name: status
+        description: Order status passed through from stg_orders without recoding or filtering. Apply an explicit status filter when defining completed, returned, or other subsets of orders.
+
+  - name: customer_order_rankings
+    description: |
+      Customer-level leaderboard for identifying customers with the most orders.
+      **Grain:** One row per customer in `dim_customers`, keyed by `customer_id`.
+
+      Use this model for order-frequency rankings and customer segmentation by
+      order volume. It retains every column from `dim_customers`, adds an order
+      count aggregated from `fct_orders`, and ranks customers by that count in
+      descending order. Customers with no orders remain included with a count of zero.
+
+      **Important behavior:** Ranking uses SQL `rank()`: equal counts share a rank,
+      and subsequent ranks have gaps (for example, 1, 1, 3). A rank-based top-N
+      filter can therefore return more than N customers. Ranks are calculated
+      over all customers and all available order dates and statuses, with no
+      reporting-period or completed-order filter. Filtering this model afterward
+      does not recalculate the ranks for the filtered subset.
+    columns:
+      - name: customer_id
+        description: Unique customer key inherited from dim_customers. Use for joins; customer_order_rank is not a unique identifier.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's first name inherited unchanged from dim_customers for identifying customers in the leaderboard.
+      - name: last_name
+        description: Customer's last name inherited unchanged from dim_customers for identifying customers in the leaderboard.
+      - name: first_order_date
+        description: Earliest available order date inherited from dim_customers, including all statuses. Null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest available order date inherited from dim_customers, including all statuses. Null for customers with no orders.
+      - name: number_of_orders
+        description: Order count inherited from dim_customers and calculated from stg_orders. Retained as customer context; customer_order_rank is based on total_number_of_orders instead.
+      - name: total_number_of_orders
+        description: Count of non-null order_id values in fct_orders per customer across all available dates and statuses, defaulting to zero for customers with no orders. This is the measure used to calculate customer_order_rank.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Rank of the customer by total_number_of_orders descending across all customers. Starts at one; ties share a rank and leave gaps. This is an order-volume rank, not a revenue or recency rank.
+        data_tests:
+          - not_null
