@@ -3,9 +3,13 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >
-      One row per customer from dim_customers, ranked by total orders from
-      fct_orders across all dates and statuses. Customers without orders have
-      zero total_orders. Equal counts share a rank, with gaps after ties.
+      Customer leaderboard for comparing lifetime order volume, with one row per
+      customer from dim_customers. Counts orders in fct_orders across all dates
+      and statuses, retaining customers without orders with zero total_orders.
+      Ranks customers by total_orders descending; equal counts share a rank,
+      with gaps after ties. Retains the order dates and staging-based
+      number_of_orders from dim_customers alongside the fact-based total_orders.
+
     columns:
       - name: customer_id
         description: Customer identifier from dim_customers and the primary key.

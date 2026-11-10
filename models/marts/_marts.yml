@@ -3,8 +3,11 @@ version: 2
 models:
   - name: dim_customers
     description: >
-      One row per customer, including customers without orders, with first and
-      most recent order dates and a count of orders across all statuses.
+      Customer dimension for customer-level reporting, with one row per customer
+      from stg_customers, including customers who have never ordered. Summarizes
+      stg_orders across all dates and statuses to provide first and most recent
+      order dates and a lifetime order count. Customers without orders have null
+      order dates and a zero order count.
     columns:
       - name: customer_id
         description: Customer identifier and primary key.
@@ -25,7 +28,12 @@ models:
           - not_null
 
   - name: fct_orders
-    description: One row per order across all statuses, linked to its customer.
+    description: >
+      Order fact model for order-volume and status reporting, with one row per
+      order from stg_orders. Retains the customer identifier, order date, and
+      status without filtering by date or status. The customer identifier links
+      orders to dim_customers for customer-level analysis.
+
     columns:
       - name: order_id
         description: Order identifier and primary key.

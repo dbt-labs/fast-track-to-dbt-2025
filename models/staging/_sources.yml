@@ -1,11 +1,19 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >
+      Replica of the application's Postgres database, stored in raw.jaffle_shop.
+      Provides customer records and order activity for the staging models that
+      feed customer reporting, order reporting, and customer order rankings.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >
+          Application customer records, with one row per customer identified by
+          id. Supplies customer identifiers and first and last names to
+          stg_customers, forming the customer population used by dim_customers
+          and customer_order_rankings. The staging model applies no order-based
+          filter, allowing customers without orders to remain in reporting.
         columns:
           - name: id
             description: Customer identifier and primary key.
@@ -13,7 +21,13 @@ sources:
               - unique
               - not_null
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >
+          Application order records, with one row per order identified by id.
+          Records the customer in user_id, the order date, and the current
+          lifecycle status. Supplies stg_orders without date or status filters
+          for downstream order reporting and lifetime customer order counts.
+          Status values are validated against placed, shipped, completed,
+          return_pending, and returned.
         columns:
           - name: id
             description: Order identifier and primary key.
