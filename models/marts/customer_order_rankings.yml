@@ -13,6 +13,11 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for this customer, across all statuses.
         data_tests:
