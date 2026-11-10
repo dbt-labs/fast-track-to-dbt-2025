@@ -21,7 +21,13 @@ models:
         description: Count of non-null order IDs in fct_orders for the customer, across all statuses and dates.
         data_tests:
           - not_null
+          - minimum_value:
+              arguments:
+                min_value: 0
       - name: order_rank
         description: Descending rank by total_orders; equal counts share a rank, with gaps after ties.
         data_tests:
           - not_null
+          - minimum_value:
+              arguments:
+                min_value: 1
