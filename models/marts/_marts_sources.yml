@@ -1,6 +1,16 @@
 version: 2
 
 models:
+  - name: time_spine_daily
+    description: A time spine with one row per day, used by MetricFlow for cumulative metrics and gap filling.
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        description: The base date column for daily granularity.
+        granularity: day
+
+
   - name: customer_order_rankings
     description: >
       One row per customer from dim_customers, ranked by their all-time order
@@ -29,35 +39,86 @@ models:
 
   - name: dim_customers
     description: One row per customer, with first and most recent order dates and a lifetime order count.
+    semantic_model:
+      enabled: true
+    agg_time_dimension: first_order_date
     columns:
       - name: customer_id
         description: Customer identifier; the primary key.
+        entity:
+          type: primary
+          name: customer
         data_tests:
           - unique
           - not_null
       - name: first_name
         description: Customer first name.
+        dimension:
+          type: categorical
       - name: last_name
         description: Customer last name.
+        dimension:
+          type: categorical
       - name: first_order_date
         description: Date of the customer's first order. Null for customers without orders.
+        granularity: day
+        dimension:
+          type: time
       - name: most_recent_order_date
         description: Date of the customer's latest order. Null for customers without orders.
+        granularity: day
+        dimension:
+          type: time
       - name: number_of_orders
         description: Count of orders across all statuses. Zero for customers without orders.
+        dimension:
+          type: categorical
         data_tests:
           - not_null
+    metrics:
+      - name: new_customers
+        type: simple
+        label: New Customers
+        description: Distinct customers by the date of their first order. Customers who never ordered have no first order date and are excluded.
+        agg: count_distinct
+        expr: customer_id
+
+      - name: repeat_customers
+        type: simple
+        label: Repeat Customers
+        description: Customers with more than one order, by date of their first order.
+        agg: count_distinct
+        expr: customer_id
+        filter: |
+          {{ Dimension('customer__number_of_orders') }} > 1
+
+      - name: repeat_customer_rate
+        type: ratio
+        label: Repeat Customer Rate
+        description: Share of customers with an order who have ordered more than once.
+        numerator: repeat_customers
+        denominator: new_customers
+
 
   - name: fct_orders
     description: One row per order, across all statuses.
+    semantic_model:
+      enabled: true
+    agg_time_dimension: order_date
     columns:
       - name: order_id
         description: Order identifier; the primary key.
+        entity:
+          type: primary
+          name: order_id
         data_tests:
           - unique
           - not_null
       - name: customer_id
         description: Customer who placed the order. Foreign key.
+        entity:
+          type: foreign
+          name: customer
         data_tests:
           - not_null
           - relationships:
@@ -66,10 +127,82 @@ models:
                 field: customer_id
       - name: order_date
         description: Date the order was placed.
+        granularity: day
+        dimension:
+          type: time
       - name: status
         description: Current order status.
+        dimension:
+          type: categorical
         data_tests:
           - not_null
           - accepted_values:
               arguments:
                 values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+    metrics:
+      - name: order_count
+        type: simple
+        label: Orders
+        description: Count of orders across all statuses.
+        agg: count
+        expr: order_id
+
+      - name: ordering_customers
+        type: simple
+        label: Ordering Customers
+        description: Distinct customers who placed at least one order in the period.
+        agg: count_distinct
+        expr: customer_id
+
+      - name: completed_orders
+        type: simple
+        label: Completed Orders
+        description: Orders with status completed.
+        agg: count
+        expr: order_id
+        filter: |
+          {{ Dimension('order_id__status') }} = 'completed'
+
+      - name: returned_orders
+        type: simple
+        label: Returned Orders
+        description: Orders with status returned.
+        agg: count
+        expr: order_id
+        filter: |
+          {{ Dimension('order_id__status') }} = 'returned'
+
+
+      - name: order_completion_rate
+        type: ratio
+        label: Order Completion Rate
+        description: Completed orders as a share of all orders.
+        numerator: completed_orders
+        denominator: order_count
+
+      - name: order_return_rate
+        type: ratio
+        label: Order Return Rate
+        description: Returned orders as a share of all orders.
+        numerator: returned_orders
+        denominator: order_count
+
+      - name: orders_per_customer
+        type: ratio
+        label: Orders per Ordering Customer
+        description: Average number of orders per customer who ordered in the period.
+        numerator: order_count
+        denominator: ordering_customers
+
+      - name: cumulative_orders
+        type: cumulative
+        label: Cumulative Orders
+        description: Running total of all orders over time.
+        input_metric: order_count
+
+      - name: orders_l30d
+        type: cumulative
+        label: Orders (Trailing 30 Days)
+        description: Orders over a trailing 30-day window.
+        input_metric: order_count
+        window: 30 days
