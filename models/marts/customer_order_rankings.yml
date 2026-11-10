@@ -3,9 +3,11 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >-
-      One row per customer from dim_customers, ranked by their all-time count
-      of orders in fct_orders across all statuses. Includes customers with no
-      orders. Equal counts share a rank, with gaps after ties.
+      Customer-level ranking for comparing order frequency, with one row per
+      customer from dim_customers ranked by their all-time count of orders in
+      fct_orders across all statuses. Includes customers with no orders and
+      retains all dim_customers attributes. Equal counts share a rank, with
+      gaps after ties.
     columns:
       - name: customer_id
         description: Customer identifier from dim_customers.
@@ -16,6 +18,19 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer first name inherited from dim_customers.
+      - name: last_name
+        description: Customer last name inherited from dim_customers.
+      - name: first_order_date
+        description: Earliest order date across all statuses, inherited from dim_customers; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses, inherited from dim_customers; null for customers with no orders.
+      - name: number_of_orders
+        description: >-
+          Count of orders across all statuses from stg_orders, inherited from
+          dim_customers; zero for customers with no orders. Retained alongside
+          total_orders, which is calculated from fct_orders for ranking.
       - name: total_orders
         description: Count of non-null order_id values in fct_orders for the customer; zero for customers without orders.
         data_tests:

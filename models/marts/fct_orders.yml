@@ -2,15 +2,18 @@ version: 2
 
 models:
   - name: fct_orders
-    description: One row per order from stg_orders, retaining all order statuses.
+    description: >-
+      Order fact model for order-volume and status reporting, with one row per
+      order from stg_orders. Retains all order statuses without filtering and
+      includes the customer identifier for joining to dim_customers.
     columns:
       - name: order_id
-        description: Order identifier from stg_orders.
+        description: Unique order identifier from stg_orders; primary key of this model.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier of the customer who placed the order.
+        description: Identifier of the customer who placed the order; joins to customer_id in dim_customers.
         data_tests:
           - not_null
           - relationships:
@@ -20,7 +23,9 @@ models:
       - name: order_date
         description: Date the order was placed, from stg_orders.
       - name: status
-        description: Order status from stg_orders; accepted values are tested at the source.
+        description: >-
+          Order status as supplied by stg_orders. Expected values are completed,
+          placed, return_pending, returned, and shipped; all are retained for reporting.
         data_tests:
           - not_null
           - accepted_values:

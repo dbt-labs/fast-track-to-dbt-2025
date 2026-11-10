@@ -2,7 +2,12 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including customers with no orders, with all-time order counts and first and most recent order dates.
+    description: >-
+      Customer dimension for customer-level reporting, with one row per customer
+      from stg_customers, including customers who have never ordered. Summarizes
+      all available orders from stg_orders across all statuses using order counts
+      and first and most recent order dates.
+
     columns:
       - name: customer_id
         description: Customer identifier from stg_customers.
