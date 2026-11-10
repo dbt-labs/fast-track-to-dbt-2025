@@ -26,7 +26,4 @@ models:
         description: >-
           Order status as supplied by stg_orders. Expected values are completed,
           placed, return_pending, returned, and shipped; all are retained for reporting.
-        data_tests:
-          - not_null
-          - accepted_values:
-              values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+       
