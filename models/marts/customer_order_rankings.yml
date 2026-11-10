@@ -6,12 +6,23 @@ models:
       One row per customer from dim_customers, ranked by their all-time order
       count from fct_orders across all statuses. Includes customers with no
       orders. Preserves all columns from dim_customers.
+    data_tests:
+      - expression_is_true:
+          name: customer_order_rankings_valid_totals_and_rank
+          description: Order totals must be nonnegative and match the dimension count; ranks must start at one or higher and may tie.
+          arguments:
+            expression: total_orders >= 0 and order_rank >= 1 and total_orders = number_of_orders
     columns:
       - name: customer_id
         description: Customer identifier from dim_customers.
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for the customer; zero when no orders exist.
         data_tests:

@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with all-status order counts and first and most recent order dates.
+    data_tests:
+      - expression_is_true:
+          name: dim_customers_valid_order_summary
+          description: Order counts must be nonnegative; customers with no orders have null order dates, while customers with orders have ordered, non-null dates.
+          arguments:
+            expression: >-
+              number_of_orders >= 0
+              and (
+                (number_of_orders = 0 and first_order_date is null and most_recent_order_date is null)
+                or (number_of_orders > 0 and first_order_date is not null
+                    and most_recent_order_date is not null and first_order_date <= most_recent_order_date)
+              )
+    columns:
+      - name: customer_id
+        description: Customer identifier; the primary key of this dimension.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from the application.
+      - name: last_name
+        description: Customer last name from the application.
+      - name: first_order_date
+        description: Earliest order date across all statuses; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses; null for customers with no orders.
+      - name: number_of_orders
+        description: Count of orders across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order across all statuses, preserving the staged order fields.
+    columns:
+      - name: order_id
+        description: Order identifier; the primary key of this fact table.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order; references dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Application order status; completeness and observed status values are tested at the source.
