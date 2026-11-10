@@ -33,7 +33,7 @@ final as (
 
     select
         customer_totals.*,
-        rank() over (order by total_orders desc) as order_rank
+        row_number() over (order by total_orders desc) as order_rank  -- rank with no ties
 
     from customer_totals
 
