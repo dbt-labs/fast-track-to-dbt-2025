@@ -2,7 +2,12 @@ version: 2
 
 models:
   - name: fct_orders
-    description: One row per order, with the customer identifier, order date, and status.
+    description: >-
+      Order-level fact model with one row per order from raw.jaffle_shop.orders.
+      Includes the order identifier, the customer who placed the order, the order
+      date, and the order status. Retains all source orders without filtering or
+      aggregation, supporting order-volume and status analysis over time and by
+      customer.
     columns:
       - name: order_id
         description: Unique identifier for an order.
