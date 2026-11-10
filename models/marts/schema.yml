@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: number_of_orders
+        description: Lifetime order count across all statuses, or zero for customers with no orders.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+        data_tests:
+          - not_null:
+              config:
+                where: "number_of_orders > 0"
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+        data_tests:
+          - not_null:
+              config:
+                where: "number_of_orders > 0"
+
+  - name: fct_orders
+    description: One row per order across all statuses.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Order status inherited from staging.
+        data_tests:
+          - not_null
