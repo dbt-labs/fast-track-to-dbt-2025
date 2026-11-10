@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with lifetime order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        description: Unique identifier of the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Date of the customer's first order; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's most recent order; null for customers with no orders.
+      - name: number_of_orders
+        description: Lifetime count of orders across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, retaining all order statuses from stg_orders.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current order status, passed through from the source.
+
+  - name: customer_order_ranking
+    description: >-
+      One row per customer from dim_customers, retaining all customer attributes
+      and ranking customers by their lifetime order count from fct_orders.
+      Includes all order statuses and customers with no orders. Equal order
+      counts share a rank, with gaps after ties (competition ranking).
+    columns:
+      - name: customer_id
+        description: Unique identifier of the customer from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+      - name: order_count_rank
+        description: Competition rank by total_orders descending; rank 1 has the most orders and ties share a rank.
+        data_tests:
+          - not_null
