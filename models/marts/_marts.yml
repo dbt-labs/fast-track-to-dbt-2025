@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders.
+    columns:
+      - name: customer_id
+        description: Customer identifier from stg_customers; one row per customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from stg_customers.
+      - name: last_name
+        description: Customer last name from stg_customers.
+      - name: first_order_date
+        description: Earliest order date across all of the customer's orders; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all of the customer's orders; null for customers with no orders.
+      - name: number_of_orders
+        description: Count of orders across all dates and statuses for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order with its customer, order date, and status.
+    columns:
+      - name: order_id
+        description: The primary key of the table.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: The foreign key to dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date of the order, passed through from stg_orders without modification.
+        data_tests:
+          - not_null
+      - name: status
+        description: Order status from stg_orders; expected values are completed, placed, return_pending, returned, and shipped.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer in dim_customers, ranked by the total number of
+      orders in fct_orders across all dates and statuses. Customers without
+      orders are included with zero total_orders. Equal totals share a rank,
+      and subsequent ranks have gaps (standard competition ranking).
+    columns:
+      - name: customer_id
+        description: Customer identifier from dim_customers; the grain of this model.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name from dim_customers.
+      - name: last_name
+        description: Customer last name from dim_customers.
+      - name: first_order_date
+        description: First order date as calculated in dim_customers.
+      - name: most_recent_order_date
+        description: Most recent order date as calculated in dim_customers.
+      - name: number_of_orders
+        description: Existing order count from dim_customers, preserved unchanged.
+        data_tests:
+          - not_null
+      - name: total_orders
+        description: Count of non-null order_id values in fct_orders for this customer; zero if none.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Rank by total_orders descending, with rank 1 for the highest total and shared ranks for ties.
+        data_tests:
+          - not_null
