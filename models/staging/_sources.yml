@@ -1,24 +1,39 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the Postgres database used by the Jaffle Shop application,
+      stored in the raw database's jaffle_shop schema. Provides customer and
+      order records for the staging models that feed customer reporting,
+      order analysis, and customer order rankings.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          Application customer records at one row per customer, providing the
+          customer identifier and names used by stg_customers. Serves as the
+          customer population for dim_customers, which retains customers
+          regardless of whether they have placed an order.
         columns:
           - name: id
+            description: Unique customer identifier; renamed to customer_id in stg_customers and referenced by orders.user_id.
             data_tests:
               - unique
-              - not_null              
+              - not_null
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          Application order records at one row per order, including the customer
+          identifier, order date, and status used by stg_orders. Feeds order-level
+          reporting and customer lifetime order counts without status filtering
+          in staging. Includes cancelled and deleted orders.
         columns:
           - name: id
+            description: Unique order identifier; renamed to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; references customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +41,14 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed; passed through unchanged by stg_orders and used to derive customer first and most recent order dates.
             data_tests:
               - not_null
           - name: status
+            description: >-
+              Order status from the application, passed through unchanged by
+              stg_orders. The accepted-values test expects completed, placed,
+              return_pending, returned, or shipped.
             data_tests:
               - not_null
               - accepted_values:
