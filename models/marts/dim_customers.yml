@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer, including customers with no orders, with their first
+      and most recent order dates and total number of orders across all statuses.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from stg_customers.
+      - name: last_name
+        description: Customer last name from stg_customers.
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+      - name: number_of_orders
+        description: Total number of orders for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
