@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >-
+      One row per customer from dim_customers, ranked by their all-time number
+      of orders in fct_orders across all statuses. Customers without orders
+      have total_orders of zero. Ties share a rank, with gaps after ties.
+      All existing dim_customers columns are retained; total_orders is
+      calculated independently from fct_orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier inherited from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name inherited from dim_customers.
+      - name: last_name
+        description: Customer last name inherited from dim_customers.
+      - name: first_order_date
+        description: First order date inherited from dim_customers.
+      - name: most_recent_order_date
+        description: Most recent order date inherited from dim_customers.
+      - name: number_of_orders
+        description: Existing staging-based order count inherited from dim_customers.
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer, or zero.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Descending rank by total_orders, starting at one; ties share a rank with gaps.
+        data_tests:
+          - not_null
