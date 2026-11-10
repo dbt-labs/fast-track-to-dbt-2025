@@ -38,12 +38,12 @@ models:
     description: One row per order across all statuses, preserving the staged order fields.
     columns:
       - name: order_id
-        description: Order identifier; the primary key of this fact table.
+        description: Order identifier; the primary key of the orders table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order; references dim_customers.
+        description: Customer who placed the order; foreign key for the customers table.
         data_tests:
           - not_null
           - relationships:

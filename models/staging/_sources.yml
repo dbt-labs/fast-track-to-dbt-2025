@@ -1,24 +1,51 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's PostgreSQL database in raw.jaffle_shop.
+      Supplies customer records and order history to stg_customers and
+      stg_orders for the customer and order marts.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          One row per application customer, identified by id, with their first
+          and last names. stg_customers retains every source row without
+          requiring a matching order.
         columns:
           - name: id
+            description: >-
+              Unique, non-null customer identifier in the application.
+              Referenced by orders.user_id and renamed to customer_id in
+              stg_customers.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: >-
+              Customer's first name as recorded in the application; passed
+              through unchanged by stg_customers.
+          - name: last_name
+            description: >-
+              Customer's last name as recorded in the application; passed
+              through unchanged by stg_customers.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          One row per application order, identified by id and linked to a
+          customer through user_id. Includes cancelled and deleted orders.
+          stg_orders retains every source row without filtering by status.
         columns:
           - name: id
+            description: >-
+              Unique, non-null order identifier in the application; renamed
+              to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: >-
+              Identifier of the customer who placed the order. References
+              customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +53,19 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: >-
+              Date the order was placed, passed through unchanged by
+              stg_orders. Used to determine each customer's first and most
+              recent order dates across all statuses.
             data_tests:
               - not_null
           - name: status
+            description: >-
+              Order lifecycle status recorded by the application, passed
+              through unchanged by stg_orders. The accepted-values test
+              recognizes completed, placed, return_pending, returned, and
+              shipped; other non-null values produce a warning for review
+              and are not filtered out.
             data_tests:
               - not_null
               - accepted_values:
