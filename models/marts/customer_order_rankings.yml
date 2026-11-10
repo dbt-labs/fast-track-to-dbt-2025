@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >-
+      One row per customer in dim_customers, ranked by total orders from
+      fct_orders across all dates and statuses. Customers with no orders are
+      included with zero orders. Equal totals share a rank, with gaps after ties.
+      Preserves all columns from dim_customers.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for the customer, or zero.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Descending rank by total_orders; ties share a rank and subsequent ranks have gaps.
+        data_tests:
+          - not_null
