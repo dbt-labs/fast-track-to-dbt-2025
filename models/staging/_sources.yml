@@ -8,9 +8,23 @@ sources:
         description: One record per customer.
         columns:
           - name: id
-            data_tests: 
+            description: Unique identifier for a customer; used as customer_id in staging and marts and referenced by orders.user_id.
+            data_tests:
               - unique
               - not_null
-              
+          - name: first_name
+            description: Customer's first name as recorded in the application, passed through unchanged to staging and marts.
+          - name: last_name
+            description: Customer's last name as recorded in the application, passed through unchanged to staging and marts.
+
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            description: Identifier for an order in the application; renamed to order_id in staging and marts.
+          - name: user_id
+            description: Identifier of the customer associated with the order, corresponding to customers.id; renamed to customer_id in staging and marts.
+          - name: order_date
+            description: Date of the order as recorded in the application; used to calculate each customer's first and most recent order dates.
+          - name: status
+            description: Order status as recorded in the application, retained without recoding or filtering in staging and marts.

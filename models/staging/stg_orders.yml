@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Order records from the jaffle_shop orders source, with identifiers renamed and all source dates and statuses retained.
+    columns:
+      - name: order_id
+        description: Order identifier from jaffle_shop.orders.id, passed through without transformation.
+      - name: customer_id
+        description: Identifier of the customer associated with the order, renamed from jaffle_shop.orders.user_id and corresponding to stg_customers.customer_id.
+      - name: order_date
+        description: Order date from the source, used to calculate first_order_date and most_recent_order_date in dim_customers.
+      - name: status
+        description: Order status from the source, retained without recoding or filtering; all statuses contribute to customer order counts.

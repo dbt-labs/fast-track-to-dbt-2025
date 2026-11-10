@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      One row per customer from stg_customers, enriched with first and most recent
+      order dates and an order count from stg_orders across all dates and statuses.
+      Customers with no orders are included with zero orders and null order dates.
+    columns:
+      - name: customer_id
+        description: >
+          Customer identifier carried through from stg_customers. Used to associate
+          the customer with orders via stg_orders.customer_id; customers remain in
+          this model even when they have no matching orders.
+      - name: first_name
+        description: >
+          Customer's first name from stg_customers, retained without transformation
+          regardless of whether the customer has placed an order.
+      - name: last_name
+        description: >
+          Customer's last name from stg_customers, retained without transformation
+          regardless of whether the customer has placed an order.
+      - name: first_order_date
+        description: >
+          Earliest non-null order_date among the customer's records in stg_orders,
+          calculated across all order statuses. Null when the customer has no
+          matching orders or all matching order dates are null.
+      - name: most_recent_order_date
+        description: >
+          Latest non-null order_date among the customer's records in stg_orders,
+          calculated across all order statuses. Null when the customer has no
+          matching orders or all matching order dates are null.
+      - name: number_of_orders
+        description: >
+          Count of non-null order_id values in stg_orders for the customer across
+          all dates and statuses, without deduplication. Defaults to zero when
+          the customer has no matching orders; records with null order_id do not
+          contribute to the count.
+
+  - name: fct_orders
+    description: >
+      Order records from raw.jaffle_shop.orders, with id renamed to order_id and
+      user_id renamed to customer_id. Includes all source dates and statuses
+      without filtering or aggregation.
+    columns:
+      - name: order_id
+        description: >
+          Order identifier renamed from raw.jaffle_shop.orders.id. Retained as
+          recorded in the source, without filtering or deduplication.
+      - name: customer_id
+        description: >
+          Identifier of the customer associated with the order, renamed from
+          raw.jaffle_shop.orders.user_id. Can be used to join to
+          dim_customers.customer_id; this model does not filter out orders that
+          lack a matching customer.
+      - name: order_date
+        description: >
+          Date of the order from raw.jaffle_shop.orders.order_date, retained
+          without casting, truncation, or date-range filtering.
+      - name: status
+        description: >
+          Order status from raw.jaffle_shop.orders.status, retained without
+          recoding. All source statuses are included; this model applies no
+          status-based filtering.
