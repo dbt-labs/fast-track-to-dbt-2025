@@ -26,7 +26,7 @@ models:
     description: One row per order, retaining all orders and statuses from stg_orders.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Primary ket for the orders table.
         data_tests:
           - unique
           - not_null
