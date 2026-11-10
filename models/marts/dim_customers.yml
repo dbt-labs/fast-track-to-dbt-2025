@@ -9,6 +9,15 @@ models:
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name from the customer source record.
+      - name: last_name
+        description: Customer's last name from the customer source record.
+      - name: first_order_date
+        description: Earliest order date for this customer across all statuses; null for customers with no dated orders.
+      - name: most_recent_order_date
+        description: Latest order date for this customer across all statuses; null for customers with no dated orders.
+
       - name: number_of_orders
         description: Count of orders for this customer, or zero if none.
         data_tests:

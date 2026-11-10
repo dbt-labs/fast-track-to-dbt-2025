@@ -18,6 +18,17 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's first name, inherited from dim_customers.
+      - name: last_name
+        description: Customer's last name, inherited from dim_customers.
+      - name: first_order_date
+        description: Earliest order date across all statuses, inherited from dim_customers; null for customers with no dated orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses, inherited from dim_customers; null for customers with no dated orders.
+      - name: number_of_orders
+        description: Count of non-null order IDs from stg_orders, inherited from dim_customers; zero for customers with no orders. Calculated independently of total_orders.
+
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for this customer, or zero if none.
         data_tests:
