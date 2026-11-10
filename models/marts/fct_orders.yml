@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order, with its customer, order date, and status.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Order status; update the accepted values when the upstream status lifecycle changes.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - placed
+                  - shipped
+                  - completed
+                  - return_pending
+                  - returned

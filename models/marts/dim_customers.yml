@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: All-time count of orders for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
