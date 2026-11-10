@@ -1,24 +1,41 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, stored in raw.jaffle_shop.
+      Provides customer and order records for the staging models and downstream
+      customer-history and order-analysis marts.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          One record per customer in the application. Supplies customer identifiers
+          and names to stg_customers for use in customer-level analysis.
         columns:
           - name: id
+            description: >-
+              Primary key of the source customer record. Referenced by orders.user_id
+              and renamed to customer_id in stg_customers.
             data_tests:
               - unique
-              - not_null 
+              - not_null
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          One record per application order. Includes cancelled and deleted orders,
+          according to the existing source documentation. Supplies order identifiers,
+          customer associations, dates, and statuses to the staging layer.
         columns:
           - name: id
+            description: >-
+              Primary key of the source order record. Renamed to order_id in
+              stg_orders and used to identify orders in downstream marts.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: >-
+              Identifier of the customer associated with the order. References
+              customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +43,17 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: >-
+              Date recorded for the order by the application. Passed through by
+              the staging layer and used to calculate customer first and most
+              recent order dates.
             data_tests:
               - not_null
           - name: status
+            description: >-
+              Order status recorded by the application. The accepted-values test
+              permits completed, placed, return_pending, returned, and shipped.
+              Downstream marts retain all statuses unless explicitly filtered.
             data_tests:
               - not_null
               - accepted_values:
