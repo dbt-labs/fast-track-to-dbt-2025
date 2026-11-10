@@ -9,7 +9,7 @@ models:
       Sort by order_count_rank and customer_id when displaying results.
     columns:
       - name: customer_id
-        description: Unique customer identifier from dim_customers.
+        description: Primary key for customer_order_rankings and foreign key to dim_customers.customer_id. Must be unique, not null, and match an existing customer.
         data_tests:
           - unique
           - not_null
@@ -18,21 +18,22 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
-        description: Customer first name from dim_customers.
+        description: Customer first name from dim_customers. Null values are permitted.
       - name: last_name
-        description: Customer last name from dim_customers.
+        description: Customer last name from dim_customers. Null values are permitted.
       - name: first_order_date
         description: Date of the customer's first order; null for customers with no orders.
       - name: most_recent_order_date
         description: Date of the customer's most recent order; null for customers with no orders.
       - name: number_of_orders
-        description: Lifetime order count across all statuses; zero for customers with no orders.
+        description: Lifetime order count across all statuses; zero for customers with no orders. Must not be null.
         data_tests:
           - not_null
       - name: order_count_rank
         description: >
           Dense rank by number_of_orders descending. Rank 1 has the most orders;
           equal counts share a rank and subsequent ranks have no gaps.
+          Must not be null; repeated ranks are expected.
         data_tests:
           - not_null
 
@@ -40,20 +41,20 @@ models:
     description: One row per customer, including lifetime order counts and first and most recent order dates across all statuses.
     columns:
       - name: customer_id
-        description: Unique customer identifier.
+        description: Primary key for dim_customers, originating from jaffle_shop.customers.id. Must be unique and not null.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer first name.
+        description: Customer first name. Null values are permitted.
       - name: last_name
-        description: Customer last name.
+        description: Customer last name. Null values are permitted.
       - name: first_order_date
         description: Date of the customer's first order; null for customers with no orders.
       - name: most_recent_order_date
         description: Date of the customer's most recent order; null for customers with no orders.
       - name: number_of_orders
-        description: Lifetime order count across all statuses; zero for customers with no orders.
+        description: Lifetime order count across all statuses; zero for customers with no orders. Must not be null.
         data_tests:
           - not_null
 
@@ -61,12 +62,12 @@ models:
     description: One row per order, including the customer, order date, and status.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Primary key for fct_orders, originating from jaffle_shop.orders.id. Must be unique and not null.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order; references dim_customers.
+        description: Required customer foreign key referencing dim_customers.customer_id. Must not be null and must match an existing customer.
         data_tests:
           - not_null
           - relationships:
@@ -74,6 +75,10 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date the order was placed. Required; must not be null.
+        data_tests:
+          - not_null
       - name: status
-        description: Order status; accepted values and completeness are tested on the orders source.
+        description: Required order status. Must not be null; accepted values are tested on the orders source.
+        data_tests:
+          - not_null
