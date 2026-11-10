@@ -9,6 +9,15 @@ models:
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer first name as recorded in stg_customers, without additional transformation.
+      - name: last_name
+        description: Customer last name as recorded in stg_customers, without additional transformation.
+      - name: first_order_date
+        description: Earliest order_date in stg_orders for this customer across all statuses; null for customers without orders.
+      - name: most_recent_order_date
+        description: Latest order_date in stg_orders for this customer across all statuses; null for customers without orders.
+
       - name: number_of_orders
         description: Number of orders for the customer across all statuses, or zero for customers without orders.
         data_tests:

@@ -17,3 +17,8 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date of the order as recorded in stg_orders, without additional transformation.
+      - name: status
+        description: Order status passed through from stg_orders without filtering; expected values are placed, shipped, completed, return_pending, and returned.
+
