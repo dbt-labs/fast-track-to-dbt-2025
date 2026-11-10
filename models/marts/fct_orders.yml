@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order, including its customer, order date, and status.
+    columns:
+      - name: order_id
+        description: Order identifier and primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id

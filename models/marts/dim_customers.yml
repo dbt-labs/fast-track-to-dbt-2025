@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with order dates and an order count.
+    columns:
+      - name: customer_id
+        description: Customer identifier and primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Count of orders for this customer, or zero if none.
+        data_tests:
+          - not_null

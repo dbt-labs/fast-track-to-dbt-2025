@@ -14,14 +14,19 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for this customer, or zero if none.
         data_tests:
           - not_null
       - name: order_rank
         description: >
-          Descending competition rank by total_orders. Rank 1 has the most orders.
-          Tied counts share a rank, with gaps after ties (for example, 1, 1, 3).
-          Query with an explicit ORDER BY order_rank, customer_id for a sorted leaderboard.
+          Unique row number ordered by total_orders descending. Rank 1 has the
+          most orders. Tied counts receive distinct ranks with unspecified tie
+          ordering. Query with an explicit ORDER BY order_rank for a sorted leaderboard.
         data_tests:
+          - unique
           - not_null
