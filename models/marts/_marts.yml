@@ -2,36 +2,46 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including customers with no orders, with order dates and total order count.
+    description: >
+      Customer dimension with one row per customer from stg_customers, including
+      customers who have never placed an order. Enriches customer names with the
+      earliest order date, most recent order date, and lifetime order count from
+      stg_orders. All available order dates and statuses are included without
+      filtering. Use this model for customer-level reporting and order activity summaries.
     columns:
       - name: customer_id
-        description: Unique customer identifier.
+        description: Primary key of the customer dimension, inherited from stg_customers; used to join customer records to orders and rankings.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer's first name.
+        description: Customer's first name, passed through unchanged from stg_customers.
       - name: last_name
-        description: Customer's last name.
+        description: Customer's last name, passed through unchanged from stg_customers.
       - name: first_order_date
-        description: Date of the customer's first order; null for customers with no orders.
+        description: Earliest non-null order_date for the customer across all order statuses; null for customers with no orders.
       - name: most_recent_order_date
-        description: Date of the customer's most recent order; null for customers with no orders.
+        description: Latest non-null order_date for the customer across all order statuses; null for customers with no orders.
       - name: number_of_orders
-        description: Total number of orders across all statuses; zero for customers with no orders.
+        description: Lifetime count of non-null order_id values in stg_orders for the customer across all statuses; defaults to zero for customers with no orders.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order, retaining all orders and statuses from stg_orders.
+    description: >
+      Order fact model with one row per order from stg_orders. Retains the order
+      identifier, customer identifier, order date, and status without filtering or
+      aggregation. Includes every order supplied by staging, regardless of status.
+      Use this model for order-level reporting and join to dim_customers on customer_id
+      for customer attributes.
     columns:
       - name: order_id
-        description: Primary ket for the orders table.
+        description: Primary key of the order fact model, inherited from stg_orders; identifies a single order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order; references dim_customers.
+        description: Identifier of the customer associated with the order; foreign key to dim_customers.customer_id.
         data_tests:
           - not_null
           - relationships:
@@ -39,20 +49,25 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date the order was placed, passed through unchanged from stg_orders; used for order-volume reporting over time.
       - name: status
-        description: Order status, validated against accepted values at the source.
+        description: >
+          Order status passed through unchanged from stg_orders. Accepted values
+          configured at the source are placed, shipped, completed, return_pending,
+          and returned. This model retains all statuses, so order counts are not
+          restricted to completed orders.
 
   - name: customer_order_rankings
     description: >
-      One row per customer in dim_customers, ranked by the total number of orders
-      in fct_orders across all dates and statuses. Includes customers with no orders.
-      Outputs customer_id, first_name, last_name, total_orders, and customer_order_rank.
-      total_orders is calculated from fct_orders and is the count used for ranking.
-
+      Customer order-volume ranking with one row per customer in dim_customers,
+      including customers with no orders. Counts non-null order IDs in fct_orders
+      across all available dates and statuses, then ranks customers by that lifetime
+      count in descending order using dense_rank. Equal counts share a rank and
+      subsequent ranks have no gaps. Use this model to identify customers with the
+      most orders; the ranking measures order frequency, not revenue or spending.
     columns:
       - name: customer_id
-        description: Customer identifier inherited from dim_customers.
+        description: Primary key of the customer ranking model and foreign key to dim_customers.customer_id; each customer appears once.
         data_tests:
           - unique
           - not_null
@@ -60,12 +75,15 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
-
+      - name: first_name
+        description: Customer's first name, inherited from dim_customers.
+      - name: last_name
+        description: Customer's last name, inherited from dim_customers.
       - name: total_orders
-        description: Count of non-null order IDs in fct_orders for the customer; zero when no orders exist.
+        description: Lifetime count of non-null order_id values in fct_orders for the customer across all dates and statuses; zero for customers with no orders. This count determines customer_order_rank.
         data_tests:
           - not_null
       - name: customer_order_rank
-        description: Dense rank by total_orders descending; rank 1 has the most orders, ties share a rank, and ranks have no gaps.
+        description: Dense rank of total_orders in descending order, starting at 1 for the highest order count. Customers with equal counts share a rank, with no gaps between ranks; customers with zero orders share the lowest rank when present.
         data_tests:
           - not_null
