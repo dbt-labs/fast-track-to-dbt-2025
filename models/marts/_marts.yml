@@ -2,7 +2,29 @@ version: 2
 
 models:
   - name: fct_orders
+    description: >
+      One row per order from stg_orders, containing the customer identifier,
+      order date, and order status for order-level reporting.
     columns:
       - name: order_id
+        description: Primary key for the orders table.
         data_tests:
           - unique
+
+  - name: dim_customers
+    description: >
+      One row per customer with first and last names, first and most recent
+      order dates, and total number of orders across all statuses. Includes
+      customers with no orders, whose order count is zero and order dates are null.
+    columns:
+      - name: customer_id
+        description: Foreign key for the customers table.
+        data_tests:
+          - unique
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, retaining customer details and
+      order summaries and adding a dense rank by total number of orders in
+      descending order. Customers with the same order count share a rank,
+      with no gaps between ranks. Includes customers with no orders.
