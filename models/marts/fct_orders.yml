@@ -21,3 +21,7 @@ models:
         description: Date the order was placed, from stg_orders.
       - name: status
         description: Order status from stg_orders; accepted values are tested at the source.
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
