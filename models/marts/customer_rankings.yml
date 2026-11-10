@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: customer_rankings
+    description: >
+      One row per customer from dim_customers, ranked by lifetime order count
+      descending across all order statuses. Customers with equal counts share
+      a dense rank with no gaps; customers with zero orders are included.
+      Rank 1 represents the highest order count.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier inherited from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+      - name: number_of_orders
+        description: Lifetime order count across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: Dense rank by number_of_orders descending, with ties sharing a rank and no gaps.
+        data_tests:
+          - not_null
