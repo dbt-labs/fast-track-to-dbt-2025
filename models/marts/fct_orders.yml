@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order, across all statuses.
+    columns:
+      - name: order_id
+        description: Order identifier; the primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current order status.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
