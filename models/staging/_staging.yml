@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer staging model for the jaffle_shop customers source. Selects
+      the customer identifier and names, renaming id to customer_id. Intended
+      grain is one row per source customer; no filtering, deduplication, or
+      name normalization is applied.
+    config:
+      meta:
+        layer: staging
+        model_type: staging
+        grain: One row per source customer.
+        primary_key: customer_id
+        source_name: jaffle_shop
+        source_table: customers
+        contains_pii: true
+    columns:
+      - name: customer_id
+        description: Source customers.id, renamed to customer_id for consistent joins across customer and order models.
+        config:
+          meta:
+            column_role: primary_key
+            source_column: jaffle_shop.customers.id
+      - name: first_name
+        description: Customer's first name as recorded in the source, without normalization or masking.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            source_column: jaffle_shop.customers.first_name
+            contains_pii: true
+            pii_type: personal_name
+      - name: last_name
+        description: Customer's last name as recorded in the source, without normalization or masking.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            source_column: jaffle_shop.customers.last_name
+            contains_pii: true
+            pii_type: personal_name
+
+  - name: stg_orders
+    description: >-
+      Order staging model for the jaffle_shop orders source. Renames id to
+      order_id and user_id to customer_id, retaining order_date and status.
+      Intended grain is one row per source order. No date or status filtering,
+      deduplication, or status normalization is applied.
+    config:
+      meta:
+        layer: staging
+        model_type: staging
+        grain: One row per source order.
+        primary_key: order_id
+        source_name: jaffle_shop
+        source_table: orders
+    columns:
+      - name: order_id
+        description: Source orders.id, renamed to order_id; identifies the order for downstream counting and joins.
+        config:
+          meta:
+            column_role: primary_key
+            source_column: jaffle_shop.orders.id
+      - name: customer_id
+        description: Source orders.user_id, renamed to customer_id; identifies the customer who placed the order and joins to stg_customers.customer_id.
+        config:
+          meta:
+            column_role: foreign_key
+            references: stg_customers.customer_id
+            source_column: jaffle_shop.orders.user_id
+      - name: order_date
+        description: Date the order was placed, passed through from the source without transformation; used for customer first and most recent order dates.
+        config:
+          meta:
+            column_role: date
+            source_column: jaffle_shop.orders.order_date
+      - name: status
+        description: Order status passed through from the source without normalization. Source accepted values are placed, shipped, completed, return_pending, and returned; all statuses are retained.
+        config:
+          meta:
+            column_role: categorical_dimension
+            source_column: jaffle_shop.orders.status

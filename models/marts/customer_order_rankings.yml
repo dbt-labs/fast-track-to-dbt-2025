@@ -3,21 +3,80 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >-
-      One row per customer from dim_customers, ranked by the total number of
-      orders in fct_orders across all dates and statuses. Includes customers
-      with no orders. Equal totals share a rank, with gaps after ties.
-      Preserves all columns from dim_customers.
+      Customer-level order-volume leaderboard. One row per customer from
+      dim_customers, including customers with no orders, with all dimension
+      columns preserved. total_orders is calculated independently from
+      fct_orders across all dates and statuses. Customers are ranked by this
+      total descending; equal totals share a rank, with gaps after ties.
+      The rank does not guarantee output row ordering.
+    config:
+      meta:
+        layer: marts
+        model_type: customer_leaderboard
+        grain: One row per customer.
+        primary_key: customer_id
+        upstream_models: [dim_customers, fct_orders]
+        contains_pii: true
     columns:
       - name: customer_id
-        description: Unique customer identifier from dim_customers.
+        description: Customer identifier inherited from dim_customers; joins to the customer-level counts from fct_orders.
+        config:
+          meta:
+            column_role: primary_key
+            upstream_column: dim_customers.customer_id
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name inherited unchanged from dim_customers.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            upstream_column: dim_customers.first_name
+            contains_pii: true
+            pii_type: personal_name
+      - name: last_name
+        description: Customer's last name inherited unchanged from dim_customers.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            upstream_column: dim_customers.last_name
+            contains_pii: true
+            pii_type: personal_name
+      - name: first_order_date
+        description: Earliest non-null order date across all statuses, inherited from dim_customers; null when no non-null order date exists.
+        config:
+          meta:
+            column_role: date
+            upstream_column: dim_customers.first_order_date
+      - name: most_recent_order_date
+        description: Latest non-null order date across all statuses, inherited from dim_customers; null when no non-null order date exists.
+        config:
+          meta:
+            column_role: date
+            upstream_column: dim_customers.most_recent_order_date
+      - name: number_of_orders
+        description: Order count inherited from dim_customers, calculated from stg_orders across all dates and statuses; zero for customers with no orders. This is separate from total_orders, which is calculated from fct_orders.
+        config:
+          meta:
+            column_role: measure
+            upstream_column: dim_customers.number_of_orders
       - name: total_orders
-        description: Count of non-null order IDs in fct_orders for the customer; zero for customers without orders.
+        description: Count of non-null fct_orders.order_id values for the customer across all dates and statuses; coalesced to zero for customers without matching orders. Used to calculate customer_rank.
+        config:
+          meta:
+            column_role: measure
+            upstream_column: fct_orders.order_id
+            aggregation: count
+            default_value: 0
         data_tests:
           - not_null
       - name: customer_rank
-        description: Rank by total_orders descending, starting at 1; equal totals share a rank, with gaps after ties.
+        description: RANK() over total_orders descending across all customers, starting at 1. Equal totals share a rank and leave gaps after ties; the rank is calculated before any downstream filtering.
+        config:
+          meta:
+            column_role: rank
+            ranking_method: rank
+            order_by: total_orders desc
         data_tests:
           - not_null

@@ -3,48 +3,118 @@ version: 2
 models:
   - name: fct_orders
     description: >-
-      One row per order from the jaffle_shop orders source, across all dates
-      and statuses. Includes the customer identifier, order date, and status.
+      Order-level fact model for order volume and status analysis. One row per
+      source order, across all dates and statuses, with no filtering or
+      deduplication. Reads raw.jaffle_shop.orders directly and renames id and
+      user_id to order_id and customer_id; does not use stg_orders.
+    config:
+      meta:
+        layer: marts
+        model_type: fact
+        grain: One row per order.
+        primary_key: order_id
+        source_relation: raw.jaffle_shop.orders
     columns:
       - name: order_id
-        description: Unique identifier for the order.
+        description: Source orders.id, renamed to order_id; identifies an order for counting and joins.
+        config:
+          meta:
+            column_role: primary_key
+            source_column: raw.jaffle_shop.orders.id
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier of the customer who placed the order.
+        description: Source orders.user_id, renamed to customer_id; joins the order to dim_customers.customer_id.
+        config:
+          meta:
+            column_role: foreign_key
+            references: dim_customers.customer_id
+            source_column: raw.jaffle_shop.orders.user_id
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date the order was placed, passed through from the source without transformation.
+        config:
+          meta:
+            column_role: date
+            source_column: raw.jaffle_shop.orders.order_date
       - name: status
         description: >-
-          Order status as recorded in the source. Currently observed values are
-          placed, shipped, completed, return_pending, and returned.
+          Order status passed through from the source without filtering. Source
+          accepted values are placed, shipped, completed, return_pending, and
+          returned. Counts from this model include all statuses unless filtered
+          by the consumer.
+        config:
+          meta:
+            column_role: categorical_dimension
+            source_column: raw.jaffle_shop.orders.status
 
   - name: dim_customers
     description: >-
-      One row per customer, including customers with no orders. Order dates and
-      counts include all order statuses. Customers with no orders have null
-      order dates and a number_of_orders of zero.
+      Customer dimension for customer-level analysis and joins to order facts.
+      One row per customer from stg_customers, including customers with no
+      orders. Order dates and counts are calculated from stg_orders across all
+      dates and statuses. Customers with no orders have null order dates and
+      a number_of_orders of zero.
+    config:
+      meta:
+        layer: marts
+        model_type: dimension
+        grain: One row per customer.
+        primary_key: customer_id
+        upstream_models: [stg_customers, stg_orders]
+        contains_pii: true
     columns:
       - name: customer_id
-        description: Unique identifier for the customer.
+        description: Customer identifier from stg_customers; joins to customer_id on order models.
+        config:
+          meta:
+            column_role: primary_key
+            upstream_column: stg_customers.customer_id
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer's first name as recorded in the source.
+        description: Customer's first name from stg_customers, retained without normalization.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            upstream_column: stg_customers.first_name
+            contains_pii: true
+            pii_type: personal_name
       - name: last_name
-        description: Customer's last name as recorded in the source.
+        description: Customer's last name from stg_customers, retained without normalization.
+        config:
+          meta:
+            column_role: descriptive_attribute
+            upstream_column: stg_customers.last_name
+            contains_pii: true
+            pii_type: personal_name
       - name: first_order_date
-        description: Earliest order date for the customer; null when the customer has no orders.
+        description: Minimum stg_orders.order_date for the customer across all statuses; null when no non-null order date exists.
+        config:
+          meta:
+            column_role: date
+            upstream_column: stg_orders.order_date
+            aggregation: min
       - name: most_recent_order_date
-        description: Most recent order date for the customer; null when the customer has no orders.
+        description: Maximum stg_orders.order_date for the customer across all statuses; null when no non-null order date exists.
+        config:
+          meta:
+            column_role: date
+            upstream_column: stg_orders.order_date
+            aggregation: max
       - name: number_of_orders
-        description: Count of non-null order IDs for the customer across all statuses; zero for customers with no orders.
+        description: Count of non-null stg_orders.order_id values for the customer across all dates and statuses; coalesced to zero for customers with no orders.
+        config:
+          meta:
+            column_role: measure
+            upstream_column: stg_orders.order_id
+            aggregation: count
+            default_value: 0
         data_tests:
           - not_null
