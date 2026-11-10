@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: One row per customer, with the source customer ID renamed to customer_id.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from jaffle_shop.customers.id.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from the source.
+      - name: last_name
+        description: Customer last name from the source.
