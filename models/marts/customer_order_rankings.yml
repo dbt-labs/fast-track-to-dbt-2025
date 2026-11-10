@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, ranked by lifetime order count
+      from fct_orders across all statuses. Customers with no orders are included
+      with zero total_orders. Equal totals share a rank, with gaps after ties.
+      All existing dim_customers columns are retained; number_of_orders is its
+      original staging-derived count, while total_orders is sourced from fct_orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier inherited from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer, or zero.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Customer rank by total_orders descending; rank 1 has the most orders.
+        data_tests:
+          - not_null
