@@ -1,25 +1,39 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, stored in the raw.jaffle_shop
+      schema. Provides customer records and orders used by the staging models
+      and downstream customer summaries, order facts, and customer rankings.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          Customer records at one row per customer, identified by id. Supplies
+          customer names to stg_customers and the customer dimension. Orders
+          reference these records through orders.user_id.
         columns:
           - name: id
+            description: Unique, non-null customer identifier referenced by orders.user_id and renamed to customer_id in stg_customers.
             data_tests:
               - unique
               - not_null
 
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          Order records at one row per order, identified by id, with the customer
+          identifier, order date, and status. Supplies stg_orders and downstream
+          order facts and customer order summaries. Expected statuses are placed,
+          shipped, completed, return_pending, and returned; staging retains all
+          statuses without filtering.
         columns:
           - name: id
+            description: Unique, non-null order identifier, renamed to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; references customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -27,9 +41,11 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date of the order, used downstream to determine each customer's first and most recent order dates.
             data_tests:
               - not_null
           - name: status
+            description: Order status; expected values are placed, shipped, completed, return_pending, and returned.
             data_tests:
               - not_null
               - accepted_values:

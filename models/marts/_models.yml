@@ -2,7 +2,12 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One record per customer, including order counts and first and most recent order dates.
+    description: >-
+      Customer dimension for analyzing ordering activity, with one row per customer
+      from stg_customers. Summarizes orders from stg_orders across all statuses,
+      including each customer's first and most recent order dates and total order
+      count. Customers with no orders are retained with an order count of zero
+      and null order dates.
     columns:
       - name: customer_id
         description: Unique identifier for the customer; the join must preserve one row per customer.
@@ -15,7 +20,11 @@ models:
           - not_null
 
   - name: fct_orders
-    description: One record per order, including its customer, date, and status.
+    description: >-
+      Order-level fact model for analyzing order activity by customer, date, and
+      status. Contains one row per order from stg_orders, preserving the order
+      identifier, customer identifier, order date, and status without additional
+      filtering or aggregation. Orders of every status are included.
     columns:
       - name: order_id
         description: Unique identifier for the order.
@@ -32,7 +41,13 @@ models:
                 field: customer_id
 
   - name: customer_rankings
-    description: One record per customer, ranked by number of orders with ties sharing a rank.
+    description: >-
+      Customer ordering-frequency rankings, with one row per customer from
+      dim_customers. Retains customer names, first and most recent order dates,
+      and order counts, and assigns a dense rank by descending number of orders.
+      Rank 1 represents the highest order count; equal counts share a rank and
+      subsequent ranks have no gaps. Includes customers with no orders and ranks
+      across the full customer population without filtering to a top-N subset.
     columns:
       - name: customer_id
         description: Unique identifier for the customer being ranked.
