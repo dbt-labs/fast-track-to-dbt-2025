@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per customer appearing in fct_orders, ranked by lifetime order
+      count across all order statuses. Customers without orders are excluded.
+      Equal order counts share a dense rank, with no gaps between ranks.
+    columns:
+      - name: customer_id
+        description: Customer identifier from fct_orders; the grain of this model.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Total number of order rows for the customer, including all statuses.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Earliest order date for the customer.
+      - name: most_recent_order_date
+        description: Most recent order date for the customer.
+      - name: customer_rank
+        description: Dense rank by descending order count; 1 represents the most orders.
+        data_tests:
+          - not_null
