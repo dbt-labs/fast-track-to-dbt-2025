@@ -26,6 +26,9 @@ models:
         description: Most recent order date retained from dim_customers.
       - name: number_of_orders
         description: Existing staging-based order count retained from dim_customers.
+        data_tests:
+          - not_null
+
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for this customer, or zero.
         data_tests:
