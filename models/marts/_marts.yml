@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers without orders, with lifetime order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        description: Customer identifier and the grain of this model.
+        data_tests:
+          - not_null
+          - unique
+      - name: number_of_orders
+        description: Lifetime order count across all statuses; zero for customers without orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, retaining its customer, order date, and source status.
+    columns:
+      - name: order_id
+        description: Order identifier and the grain of this model.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: status
+        description: Order status from the source system.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
