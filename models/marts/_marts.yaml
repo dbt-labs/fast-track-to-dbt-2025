@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      One row per order from the jaffle_shop orders source, across all dates
+      and statuses. Includes the customer identifier, order date, and status.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: >-
+          Order status as recorded in the source. Currently observed values are
+          placed, shipped, completed, return_pending, and returned.
+
+  - name: dim_customers
+    description: >-
+      One row per customer, including customers with no orders. Order dates and
+      counts include all order statuses. Customers with no orders have null
+      order dates and a number_of_orders of zero.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name as recorded in the source.
+      - name: last_name
+        description: Customer's last name as recorded in the source.
+      - name: first_order_date
+        description: Earliest order date for the customer; null when the customer has no orders.
+      - name: most_recent_order_date
+        description: Most recent order date for the customer; null when the customer has no orders.
+      - name: number_of_orders
+        description: Count of non-null order IDs for the customer across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
