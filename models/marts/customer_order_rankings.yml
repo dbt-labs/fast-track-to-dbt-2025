@@ -8,6 +8,20 @@ models:
       dates and statuses. Customers without orders have a total of zero. Equal
       counts share a rank, with gaps after ties. Query with an explicit order by
       order_rank and customer_id for a consistently sorted result.
+    data_tests:
+      - expression_is_true:
+          name: customer_order_rankings_nonnegative_total_orders
+          arguments:
+            expression: "total_orders >= 0"
+      - expression_is_true:
+          name: customer_order_rankings_positive_rank
+          arguments:
+            expression: "order_rank >= 1"
+      - expression_is_true:
+          name: customer_order_rankings_consistent_order_counts
+          arguments:
+            expression: "total_orders = number_of_orders"
+
     columns:
       - name: customer_id
         description: Customer identifier inherited from dim_customers.
