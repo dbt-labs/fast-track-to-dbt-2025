@@ -29,7 +29,7 @@ models:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order.
+        description: Customer who placed the order. Also a foreign key to customer table.
         data_tests:
           - not_null
           - relationships:

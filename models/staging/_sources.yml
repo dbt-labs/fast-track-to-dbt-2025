@@ -8,17 +8,29 @@ sources:
         description: One record per customer.
         columns:
           - name: id
+            description: Primary key for customers. Renamed to `customer_id` in staging.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer's first name.
+          - name: last_name
+            description: Customer's last initial (e.g. "P."). Full last names aren't stored, for privacy.
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        config:
+          loaded_at_field: _etl_loaded_at
+          freshness:
+            warn_after: {count: 12, period: hour}
+            error_after: {count: 24, period: hour}
         columns:
           - name: id
+            description: Primary key for orders. Renamed to `order_id` in staging.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Foreign key to `customers.id`, the customer who placed the order. Renamed to `customer_id` in staging.
             data_tests:
               - not_null
               - relationships:
@@ -26,12 +38,21 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed.
             data_tests:
               - not_null
           - name: status
+            description: >
+              Current fulfillment status of the order. One of:
+              `placed` (order placed, not yet shipped),
+              `shipped` (order has been shipped, not yet delivered),
+              `completed` (order received by the customer),
+              `return_pending` (customer asked to return the order, not yet received back),
+              `returned` (order has been returned by the customer).
             data_tests:
               - not_null
               - accepted_values:
                   arguments:
                     values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
-
+          - name: _etl_loaded_at
+            description: Timestamp when the ETL process loaded this row into the warehouse.
