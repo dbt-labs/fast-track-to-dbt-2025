@@ -2,15 +2,28 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including customers without orders, with lifetime order counts and first and most recent order dates.
+    description: >
+      Customer dimension for analyzing lifetime ordering activity, with one row
+      per customer from stg_customers. Includes customer names, order counts,
+      and first and most recent order dates across all dates and statuses in
+      stg_orders. Customers without orders are retained with an order count of
+      zero and null order dates.
     columns:
       - name: customer_id
-        description: Unique customer identifier.
+        description: Unique customer identifier used to join customer attributes to orders.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name from stg_customers.
+      - name: last_name
+        description: Customer's last name from stg_customers.
+      - name: first_order_date
+        description: Earliest order date across all statuses; null for customers without orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses; null for customers without orders.
       - name: number_of_orders
-        description: Lifetime order count across all statuses; zero for customers without orders.
+        description: Lifetime count of non-null order IDs in stg_orders across all statuses; zero for customers without orders.
         data_tests:
           - not_null
           - minimum_value:
@@ -18,17 +31,25 @@ models:
                 min_value: 0
 
   - name: fct_orders
-    description: One row per order, including all order statuses.
+    description: >
+      Order fact table for analyzing order volume, timing, and status, with one
+      row per order from stg_orders. Includes the customer identifier for joining
+      to dim_customers. Retains orders across all dates and statuses without
+      filtering to completed orders.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Primary key identifying an individual order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order.
+        description: Foreign key to dim_customers identifying the customer who placed the order.
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date of the order, as provided by stg_orders.
+      - name: status
+        description: Order status from stg_orders; all statuses are retained in this model.
