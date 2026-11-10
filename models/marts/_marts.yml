@@ -1,0 +1,32 @@
+version: 2 
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with lifetime order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Lifetime count of orders across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, retaining all order statuses from stg_orders.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order; references dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
