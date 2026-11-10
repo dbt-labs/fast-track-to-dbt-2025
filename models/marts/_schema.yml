@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Number of orders for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, including its customer, date, and status.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+  - name: customer_order_rankings
+    description: One row per customer, ranked by distinct order count in descending order; ties share a rank.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: Distinct order count for the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Dense rank by total_orders descending; ties share a rank without gaps.
+        data_tests:
+          - not_null
