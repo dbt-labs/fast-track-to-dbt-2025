@@ -14,6 +14,10 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: first_name
         description: Customer first name from dim_customers.
       - name: last_name
@@ -24,6 +28,8 @@ models:
         description: Most recent order date as calculated in dim_customers.
       - name: number_of_orders
         description: Existing staging-based order count preserved from dim_customers.
+        data_tests:
+          - not_null
       - name: total_orders
         description: Count of non-null order IDs in fct_orders for this customer, or zero when no orders exist.
         data_tests:
