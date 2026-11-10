@@ -40,4 +40,4 @@ models:
   +static_analysis: strict
     # Applies to all files under models/example/
   marts:
-      +materialized: table
+  +materialized: table
