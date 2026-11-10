@@ -2,10 +2,14 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including customers with no orders.
+    description: >
+      Customer dimension with one row per customer from stg_customers, including
+      customers with no orders. Combines customer names with first and latest
+      order dates and a lifetime order count from stg_orders across all statuses.
+      Customers with no orders have a zero count and null order dates.
     columns:
       - name: customer_id
-        description: Unique customer identifier.
+        description: Unique customer identifier from stg_customers; join key to customer-level order activity.
         data_tests:
           - unique
           - not_null
@@ -13,33 +17,40 @@ models:
               arguments:
                 to: ref('stg_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer's first name, passed through unchanged from stg_customers.
+      - name: last_name
+        description: Customer's last name, passed through unchanged from stg_customers.
       - name: number_of_orders
-        description: Lifetime order count across all statuses, or zero for customers with no orders.
+        description: Count of non-null order IDs in stg_orders for this customer across all statuses, or zero for customers with no orders.
         data_tests:
           - not_null
       - name: first_order_date
-        description: Earliest order date; null for customers with no orders.
+        description: Earliest order date in stg_orders for this customer across all statuses; null for customers with no orders.
         data_tests:
           - not_null:
               config:
                 where: "number_of_orders > 0"
       - name: most_recent_order_date
-        description: Latest order date; null for customers with no orders.
+        description: Latest order date in stg_orders for this customer across all statuses; null for customers with no orders.
         data_tests:
           - not_null:
               config:
                 where: "number_of_orders > 0"
 
   - name: fct_orders
-    description: One row per order across all statuses.
+    description: >
+      Order fact model with one row per order from stg_orders. Retains every
+      order without filtering by status, with its customer identifier, order
+      date, and source status for order-volume and customer-activity analysis.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Unique order identifier from stg_orders; identifies an individual order.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order.
+        description: Identifier of the customer who placed the order; foreign key to dim_customers.customer_id.
         data_tests:
           - not_null
           - relationships:
@@ -47,10 +58,10 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date the order was placed, passed through unchanged from stg_orders.
         data_tests:
           - not_null
       - name: status
-        description: Order status inherited from staging.
+        description: Order status passed through unchanged from stg_orders; all source statuses are retained in this model.
         data_tests:
           - not_null

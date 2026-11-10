@@ -37,3 +37,35 @@ sources:
                     values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
                   config:
                     severity: warn
+
+
+models:
+  - name: stg_customers
+    description: >
+      Customer staging model with one row per customer from the jaffle_shop
+      customers source. Renames id to customer_id and retains first and last
+      names unchanged, without filtering rows. Provides customer details for
+      the downstream customer dimension.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier, renamed from the source customers.id; join key to customer_id in stg_orders.
+      - name: first_name
+        description: Customer's first name, passed through unchanged from the source customers table.
+      - name: last_name
+        description: Customer's last name, passed through unchanged from the source customers table.
+
+  - name: stg_orders
+    description: >
+      Order staging model with one row per order from the jaffle_shop orders
+      source. Renames id to order_id and user_id to customer_id while retaining
+      order_date and status unchanged. Includes all source rows without status
+      filtering and supplies order activity to the downstream marts.
+    columns:
+      - name: order_id
+        description: Unique order identifier, renamed from the source orders.id.
+      - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from orders.user_id; join key to stg_customers.customer_id.
+      - name: order_date
+        description: Date the order was placed, passed through unchanged from the source orders table.
+      - name: status
+        description: Order status passed through unchanged from the source orders table; no statuses are filtered or remapped.
