@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including order dates and the all-time order count across all statuses. Customers without orders are included.
+    description: One row per customer with order summaries, including customers without orders.
     columns:
       - name: customer_id
         description: Unique customer identifier.
@@ -14,16 +14,16 @@ models:
       - name: last_name
         description: Customer's last name.
       - name: first_order_date
-        description: Earliest order date across all statuses; null for customers without orders.
+        description: Earliest order date across all statuses; null if no orders.
       - name: most_recent_order_date
-        description: Latest order date across all statuses; null for customers without orders.
+        description: Latest order date across all statuses; null if no orders.
       - name: number_of_orders
-        description: All-time number of orders across all statuses; zero for customers without orders.
+        description: All-time order count across all statuses; zero if no orders.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order, including all source order statuses.
+    description: One row per order across all statuses.
     columns:
       - name: order_id
         description: Unique order identifier.
@@ -31,7 +31,7 @@ models:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order.
+        description: Customer identifier referencing dim_customers.customer_id.
         data_tests:
           - not_null
           - relationships:
