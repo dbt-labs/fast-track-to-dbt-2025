@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, preserving all customer attributes
+      and ranking customers by their all-time order count from fct_orders across
+      all statuses. Customers without orders have zero total_orders. Equal totals
+      share a dense rank, starting at one for the highest total, without gaps.
+      Order by order_rank and customer_id when displaying the leaderboard.
+    columns:
+      - name: customer_id
+        description: Customer identifier inherited from dim_customers; the primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name inherited from dim_customers.
+      - name: last_name
+        description: Customer last name inherited from dim_customers.
+      - name: first_order_date
+        description: Earliest order date inherited from dim_customers.
+      - name: most_recent_order_date
+        description: Latest order date inherited from dim_customers.
+      - name: number_of_orders
+        description: Existing staging-based order count inherited unchanged from dim_customers.
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for the customer, including all statuses; zero when there are no orders.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Dense rank by total_orders descending; tied totals share a rank, with no gaps.
+        data_tests:
+          - not_null
