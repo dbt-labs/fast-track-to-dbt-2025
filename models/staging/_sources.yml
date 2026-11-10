@@ -1,10 +1,55 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, available in
+      RAW.JAFFLE_SHOP on Snowflake. Provides customer and order records for
+      the staging models and customer analytics marts.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          One record per customer account. Supplies the customer population
+          for dim_customers, including customers who have not placed orders.
+        columns:
+          - name: id
+            description: Primary key for a customer account; referenced by orders.user_id.
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            description: Customer's given name as recorded by the application; passed through without normalization.
+          - name: last_name
+            description: Customer's family name as recorded by the application; passed through without normalization.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          One record per order. The source is documented as including cancelled
+          and deleted orders; downstream models apply no status filters.
+        columns:
+          - name: id
+            description: Primary key for an order, used to count orders and identify individual order records.
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: Foreign key to customers.id identifying the customer who placed the order.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('jaffle_shop', 'customers')
+                    field: id
+          - name: order_date
+            description: Date the order was placed; used to calculate each customer's first and most recent order dates.
+            data_tests:
+              - not_null
+          - name: status
+            description: >-
+              Application order status. The current accepted-values test permits
+              placed, shipped, completed, return_pending, and returned. All
+              statuses contribute to downstream order counts.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']

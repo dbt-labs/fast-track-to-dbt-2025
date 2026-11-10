@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per customer account from jaffle_shop.customers. Renames id to
+      customer_id and passes through names without filtering or normalization.
+      Supplies the customer population for dim_customers, including customers
+      without orders.
+    columns:
+      - name: customer_id
+        description: Customer account identifier renamed from customers.id; used to join customer records to orders.
+      - name: first_name
+        description: Customer's given name passed through from the application without normalization.
+      - name: last_name
+        description: Customer's family name passed through from the application without normalization.
+
+  - name: stg_orders
+    description: >-
+      Selects order identifiers, customer identifiers, dates, and statuses from
+      jaffle_shop.orders without filtering. Intended grain is one row per order.
+      The current SQL aliases both id and user_id as customer_id and does not
+      expose order_id. This duplicate alias blocks view creation and downstream
+      marts; the documentation records this issue without changing the SQL.
+    columns:
+      - name: customer_id
+        description: >-
+          Currently assigned to both the source order primary key (orders.id)
+          and the customer foreign key (orders.user_id), creating a duplicate
+          output name. The customer foreign key references customers.id;
+          the order identifier needs a separate alias before the model can build.
+      - name: order_date
+        description: Order placement date passed through from orders.order_date; used for customer first and most recent order dates.
+      - name: status
+        description: Application order status passed through unchanged; no status is excluded from this model.
