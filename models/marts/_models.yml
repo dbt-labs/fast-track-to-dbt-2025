@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One record per customer, including order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer; the join must preserve one row per customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Total number of orders for the customer, including zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One record per order, including its customer, date, and status.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order; must exist in the customer dimension.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
+  - name: customer_rankings
+    description: One record per customer, ranked by number of orders with ties sharing a rank.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer being ranked.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: customer_rank
+        description: Dense rank by descending order count; customers with equal counts share a rank.
+        data_tests:
+          - not_null
