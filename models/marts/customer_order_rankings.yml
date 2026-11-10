@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, ranked by all-time order count
+      from fct_orders across all statuses. Includes customers with no orders.
+      Equal order counts share a dense rank, with rank 1 representing the most
+      orders. Consumers should order by order_count_rank and customer_id.
+    columns:
+      - name: customer_id
+        description: Customer identifier inherited from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name inherited from dim_customers.
+      - name: last_name
+        description: Customer last name inherited from dim_customers.
+      - name: first_order_date
+        description: First order date inherited from dim_customers.
+      - name: most_recent_order_date
+        description: Most recent order date inherited from dim_customers.
+      - name: number_of_orders
+        description: Existing staging-based order count inherited from dim_customers.
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer, or zero if none.
+        data_tests:
+          - not_null
+      - name: order_count_rank
+        description: Dense rank by total_orders descending; ties share a rank and ranks have no gaps.
+        data_tests:
+          - not_null
