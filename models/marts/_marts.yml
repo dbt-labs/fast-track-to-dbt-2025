@@ -1,0 +1,76 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer with order counts and first and most recent order dates.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: First order date; null for customers without orders.
+      - name: most_recent_order_date
+        description: Most recent order date; null for customers without orders.
+      - name: number_of_orders
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, retaining all order statuses from stg_orders.
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+
+  - name: customer_order_rankings
+    description: >-
+      One row per customer, preserving dim_customers attributes and adding the
+      lifetime distinct order count from fct_orders across all statuses.
+      Customers without orders have a total of zero. Ties share a dense rank,
+      with rank 1 representing the highest total and no gaps between ranks.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name inherited from dim_customers.
+      - name: last_name
+        description: Customer last name inherited from dim_customers.
+      - name: first_order_date
+        description: First order date inherited from dim_customers.
+      - name: most_recent_order_date
+        description: Most recent order date inherited from dim_customers.
+      - name: number_of_orders
+        description: Staging-based order count inherited from dim_customers.
+      - name: total_orders
+        description: Count of distinct non-null order IDs in fct_orders; zero for customers without orders.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Descending dense rank of total_orders, with tied totals sharing a rank.
+        data_tests:
+          - not_null
