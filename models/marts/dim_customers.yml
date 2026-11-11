@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension for customer-level reporting, with one row per customer
+      from stg_customers. Enriches customer names with the first and most recent
+      order dates and a count of non-null order IDs from stg_orders across all
+      available dates and statuses. Includes customers without orders, with a
+      zero order count and null order dates.
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name.
+      - name: last_name
+        description: Customer's last name.
+      - name: first_order_date
+        description: Earliest order date across all statuses; null for customers without orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses; null for customers without orders.
+      - name: number_of_orders
+        description: Count of orders across all statuses; zero for customers without orders.
+        data_tests:
+          - not_null
