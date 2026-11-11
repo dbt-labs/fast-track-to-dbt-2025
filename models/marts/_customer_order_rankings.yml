@@ -6,12 +6,21 @@ models:
       One row per customer from dim_customers, ranked by total number of orders
       across all order statuses. Includes customers with zero orders. Equal
       order counts share a rank, with no gaps between ranks.
+    data_tests:
+      - expression_is_true:
+          name: customer_order_rankings_positive_rank
+          arguments:
+            expression: "order_count_rank >= 1"
     columns:
       - name: customer_id
         description: Unique customer identifier from dim_customers.
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: first_name
         description: Customer's first name from dim_customers.
       - name: last_name
