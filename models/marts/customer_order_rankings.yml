@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >-
+      One row per customer from dim_customers, ranked by total orders from
+      fct_orders across all dates and statuses. Customers without orders are
+      included with zero orders. Equal totals share a dense rank, with rank 1
+      representing the highest total and no gaps between ranks. Retains all
+      dim_customers columns; number_of_orders is inherited from that dimension,
+      while total_orders is calculated directly from fct_orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier inherited from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer; zero when no orders exist.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Dense rank by total_orders descending. Tied counts share a rank.
+        data_tests:
+          - not_null
