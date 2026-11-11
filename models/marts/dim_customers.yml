@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers without orders, with order counts and first and most recent order dates.
+    data_tests:
+      - expression_is_true:
+          name: dim_customers_order_dates_consistent
+          description: Customers without orders have null order dates; customers with orders have both dates in chronological order. Check the customer_orders aggregation when this fails.
+          arguments:
+            expression: >-
+              (number_of_orders = 0 and first_order_date is null and most_recent_order_date is null)
+              or (number_of_orders > 0 and first_order_date is not null
+              and most_recent_order_date is not null and first_order_date <= most_recent_order_date)
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+      - name: last_name
+      - name: first_order_date
+      - name: most_recent_order_date
+      - name: number_of_orders
+        data_tests:
+          - not_null
+          - expression_is_true:
+              name: dim_customers_nonnegative_order_count
+              arguments:
+                expression: number_of_orders >= 0
