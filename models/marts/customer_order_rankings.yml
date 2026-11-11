@@ -27,6 +27,9 @@ models:
         description: Most recent order date from dim_customers, null for customers without orders.
       - name: number_of_orders
         description: Existing order count from dim_customers, preserved unchanged.
+        data_tests:
+          - not_null
+
       - name: lifetime_order_count
         description: Count of non-null order IDs in fct_orders for this customer across all statuses, or zero without orders.
         data_tests:
