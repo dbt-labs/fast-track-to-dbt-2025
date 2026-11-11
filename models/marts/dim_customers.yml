@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with first and most recent order dates and lifetime order count.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Earliest order date across all statuses; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses; null for customers with no orders.
+      - name: number_of_orders
+        description: Lifetime order count across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null

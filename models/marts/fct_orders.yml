@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order from stg_orders, retaining all order statuses.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status; allowed values are tested on the underlying orders source.
