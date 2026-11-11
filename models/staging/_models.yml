@@ -1,0 +1,35 @@
+models:
+  - name: stg_customers
+    description: One record per customer, staged from the jaffle_shop app database.
+    columns:
+      - name: customer_id
+        description: Primary key for customers.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    description: One record per order, staged from the jaffle_shop app database.
+    columns:
+      - name: order_id
+        description: Primary key for orders.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to stg_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']

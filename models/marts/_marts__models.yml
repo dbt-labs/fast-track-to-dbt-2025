@@ -9,6 +9,10 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
       - name: total_orders
         description: Count of orders for the customer in fct_orders (0 if none).
         data_tests:
@@ -17,3 +21,46 @@ models:
         description: Rank by total_orders descending (1 = most orders). Uses rank(), so ties share a rank and leave gaps.
         data_tests:
           - not_null
+
+  - name: dim_customers
+    description: One row per customer with first/most recent order dates and order count.
+    columns:
+      - name: customer_id
+        description: Primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_order_date
+        description: Earliest order date for the customer (null if no orders).
+      - name: most_recent_order_date
+        description: Latest order date for the customer (null if no orders).
+      - name: number_of_orders
+        description: Count of orders for the customer (0 if none).
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order.
+    columns:
+      - name: order_id
+        description: Primary key.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        data_tests:
+          - not_null
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
