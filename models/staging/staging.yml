@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      One row per customer from the jaffle_shop application source. Renames the
+      source id to customer_id and retains the customer's first and last names.
+      No source rows are filtered out.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier, renamed from the source customers.id column.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name as recorded in the application.
+      - name: last_name
+        description: Customer's last name as recorded in the application.
+
+  - name: stg_orders
+    description: >
+      One row per order from the jaffle_shop application source. Renames id to
+      order_id and user_id to customer_id, retaining the order date and status.
+      No source rows or order statuses are filtered out.
+    columns:
+      - name: order_id
+        description: Unique order identifier, renamed from the source orders.id column.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from orders.user_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed, as recorded in the application.
+        data_tests:
+          - not_null
+      - name: status
+        description: >
+          Current application status of the order. Observed values are placed,
+          shipped, completed, return_pending, and returned.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
