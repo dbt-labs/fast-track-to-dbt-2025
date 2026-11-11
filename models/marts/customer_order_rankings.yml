@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per order, with customers dense-ranked by their all-time order
+      count and each customer's orders numbered oldest to newest. Includes
+      all order statuses, consistent with dim_customers. Customer rankings
+      are calculated before joining to orders; customers without orders do
+      not appear in this order-grain model. Ranking values can change as
+      orders are added or corrected.
+    columns:
+      - name: order_id
+        description: Unique identifier for the order and primary key of this model.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's first name from dim_customers.
+      - name: last_name
+        description: Customer's last name from dim_customers.
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status, retained without filtering.
+      - name: first_order_date
+        description: Earliest order date for this customer across all statuses.
+      - name: most_recent_order_date
+        description: Most recent order date for this customer across all statuses.
+      - name: number_of_orders
+        description: All-time order count for this customer, repeated on each order.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: >
+          Dense rank of the customer's all-time order count, descending.
+          Rank 1 has the most orders; ties share a rank without gaps.
+        data_tests:
+          - not_null
+      - name: customer_order_number
+        description: >
+          Sequential order number within a customer, starting at 1 for the
+          earliest order. Ties on order_date are broken by order_id ascending;
+          null order dates sort last.
+        data_tests:
+          - not_null
