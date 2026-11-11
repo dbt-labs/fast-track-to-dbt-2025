@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, including customers with no orders, with all-time order activity summaries.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Number of orders associated with the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, including its customer, order date, and status.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
