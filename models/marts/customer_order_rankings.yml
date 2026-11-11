@@ -3,10 +3,15 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >
-      One row per customer from dim_customers, ranked by total order count
-      from fct_orders across all dates and statuses. Customers without orders
-      receive zero. Equal counts share a dense rank, with no gaps; rank 1
-      represents the highest order count.
+      Customer order-volume leaderboard with one row per customer from
+      dim_customers, retaining customer names and order-history attributes.
+      Calculates total_orders as the count of non-null order IDs in fct_orders
+      across all dates and statuses, including customers without orders with a
+      zero count. Ranks customers by total_orders descending using dense rank:
+      equal counts share a rank, ranks have no gaps, and rank 1 represents the
+      highest order count. The number_of_orders field from dim_customers is
+      retained separately and is not used to calculate the rank.
+
     columns:
       - name: customer_id
         description: Customer identifier and primary key.

@@ -1,26 +1,40 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >
+      Replica of the application's Postgres database, stored in the raw database
+      under the jaffle_shop schema. Provides customer and order records for the
+      staging models that feed customer-level reporting, order reporting, and
+      customer order-volume rankings.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >
+          Application customer records with one row per customer, identified by
+          id. Feeds stg_customers, where id is renamed to customer_id, and
+          provides the customer population for dim_customers, including customers
+          without matching orders.
         columns:
           - name: id
+            description: Unique customer identifier and primary key; referenced by orders.user_id and renamed to customer_id in stg_customers.
             data_tests:
               - unique
               - not_null
-        
-    
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >
+          Application order records with one row per order, identified by id,
+          and linked to customers through user_id. Includes cancelled and deleted
+          orders. Feeds stg_orders and fct_orders without date or status filters,
+          and supplies the order counts and dates used in customer reporting.
         columns:
           - name: id
+            description: Unique order identifier and primary key; renamed to order_id in stg_orders and counted in customer order totals.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; references customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -28,9 +42,14 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed; used to calculate each customer's first and most recent order dates across all statuses.
             data_tests:
               - not_null
           - name: status
+            description: >
+              Order status from the application. The accepted-values test permits
+              placed, shipped, completed, return_pending, and returned. Staging
+              and marts retain this value without filtering orders by status.
             data_tests:
               - not_null
               - accepted_values:
