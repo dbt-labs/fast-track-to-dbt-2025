@@ -1,25 +1,61 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: |
+      **Rohdaten des Jaffle-Shop-Onlineshops.**
+
+      Replikat der Postgres-Produktionsdatenbank der Shop-Applikation, geladen nach
+      `raw.jaffle_shop` in Snowflake. Die Tabellen werden unverändert aus dem
+      Quellsystem übernommen und nur über die Staging-Modelle (`stg_*`) weiterverwendet.
+      Downstream-Modelle sollten nie direkt auf diese Sources zugreifen.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: |
+          **Kundenstammdaten.**
+
+          **Grain:** Ein Datensatz pro Kunde (`id`).
+
+          Enthält nur Identifikation und Namen. Weitere Attribute wie Adresse oder
+          Registrierungsdatum sind nicht vorhanden. Wird in `stg_customers` bereinigt
+          (`id` → `customer_id`).
         columns:
           - name: id
+            description: >
+              Technischer Primärschlüssel des Kunden im Shop-System.
+              Wird in `stg_customers` zu `customer_id` umbenannt und von
+              `orders.user_id` referenziert.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Vorname des Kunden.
+          - name: last_name
+            description: >
+              Nachname des Kunden. Im Quellsystem nur als Initial mit Punkt
+              gespeichert (z. B. `P.`).
 
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: |
+          **Aufträge aus dem Onlineshop.**
+
+          **Grain:** Ein Datensatz pro Auftrag (`id`).
+
+          Enthält laut Quellsystem auch stornierte und gelöschte Aufträge. Dafür gibt es
+          keinen eigenen Status, sie sind über `status` also nicht unterscheidbar.
+          Wird in `stg_orders` bereinigt (`id` → `order_id`, `user_id` → `customer_id`).
         columns:
           - name: id
+            description: >
+              Technischer Primärschlüssel des Auftrags im Shop-System.
+              Wird in `stg_orders` zu `order_id` umbenannt.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: >
+              Fremdschlüssel auf `customers.id`, also der Kunde, der den Auftrag aufgegeben hat.
+              Wird in `stg_orders` zu `customer_id` umbenannt.
             data_tests:
               - not_null
               - relationships:
@@ -27,10 +63,26 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Datum, an dem der Auftrag aufgegeben wurde (ohne Uhrzeit).
             data_tests:
               - not_null
           - name: status
+            description: |
+              Aktueller Bearbeitungsstatus des Auftrags. Mögliche Werte:
+
+              | Status           | Bedeutung                                              |
+              |------------------|--------------------------------------------------------|
+              | `placed`         | Auftrag aufgegeben, noch nicht versendet               |
+              | `shipped`        | Auftrag versendet, aber noch nicht zugestellt          |
+              | `completed`      | Auftrag zugestellt und abgeschlossen                   |
+              | `return_pending` | Kunde hat eine Retoure angemeldet, noch nicht erhalten |
+              | `returned`       | Ware wurde zurückgesendet                              |
             data_tests:
               - accepted_values:
                   arguments:
                     values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+          - name: _etl_loaded_at
+            description: >
+              Technischer Zeitstempel, zu dem der Datensatz vom Ladeprozess nach Snowflake
+              geschrieben wurde. Geeignet als `loaded_at_field` für Source-Freshness-Checks.
+              Wird nicht in die Staging-Modelle übernommen.
