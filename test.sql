@@ -1,0 +1,1 @@
+select * from dim_customers;
