@@ -1,25 +1,42 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, stored in the raw
+      database under the jaffle_shop schema. Provides customer and order
+      records for the staging models and downstream customer and order marts.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
-        columns: 
+        description: >-
+          Customer records from the application, with one row per customer.
+          Provides customer identifiers and names to stg_customers; customers
+          do not need to have placed an order to be included.
+        columns:
           - name: id
+            description: Unique customer identifier in the application; renamed to customer_id in stg_customers and referenced by orders.user_id.
             data_tests:
               - unique
               - not_null
-              
+          - name: first_name
+            description: Customer's first name as recorded in the application.
+          - name: last_name
+            description: Customer's last name as recorded in the application.
+
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          Order records from the application, with one row per order, including
+          cancelled and deleted orders. Provides the customer association,
+          order date, and status to stg_orders for order-level analysis and
+          customer order summaries.
         columns:
           - name: id
+            description: Unique order identifier in the application; renamed to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer who placed the order; references customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -27,9 +44,16 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date the order was placed, passed through unchanged to stg_orders.
             data_tests:
               - not_null
           - name: status
+            description: >-
+              Order status as recorded in the application, passed through
+              unchanged to stg_orders. The accepted-values test checks for
+              completed, placed, return_pending, returned, and shipped and
+              warns on other values pending confirmation of the full
+              application status list.
             data_tests:
               - not_null
               # Warn on new statuses until the full application enum is confirmed.
