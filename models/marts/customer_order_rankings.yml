@@ -13,6 +13,11 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
       - name: total_orders
         description: Number of orders in fct_orders for this customer; zero if none.
         data_tests:
