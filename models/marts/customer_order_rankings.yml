@@ -3,13 +3,16 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >
-      One row per customer from dim_customers, ranked by their total number of
-      orders in fct_orders across all dates and statuses. Customers without orders
-      are included with zero orders. Equal order totals share a rank, with gaps
-      after ties (competition ranking).
+      Customer-level order-volume leaderboard, with one row per customer from
+      dim_customers. Counts non-null order IDs in fct_orders across all available
+      dates and statuses, retaining customers without orders with a count of zero.
+      Customers are ranked together by total_orders descending; equal totals share
+      a rank and leave gaps after ties (competition ranking). The ranking uses
+      total_orders, while number_of_orders is retained from dim_customers for
+      comparison. Ranks reflect the data available when this model is built.
     columns:
       - name: customer_id
-        description: Customer identifier from dim_customers; the grain of this model.
+        description: Customer identifier inherited from dim_customers; uniquely identifies a row in this model.
         data_tests:
           - unique
           - not_null
@@ -18,22 +21,37 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
-        description: Customer first name from dim_customers.
+        description: Customer first name passed through unchanged from dim_customers.
       - name: last_name
-        description: Customer last name from dim_customers.
+        description: Customer last name passed through unchanged from dim_customers.
       - name: first_order_date
-        description: First order date recorded in dim_customers.
+        description: >
+          Earliest non-null order_date in stg_orders for this customer, calculated
+          in dim_customers without a status filter. Null when the customer has no
+          orders or all of their order dates are null.
       - name: most_recent_order_date
-        description: Most recent order date recorded in dim_customers.
+        description: >
+          Latest non-null order_date in stg_orders for this customer, calculated
+          in dim_customers without a status filter. Null when the customer has no
+          orders or all of their order dates are null.
       - name: number_of_orders
-        description: Existing order count from dim_customers, preserved for reference.
+        description: >
+          Count of non-null order IDs in stg_orders, calculated in dim_customers
+          across all available dates and statuses and defaulted to zero for
+          customers without orders. Retained for comparison with total_orders;
+          this column does not determine order_rank.
       - name: total_orders
-        description: Count of order IDs in fct_orders for this customer, defaulting to zero.
+        description: >
+          Count of non-null order IDs in fct_orders for this customer across all
+          available dates and statuses, defaulting to zero when no matching orders
+          exist. This is not a distinct count and is the value used for order_rank.
         data_tests:
           - not_null
       - name: order_rank
         description: >
-          Competition rank by total_orders descending, starting at 1 for the
-          highest order count. Tied totals share a rank, with gaps after ties.
+          Competition rank across all customers by total_orders descending,
+          starting at 1 for the highest order count. Tied totals share a rank and
+          leave gaps after ties (for example, 1, 1, 3). Customers with zero orders
+          are included in the ranking; no customer-level tie-breaker is applied.
         data_tests:
           - not_null

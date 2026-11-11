@@ -1,0 +1,13 @@
+version: 2
+
+data_tests:
+  - name: assert_customer_order_summary_consistent
+    description: >
+      Reconciles dim_customers and customer_order_rankings against fct_orders
+      aggregated by customer. Returns failing rows when number_of_orders or
+      total_orders differs from the fact row count (zero for customers without
+      orders), or when the dimension's first or most recent order date differs
+      from the fact's minimum or maximum order_date using null-safe comparisons.
+      Also requires each dimension customer to appear in the rankings with a
+      non-null order_rank of at least 1. This test validates rank presence and
+      positivity, not the exact rank value or tie-handling behavior.

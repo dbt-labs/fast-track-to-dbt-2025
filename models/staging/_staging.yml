@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      Staging model for jaffle_shop.customers with one row per source customer.
+      Renames id to customer_id and selects customer first and last names.
+      Applies no filtering, deduplication, or changes to name values.
+    columns:
+      - name: customer_id
+        description: >
+          Customer identifier renamed from jaffle_shop.customers.id. Used to
+          associate customer attributes with orders through customer_id.
+      - name: first_name
+        description: Customer first name selected unchanged from jaffle_shop.customers.first_name.
+      - name: last_name
+        description: Customer last name selected unchanged from jaffle_shop.customers.last_name.
+
+  - name: stg_orders
+    description: >
+      Staging model for jaffle_shop.orders with one row per source order.
+      Renames id to order_id and user_id to customer_id, and passes through
+      order_date and status. Applies no date or status filters, deduplication,
+      or status remapping.
+    columns:
+      - name: order_id
+        description: Order identifier renamed from jaffle_shop.orders.id; identifies the source order.
+      - name: customer_id
+        description: >
+          Customer identifier renamed from jaffle_shop.orders.user_id.
+          Corresponds to stg_customers.customer_id.
+      - name: order_date
+        description: >
+          Order date selected unchanged from jaffle_shop.orders.order_date.
+          No timezone conversion or date truncation is applied.
+      - name: status
+        description: >
+          Order status selected unchanged from jaffle_shop.orders.status. The
+          source accepted-values test permits placed, shipped, completed,
+          return_pending, and returned; no status is excluded by this model.

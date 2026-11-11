@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Customer dimension with one row per customer in stg_customers, including
+      customers who have never ordered. Left joins customer-level aggregates
+      from stg_orders to provide order counts and first and most recent order
+      dates across all available dates and statuses. Customers without orders
+      have a zero count and null order dates. This is a current summary, not a
+      historical record of changes to customer attributes.
+    columns:
+      - name: customer_id
+        description: >
+          Customer identifier from stg_customers, originally jaffle_shop.customers.id.
+          Uniquely identifies each customer and links the dimension to fct_orders.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name passed through from stg_customers without transformation.
+      - name: last_name
+        description: Customer last name passed through from stg_customers without transformation.
+      - name: first_order_date
+        description: >
+          Minimum non-null order_date across this customer's rows in stg_orders,
+          with no status filter. Null when there are no matching orders or all
+          matching order dates are null.
+      - name: most_recent_order_date
+        description: >
+          Maximum non-null order_date across this customer's rows in stg_orders,
+          with no status filter. Null when there are no matching orders or all
+          matching order dates are null.
+      - name: number_of_orders
+        description: >
+          Count of non-null order_id values for this customer in stg_orders across
+          all available dates and statuses. Defaults to zero when the customer has
+          no matching orders. This is not a distinct count and does not represent
+          only completed orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: >
+      Order fact with one row per order from stg_orders. Passes through the order
+      identifier, customer identifier, order date, and status without additional
+      filtering, joins, or aggregation. Includes all available order dates and
+      statuses, including returned orders, and supplies order counts for
+      customer_order_rankings and the customer-summary reconciliation test.
+    columns:
+      - name: order_id
+        description: >
+          Order identifier passed through from stg_orders, originally
+          jaffle_shop.orders.id. Uniquely identifies a row in this fact.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: >
+          Identifier of the customer associated with the order, originally
+          jaffle_shop.orders.user_id. Joins to dim_customers.customer_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: >
+          Order date recorded by the source application, passed through unchanged
+          from stg_orders. Used to calculate first and most recent customer order
+          dates; no timezone conversion or date truncation is applied.
+      - name: status
+        description: >
+          Source order status passed through unchanged from stg_orders. The source
+          accepted-values test permits placed, shipped, completed, return_pending,
+          and returned. This fact does not filter orders by status.
