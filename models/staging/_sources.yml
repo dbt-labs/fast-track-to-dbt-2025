@@ -6,5 +6,43 @@ sources:
     tables:
       - name: customers
         description: One record per customer.
+        columns:
+          - name: id
+            description: Primary key. Unique identifier for the customer.
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            description: Customer first name.
+          - name: last_name
+            description: Customer last name.
+
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            description: Primary key. Unique identifier for the order.
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: Foreign key to customers.id. The customer who placed the order.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('jaffle_shop', 'customers')
+                    field: id
+          - name: order_date
+            description: Date the order was placed.
+            data_tests:
+              - not_null
+          - name: status
+            description: Current order status (placed, shipped, completed, return_pending, or returned).
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+                  config:
+                    severity: warn

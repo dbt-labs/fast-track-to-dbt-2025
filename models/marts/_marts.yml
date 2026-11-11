@@ -1,0 +1,69 @@
+models:
+  - name: dim_customers
+    description: One row per customer, with order dates and a count of orders placed.
+    columns:
+      - name: customer_id
+        description: Primary key. Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name, abbreviated to an initial.
+      - name: first_order_date
+        description: Date of the customer's earliest order. Null if the customer has no orders.
+      - name: most_recent_order_date
+        description: Date of the customer's latest order. Null if the customer has no orders.
+      - name: number_of_orders
+        description: Count of orders placed by the customer. Zero if the customer has no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, including every order status.
+    columns:
+      - name: order_id
+        description: Primary key. Unique identifier for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to dim_customers.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Current order status.
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer ranked by total number of orders, most orders first.
+      Customers with the same order count share a rank and ranks have no gaps.
+    columns:
+      - name: customer_id
+        description: Primary key. Unique identifier for the customer.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name, abbreviated to an initial.
+      - name: total_orders
+        description: Count of distinct orders in fct_orders. Zero if the customer has no orders.
+        data_tests:
+          - not_null
+
+      - name: order_rank
+        description: Dense rank by total_orders descending. Rank 1 is the customer with the most orders.
+        data_tests:
+          - not_null
