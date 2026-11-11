@@ -22,7 +22,7 @@ models:
     description: One row per order, including all order statuses.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Unique order identifier. Primary key for the orders table.
         data_tests:
           - unique
           - not_null
