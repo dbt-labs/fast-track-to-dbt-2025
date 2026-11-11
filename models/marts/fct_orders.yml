@@ -5,10 +5,12 @@ models:
     description: One row per order, including its customer, order date, and status.
     columns:
       - name: order_id
+        description: primary key of the order table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: foreign key for the customer table.
         data_tests:
           - not_null
           - relationships:
@@ -16,4 +18,7 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date of the order as recorded in stg_orders, passed through without transformation.
       - name: status
+        description: Order status from stg_orders. Expected values are placed, shipped, completed, return_pending, and returned; no status filter is applied.
+

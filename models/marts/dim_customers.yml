@@ -14,14 +14,21 @@ models:
               and most_recent_order_date is not null and first_order_date <= most_recent_order_date)
     columns:
       - name: customer_id
+        description: Unique customer identifier from stg_customers, used to associate the customer with their orders.
         data_tests:
           - unique
           - not_null
       - name: first_name
+        description: Customer's first name as recorded in stg_customers.
       - name: last_name
+        description: Customer's last name as recorded in stg_customers.
       - name: first_order_date
+        description: Earliest order date for the customer across all order statuses; null for customers without orders.
       - name: most_recent_order_date
+        description: Latest order date for the customer across all order statuses; null for customers without orders.
       - name: number_of_orders
+        description: Count of non-null order IDs for the customer across all dates and statuses; zero for customers without orders.
+
         data_tests:
           - not_null
           - expression_is_true:
