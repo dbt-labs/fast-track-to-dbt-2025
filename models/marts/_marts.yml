@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Eine Zeile pro Kunde mit Kennzahlen zu seinen Aufträgen.
+      Kunden ohne Aufträge sind enthalten (number_of_orders = 0).
+    columns:
+      - name: customer_id
+        description: Primärschlüssel des Kunden.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Vorname des Kunden.
+      - name: last_name
+        description: Nachname des Kunden.
+      - name: first_order_date
+        description: Datum des ersten Auftrags. Leer bei Kunden ohne Aufträge.
+      - name: most_recent_order_date
+        description: Datum des letzten Auftrags. Leer bei Kunden ohne Aufträge.
+      - name: number_of_orders
+        description: Gesamtzahl der Aufträge des Kunden (0, wenn keine).
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: Eine Zeile pro Auftrag.
+    columns:
+      - name: order_id
+        description: Primärschlüssel des Auftrags.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Fremdschlüssel auf dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Datum, an dem der Auftrag aufgegeben wurde.
+        data_tests:
+          - not_null
+      - name: status
+        description: Aktueller Status des Auftrags.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: customer_order_ranking
+    description: >
+      Rankt alle Kunden nach Anzahl ihrer Aufträge (absteigend).
+      Kunden mit gleicher Auftragsanzahl erhalten denselben Rang (rank()).
+    columns:
+      - name: order_rank
+        description: Rang des Kunden nach Anzahl Aufträge (1 = meiste Aufträge).
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: Primärschlüssel des Kunden.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Vorname des Kunden.
+      - name: last_name
+        description: Nachname des Kunden.
+      - name: number_of_orders
+        description: Gesamtzahl der Aufträge des Kunden.
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: Datum des ersten Auftrags. Leer bei Kunden ohne Aufträge.
+      - name: most_recent_order_date
+        description: Datum des letzten Auftrags. Leer bei Kunden ohne Aufträge.
