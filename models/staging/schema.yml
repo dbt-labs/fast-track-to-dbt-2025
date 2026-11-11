@@ -1,0 +1,53 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Staging model for the jaffle_shop customers source, with one row per customer.
+      Renames the source id to customer_id and passes through customer names to
+      provide a consistent interface for customer dimensions. No rows are filtered.
+    columns:
+      - name: customer_id
+        description: Source customers.id renamed to customer_id; the primary key used to join customers to orders.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name as stored in the source; no cleaning or normalization is applied.
+      - name: last_name
+        description: Customer last name as stored in the source; no cleaning or normalization is applied.
+
+  - name: stg_orders
+    description: >-
+      Staging model for the jaffle_shop orders source, with one row per order.
+      Renames id to order_id and user_id to customer_id and passes through the order
+      date and status. No status filtering is applied, so pending and returned
+      orders remain available for downstream reporting.
+    columns:
+      - name: order_id
+        description: Source orders.id renamed to order_id; the primary key at the order grain.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Source orders.user_id renamed to customer_id; joins to stg_customers.customer_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        description: Source date the order was placed, used to derive first and most recent customer order dates.
+        data_tests:
+          - not_null
+      - name: status
+        description: >-
+          Order status as stored in the source. The accepted values are completed,
+          placed, return_pending, returned, and shipped. Update the accepted-values
+          test when a new business status is introduced.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']

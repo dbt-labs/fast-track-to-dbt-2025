@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension for customer-level reporting, with one row per customer
+      from stg_customers. Summarizes all matching stg_orders records across all
+      statuses into first and most recent order dates and an order count.
+      Customers without orders are retained with a zero count and null order dates.
+    data_tests:
+      - valid_expression:
+          name: dim_customers_has_valid_order_count
+          arguments:
+            expression: "number_of_orders >= 0 and number_of_orders = floor(number_of_orders)"
+      - valid_expression:
+          name: dim_customers_has_consistent_order_dates
+          arguments:
+            expression: >-
+              (number_of_orders = 0
+                and first_order_date is null
+                and most_recent_order_date is null)
+              or (number_of_orders > 0
+                and first_order_date is not null
+                and most_recent_order_date is not null
+                and first_order_date <= most_recent_order_date)
+
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers; the primary key and join key to orders.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name as provided by stg_customers, without additional cleaning.
+      - name: last_name
+        description: Customer last name as provided by stg_customers, without additional cleaning.
+      - name: first_order_date
+        description: Earliest order_date across the customer's stg_orders records, regardless of status; null when there are no orders.
+      - name: most_recent_order_date
+        description: Latest order_date across the customer's stg_orders records, regardless of status; null when there are no orders.
+      - name: number_of_orders
+        description: Count of non-null order_id values in stg_orders for the customer across all statuses; zero when there are no orders.
+
+  - name: fct_orders
+    description: >-
+      Order fact for order-level reporting and customer order aggregation, with one
+      row per order from stg_orders. Preserves the customer identifier, order date,
+      and status without filtering by status or adding derived measures.
+    columns:
+      - name: order_id
+        description: Unique order identifier from stg_orders; the primary key at the order grain.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order; joins to dim_customers.customer_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed, passed through from stg_orders without transformation.
+      - name: status
+        description: Order status passed through from stg_orders; all statuses are retained, including pending and returned orders.
