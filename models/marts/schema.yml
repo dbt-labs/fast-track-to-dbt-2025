@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension for analyzing order activity at one row per customer
+      from stg_customers. Includes customers with no orders. First and most
+      recent order dates and number_of_orders are calculated from stg_orders
+      across all statuses, with no date filter. Customers with no orders have
+      null order dates and a zero order count.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from stg_customers.
+      - name: last_name
+        description: Customer last name from stg_customers.
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+      - name: number_of_orders
+        description: Count of orders across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: >-
+      Order-level fact table for analyzing order volume, placement dates, and
+      statuses, with one row per order from stg_orders. Carries through the
+      order identifier, customer identifier, order date, and status without
+      filtering by date or status. Joins to dim_customers on customer_id
+      for customer-level analysis.
+    columns:
+      - name: order_id
+        description: Primary key for the orders table.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key for the customers table.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status carried through from stg_orders.

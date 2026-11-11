@@ -1,10 +1,71 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, stored in the raw
+      database under the jaffle_shop schema. Provides customer and order
+      records to stg_customers and stg_orders for downstream customer
+      activity analysis and order rankings.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          Customer records from the application, with one row per customer.
+          Supplies customer identifiers and names to stg_customers, which
+          feeds dim_customers. Customers are retained in dim_customers even
+          when they have no orders.
+        columns:
+          - name: id
+            description: >-
+              Primary key identifying a customer in the application.
+              Renamed to customer_id in stg_customers and referenced by
+              user_id in the orders source table.
+            data_tests:
+              - unique
+              - not_null
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          Order records from the application, with one row per order and a
+          customer reference in user_id. Includes cancelled and deleted
+          orders. Supplies stg_orders, which carries through all rows without
+          date or status filters, for downstream order facts and customer
+          order counts.
+        columns:
+          - name: id
+            description: >-
+              Primary key identifying an order in the application. Renamed
+              to order_id in stg_orders and counted in downstream customer
+              order totals across all statuses.
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: >-
+              Identifier of the customer who placed the order. References
+              id in the customers source table and is renamed to customer_id
+              in stg_orders.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('jaffle_shop', 'customers')
+                    field: id
+          - name: order_date
+            description: >-
+              Date the order was placed, carried through unchanged by
+              stg_orders. Used to calculate each customer's first and most
+              recent order dates in dim_customers.
+            data_tests:
+              - not_null
+          - name: status
+            description: >-
+              Order status recorded by the application, carried through
+              unchanged by stg_orders. Expected values are placed, shipped,
+              completed, return_pending, and returned, as enforced by the
+              accepted_values test. Downstream order counts include all
+              statuses.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
