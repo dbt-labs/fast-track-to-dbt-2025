@@ -2,38 +2,86 @@ version: 2
 
 models:
   - name: dim_customers
-    description: >
-      Eine Zeile pro Kunde mit Kennzahlen zu seinen Aufträgen.
-      Kunden ohne Aufträge sind enthalten (number_of_orders = 0).
+    description: |
+      **Kunden-Dimension** mit aggregierten Auftragskennzahlen.
+
+      **Grain:** Eine Zeile pro Kunde (`customer_id`).
+
+      **Quellen:**
+      - `stg_customers` – Stammdaten der Kunden (ID, Vor- und Nachname) aus `raw.jaffle_shop.customers`
+      - `stg_orders` – Aufträge aus `raw.jaffle_shop.orders`
+
+      **Logik:**
+      1. Die Aufträge werden pro Kunde aggregiert: erstes und letztes Auftragsdatum
+         (`min`/`max` von `order_date`) sowie die Anzahl der Aufträge (`count`).
+      2. Die Kundenstammdaten werden per `left join` mit diesen Kennzahlen verbunden.
+         Dadurch sind **alle** Kunden enthalten, auch solche ohne Auftrag.
+      3. Bei Kunden ohne Aufträge wird `number_of_orders` per `coalesce` auf 0 gesetzt.
+         Die Datumsfelder bleiben in diesem Fall `null`.
+
+      **Hinweise:**
+      - Es werden alle Auftragsstatus mitgezählt (auch `returned` und `return_pending`).
+        Laut Source-Definition enthält die Quelle zudem stornierte und gelöschte Aufträge.
+      - Materialisiert als **View** (überschreibt das Projekt-Default `table` für Marts).
+      - Wird von `fct_orders` und `customer_order_ranking` als Referenz für `customer_id` genutzt.
     columns:
       - name: customer_id
-        description: Primärschlüssel des Kunden.
+        description: >
+          Primärschlüssel des Kunden. Stammt aus `raw.jaffle_shop.customers.id`.
+          Eindeutig und nie leer.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Vorname des Kunden.
+        description: Vorname des Kunden, unverändert aus den Stammdaten übernommen.
       - name: last_name
-        description: Nachname des Kunden.
+        description: >
+          Nachname des Kunden, unverändert aus den Stammdaten übernommen.
+          In den Quelldaten nur als Initial vorhanden (z. B. `P.`).
       - name: first_order_date
-        description: Datum des ersten Auftrags. Leer bei Kunden ohne Aufträge.
+        description: >
+          Datum des ersten Auftrags des Kunden (frühestes `order_date` über alle Aufträge).
+          `null` bei Kunden ohne Aufträge.
       - name: most_recent_order_date
-        description: Datum des letzten Auftrags. Leer bei Kunden ohne Aufträge.
+        description: >
+          Datum des letzten Auftrags des Kunden (spätestes `order_date` über alle Aufträge).
+          `null` bei Kunden ohne Aufträge.
       - name: number_of_orders
-        description: Gesamtzahl der Aufträge des Kunden (0, wenn keine).
+        description: >
+          Gesamtzahl der Aufträge des Kunden über alle Status hinweg.
+          0, wenn der Kunde noch keinen Auftrag aufgegeben hat.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: Eine Zeile pro Auftrag.
+    description: |
+      **Auftrags-Fakt-Tabelle** – zentrale Grundlage für alle auftragsbezogenen Auswertungen.
+
+      **Grain:** Eine Zeile pro Auftrag (`order_id`).
+
+      **Quelle:** `stg_orders` (aus `raw.jaffle_shop.orders`).
+
+      **Logik:**
+      Die Aufträge werden 1:1 aus dem Staging übernommen. Es findet keine Filterung,
+      Aggregation oder Anreicherung statt. Kundenattribute können über `customer_id`
+      aus `dim_customers` hinzugejoint werden.
+
+      **Hinweise:**
+      - Enthält Aufträge in allen Status. Für Umsatz- oder Volumenanalysen sollte je nach
+        Fragestellung nach `status` gefiltert werden (z. B. Retouren ausschließen).
+      - Materialisiert als **Table** (Projekt-Default für Marts).
     columns:
       - name: order_id
-        description: Primärschlüssel des Auftrags.
+        description: >
+          Primärschlüssel des Auftrags. Stammt aus `raw.jaffle_shop.orders.id`.
+          Eindeutig und nie leer.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Fremdschlüssel auf dim_customers.
+        description: >
+          Fremdschlüssel auf `dim_customers.customer_id` – identifiziert den Kunden, der den
+          Auftrag aufgegeben hat. Stammt aus `raw.jaffle_shop.orders.user_id`.
         data_tests:
           - not_null
           - relationships:
@@ -45,7 +93,16 @@ models:
         data_tests:
           - not_null
       - name: status
-        description: Aktueller Status des Auftrags.
+        description: |
+          Aktueller Bearbeitungsstatus des Auftrags. Mögliche Werte:
+
+          | Status           | Bedeutung                                              |
+          |------------------|--------------------------------------------------------|
+          | `placed`         | Auftrag aufgegeben, noch nicht versendet               |
+          | `shipped`        | Auftrag versendet, aber noch nicht zugestellt          |
+          | `completed`      | Auftrag zugestellt und abgeschlossen                   |
+          | `return_pending` | Kunde hat eine Retoure angemeldet, noch nicht erhalten |
+          | `returned`       | Ware wurde zurückgesendet                              |
         data_tests:
           - not_null
           - accepted_values:
@@ -53,16 +110,35 @@ models:
                 values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
 
   - name: customer_order_ranking
-    description: >
-      Rankt alle Kunden nach Anzahl ihrer Aufträge (absteigend).
-      Kunden mit gleicher Auftragsanzahl erhalten denselben Rang (rank()).
+    description: |
+      **Ranking aller Kunden nach Anzahl ihrer Aufträge** – z. B. zur Identifikation
+      der aktivsten Kunden oder für Top-N-Auswertungen.
+
+      **Grain:** Eine Zeile pro Kunde (`customer_id`).
+
+      **Quelle:** `dim_customers`.
+
+      **Logik:**
+      Die Kunden werden mit `rank() over (order by number_of_orders desc)` absteigend nach
+      ihrer Auftragsanzahl gerankt. Rang 1 ist der Kunde mit den meisten Aufträgen.
+
+      **Hinweise:**
+      - Bei Gleichstand erhalten Kunden **denselben Rang**, und der nächste Rang wird
+        übersprungen (z. B. 1, 2, 2, 4). Für lückenlose Ränge wäre `dense_rank()` nötig.
+      - Kunden ohne Aufträge sind enthalten (`number_of_orders = 0`) und teilen sich den
+        letzten Rang.
+      - Ein Top-N-Filter mit `order_rank <= N` kann wegen Gleichständen mehr als N Kunden liefern.
+      - Materialisiert als **Table** (Projekt-Default für Marts).
     columns:
       - name: order_rank
-        description: Rang des Kunden nach Anzahl Aufträge (1 = meiste Aufträge).
+        description: >
+          Rang des Kunden nach Anzahl der Aufträge (1 = meiste Aufträge).
+          Gleichstände erhalten denselben Rang, nachfolgende Ränge werden übersprungen.
         data_tests:
           - not_null
       - name: customer_id
-        description: Primärschlüssel des Kunden.
+        description: >
+          Primärschlüssel des Kunden und Fremdschlüssel auf `dim_customers.customer_id`.
         data_tests:
           - unique
           - not_null
@@ -71,14 +147,20 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
-        description: Vorname des Kunden.
+        description: Vorname des Kunden (aus `dim_customers`).
       - name: last_name
-        description: Nachname des Kunden.
+        description: Nachname des Kunden (aus `dim_customers`).
       - name: number_of_orders
-        description: Gesamtzahl der Aufträge des Kunden.
+        description: >
+          Gesamtzahl der Aufträge des Kunden über alle Status hinweg – Basis für das Ranking.
+          0, wenn der Kunde noch keinen Auftrag aufgegeben hat.
         data_tests:
           - not_null
       - name: first_order_date
-        description: Datum des ersten Auftrags. Leer bei Kunden ohne Aufträge.
+        description: >
+          Datum des ersten Auftrags des Kunden (aus `dim_customers`).
+          `null` bei Kunden ohne Aufträge.
       - name: most_recent_order_date
-        description: Datum des letzten Auftrags. Leer bei Kunden ohne Aufträge.
+        description: >
+          Datum des letzten Auftrags des Kunden (aus `dim_customers`).
+          `null` bei Kunden ohne Aufträge.
