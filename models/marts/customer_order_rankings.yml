@@ -34,3 +34,50 @@ models:
         description: Dense rank by total_orders descending; rank 1 has the most orders, and tied counts share a rank without gaps.
         data_tests:
           - not_null
+
+unit_tests:
+  - name: customer_order_rankings_handles_ties_and_zero_orders
+    description: >-
+      Rank by fct_orders counts rather than the inherited number_of_orders.
+      Tied customers share a rank without gaps, and customers without orders remain.
+    model: customer_order_rankings
+    given:
+      - input: ref('dim_customers')
+        rows:
+          - {customer_id: 1, number_of_orders: 99}
+          - {customer_id: 2, number_of_orders: 0}
+          - {customer_id: 3, number_of_orders: 0}
+          - {customer_id: 4, number_of_orders: 0}
+          - {customer_id: 5, number_of_orders: 0}
+      - input: ref('fct_orders')
+        rows:
+          - {order_id: 101, customer_id: 1}
+          - {order_id: 102, customer_id: 1}
+          - {order_id: 103, customer_id: 1}
+          - {order_id: 201, customer_id: 2}
+          - {order_id: 202, customer_id: 2}
+          - {order_id: 301, customer_id: 3}
+          - {order_id: 302, customer_id: 3}
+          - {order_id: 401, customer_id: 4}
+    expect:
+      rows:
+        - {customer_id: 1, total_orders: 3, order_rank: 1}
+        - {customer_id: 2, total_orders: 2, order_rank: 2}
+        - {customer_id: 3, total_orders: 2, order_rank: 2}
+        - {customer_id: 4, total_orders: 1, order_rank: 3}
+        - {customer_id: 5, total_orders: 0, order_rank: 4}
+
+  - name: customer_order_rankings_handles_no_orders
+    description: When there are no orders, every customer has zero orders and rank one.
+    model: customer_order_rankings
+    given:
+      - input: ref('dim_customers')
+        rows:
+          - {customer_id: 1}
+          - {customer_id: 2}
+      - input: ref('fct_orders')
+        rows: []
+    expect:
+      rows:
+        - {customer_id: 1, total_orders: 0, order_rank: 1}
+        - {customer_id: 2, total_orders: 0, order_rank: 1}
