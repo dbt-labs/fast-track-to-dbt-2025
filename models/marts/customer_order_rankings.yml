@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, ranked by all-time order count
+      from fct_orders across all order statuses. Customers with no orders are
+      included with zero orders. Equal counts share a dense rank, with rank 1
+      representing the highest count and no gaps between ranks.
+      All dim_customers columns are retained; number_of_orders is its existing
+      staging-derived count, while total_orders is calculated from fct_orders.
+    columns:
+      - name: customer_id
+        description: Customer identifier from dim_customers; the grain of this model.
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer, or zero when no orders exist.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Dense rank by total_orders descending; tied counts receive the same rank.
+        data_tests:
+          - not_null
