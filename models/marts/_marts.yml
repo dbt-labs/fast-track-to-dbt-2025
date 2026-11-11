@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer-level mart for analyzing lifetime ordering activity, with one row
+      per customer from stg_customers. Orders from stg_orders are aggregated by
+      customer to calculate the first order date, most recent order date, and
+      count of non-null order IDs. All order statuses are included without a
+      date filter. Customers with no matching orders are retained with a zero
+      order count and null order dates. Use customer_id to join to fct_orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+      - name: number_of_orders
+        description: Lifetime count of orders across all statuses; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: >-
+      Order-level mart for analyzing order volume, dates, and statuses, with one
+      row per order from stg_orders. Preserves the order ID, customer ID, order
+      date, and source status without additional filtering or aggregation.
+      All available dates and statuses are included, so order counts are not
+      restricted to completed orders. Join customer_id to dim_customers for
+      customer attributes. This model does not contain payment or revenue data.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer identifier associated with the order.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status as recorded in the source.

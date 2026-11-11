@@ -2,11 +2,18 @@ version: 2
 
 models:
   - name: customer_order_rankings
-    description: >
-      One row per customer from dim_customers, ranked by their lifetime order
-      count from fct_orders across all statuses. Customers with no orders are
-      retained with zero total_orders. Ties share a rank and leave gaps in
-      subsequent ranks. All columns from dim_customers are preserved.
+    description: >-
+      Customer-level mart for comparing lifetime order volume, with one row per
+      customer from dim_customers. Counts non-null order IDs in fct_orders
+      across all available dates and statuses to calculate total_orders, then
+      ranks customers by that count in descending order. Rank 1 represents the
+      highest count; ties share a rank and leave gaps in subsequent ranks.
+      Customers with no matching orders are retained with zero total_orders
+      and participate in the ranking. All dim_customers columns are preserved,
+      including number_of_orders calculated separately from stg_orders;
+      total_orders is the field used for ranking. This is an order-volume
+      ranking, not a revenue or completed-order ranking.
+
     columns:
       - name: customer_id
         description: Unique customer identifier from dim_customers.
