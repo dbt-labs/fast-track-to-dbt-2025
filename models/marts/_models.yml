@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      One row per customer, combining customer names with all-time order-history
+      summaries: first order date, most recent order date, and number of orders.
+      Includes customers without orders, whose order count is zero and order
+      dates are null. Order summaries include all statuses without filtering.
+    columns:
+      - name: customer_id
+        description: Customer identifier from stg_customers; identifies the customer represented by this row.
+      - name: first_name
+        description: Customer's first name from stg_customers.
+      - name: last_name
+        description: Customer's last name from stg_customers.
+      - name: first_order_date
+        description: >
+          Earliest non-null order date for the customer across all order statuses.
+          Null when the customer has no orders with a non-null order date.
+      - name: most_recent_order_date
+        description: >
+          Latest non-null order date for the customer across all order statuses.
+          Null when the customer has no orders with a non-null order date.
+      - name: number_of_orders
+        description: >
+          Count of non-null order_id values for the customer in stg_orders across
+          all order statuses. Defaults to zero for customers without orders.
+
+  - name: fct_orders
+    description: >
+      One row per order for order-level reporting, sourced from stg_orders.
+      Contains the order identifier, customer identifier, order date, and
+      status. Retains all staged orders without filtering statuses or adding
+      aggregations.
+    columns:
+      - name: order_id
+        description: Order identifier from stg_orders; identifies the order represented by this row.
+      - name: customer_id
+        description: Identifier of the customer who placed the order, retained from stg_orders.
+      - name: order_date
+        description: Date the order was placed, retained from stg_orders.
+      - name: status
+        description: Order status from stg_orders; all statuses are retained without filtering.

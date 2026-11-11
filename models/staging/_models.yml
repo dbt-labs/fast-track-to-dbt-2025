@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      One row per customer from the Jaffle Shop customers source. Renames the
+      source id to customer_id and retains first and last names without
+      filtering source records. Provides customer attributes for downstream
+      customer and order reporting.
+    columns:
+      - name: customer_id
+        description: Customer identifier, renamed from id in the Jaffle Shop customers source.
+      - name: first_name
+        description: Customer's first name, retained from the source without transformation.
+      - name: last_name
+        description: Customer's last name, retained from the source without transformation.
+
+  - name: stg_orders
+    description: >
+      One row per order from the Jaffle Shop orders source. Renames id to
+      order_id and user_id to customer_id, retaining the order date and status.
+      Includes all source records and order statuses, including cancelled
+      and deleted orders.
+    columns:
+      - name: order_id
+        description: Order identifier, renamed from id in the Jaffle Shop orders source.
+      - name: customer_id
+        description: Identifier of the customer who placed the order, renamed from source user_id.
+      - name: order_date
+        description: Date the order was placed, retained from the source without transformation.
+      - name: status
+        description: Order status as recorded in the source; no statuses are filtered out.
