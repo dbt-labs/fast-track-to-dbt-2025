@@ -12,6 +12,11 @@ models:
         data_tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+
       - name: first_name
         description: Customer first name from dim_customers.
       - name: last_name
