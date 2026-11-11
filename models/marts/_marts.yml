@@ -26,12 +26,12 @@ models:
     description: One row per order across all statuses, with its customer, order date, and status.
     columns:
       - name: order_id
-        description: Order identifier and the grain of this model.
+        description: Order identifier and the grain of this model. Primary key for the orders table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order.
+        description: Customer who placed the order. Foreign key for the customers table.
         data_tests:
           - not_null
           - relationships:
