@@ -3,10 +3,14 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >-
-      One row per customer from dim_customers, preserving all customer attributes
-      and ranking customers by their all-time order count from fct_orders across
-      all order statuses. Includes customers with no orders. Equal order counts
-      share a dense rank, starting at 1 for the highest count with no rank gaps.
+      Customer-level mart for comparing ordering activity, with one row per
+      customer from dim_customers and all customer attributes preserved. Counts
+      order IDs in fct_orders across all order statuses as total_orders, assigning
+      zero to customers with no orders. Ranks customers by total_orders descending
+      using a dense rank: the highest count ranks 1, ties share a rank, and ranks
+      have no gaps. Retains number_of_orders from dim_customers alongside the
+      separately calculated total_orders.
+
     columns:
       - name: customer_id
         description: Unique customer identifier from dim_customers.
