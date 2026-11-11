@@ -3,12 +3,14 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >-
-      One row per customer from dim_customers, preserving all customer columns
-      and ranking customers by their total number of orders from fct_orders.
-      Includes all order statuses and customers with zero orders.
+      Customer leaderboard for comparing order volume, with one row per customer
+      from dim_customers and all customer attributes preserved. Ranks customers
+      by the count of orders in fct_orders across all statuses, including
+      customers with zero orders. Equal totals share a rank, with gaps after
+      ties; row display order must be specified by the consumer.
     columns:
       - name: customer_id
-        description: Unique customer identifier from dim_customers.
+        description: Unique customer identifier from dim_customers; the primary key of this model.
         data_tests:
           - unique
           - not_null
@@ -16,6 +18,19 @@ models:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: first_name
+        description: Customer first name inherited unchanged from dim_customers.
+      - name: last_name
+        description: Customer last name inherited unchanged from dim_customers.
+      - name: first_order_date
+        description: Earliest order date across all statuses from dim_customers; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses from dim_customers; null for customers with no orders.
+      - name: number_of_orders
+        description: >-
+          Order count inherited unchanged from dim_customers, calculated there
+          from non-null order IDs in stg_orders across all statuses. Zero for
+          customers with no orders; retained separately from total_orders.
       - name: total_orders
         description: >-
           Count of non-null order IDs in fct_orders for this customer across

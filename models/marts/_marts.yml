@@ -3,37 +3,44 @@ version: 2
 models:
   - name: dim_customers
     description: >-
-      One row per customer, including customers with no orders, with order
-      counts and first and most recent order dates calculated from stg_orders.
+      Customer dimension for analyzing customer order history, with one row per
+      customer from stg_customers, including customers with no orders. Order
+      counts and first and most recent order dates are calculated from stg_orders
+      across all statuses; no completed-order filter is applied.
     columns:
       - name: customer_id
-        description: Unique customer identifier.
+        description: Unique customer identifier from stg_customers; the primary key of this model.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer first name.
+        description: Customer first name as recorded in stg_customers.
       - name: last_name
-        description: Customer last name.
+        description: Customer last name as recorded in stg_customers.
       - name: first_order_date
-        description: Earliest order date; null for customers with no orders.
+        description: Earliest order date across all statuses; null for customers with no orders.
       - name: most_recent_order_date
-        description: Latest order date; null for customers with no orders.
+        description: Latest order date across all statuses; null for customers with no orders.
       - name: number_of_orders
-        description: Total number of orders across all statuses; zero for customers with no orders.
+        description: Count of non-null order IDs in stg_orders across all statuses; zero for customers with no orders.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order from stg_orders, including all order statuses.
+    description: >-
+      Order fact table for order-volume and lifecycle-status analysis, with one
+      row per order from stg_orders. Preserves the customer, order date, and
+      status without filtering or aggregation, so counts include all order
+      statuses, not only completed orders. Join to dim_customers on customer_id
+      for customer attributes.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Unique order identifier from stg_orders; the primary key of this model.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order; must exist in dim_customers.
+        description: Identifier of the customer who placed the order; joins to customer_id in dim_customers.
         data_tests:
           - not_null
           - relationships:
@@ -41,6 +48,10 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
-        description: Date the order was placed.
+        description: Date the order was placed, passed through from stg_orders.
       - name: status
-        description: Order lifecycle status, validated at the source.
+        description: >-
+          Order lifecycle status passed through from stg_orders. The source
+          accepted-values test warns on values outside placed, shipped,
+          completed, return_pending, and returned; this model does not filter
+          unexpected statuses.
