@@ -23,7 +23,7 @@ ranked as (
         first_order_date,
         most_recent_order_date
 
-    from customers
+    from {{ ref('dim_customers') }}
 
 )
 
