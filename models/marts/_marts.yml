@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension for analyzing customer order history. One row per
+      customer in stg_customers, including customers with no orders, with
+      all-time order counts and first and most recent order dates from
+      stg_orders across all order statuses.
+    data_tests:
+      - expression_is_true:
+          name: dim_customers_valid_order_summary
+          arguments:
+            expression: >-
+              (number_of_orders = 0
+               and first_order_date is null
+               and most_recent_order_date is null)
+              or
+              (number_of_orders > 0
+               and first_order_date is not null
+               and most_recent_order_date is not null
+               and first_order_date <= most_recent_order_date)
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers, used to join customer order history.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Count of non-null order IDs in stg_orders across all statuses; zero for customers without orders.
+        data_tests:
+          - not_null
+      - name: first_name
+        description: Customer's first name as provided by stg_customers.
+      - name: last_name
+        description: Customer's last name as provided by stg_customers.
+      - name: first_order_date
+        description: Earliest order date in stg_orders across all statuses; null for customers without orders.
+      - name: most_recent_order_date
+        description: Latest order date in stg_orders across all statuses; null for customers without orders.
+
+  - name: fct_orders
+    description: >-
+      Order fact model for analyzing order activity by customer, date, and
+      status. One row per order from stg_orders, retaining the order identifier,
+      customer identifier, order date, and status without filtering order statuses.
+    columns:
+      - name: customer_id
+        description: Identifier of the customer associated with the order, linking to dim_customers.customer_id.
+        data_tests:
+         - not_null
+         - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_id
+        description: Identifier of the order as provided by stg_orders.
+      - name: order_date
+        description: Date of the order as provided by stg_orders.
+      - name: status
+        description: Order status as provided by stg_orders; all statuses are retained.
