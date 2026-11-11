@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer, including customers with no orders, with first and
+      most recent order dates and an all-time order count from stg_orders.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name.
+      - name: last_name
+        description: Customer last name.
+      - name: first_order_date
+        description: Earliest order date; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date; null for customers with no orders.
+      - name: number_of_orders
+        description: All-time order count across all statuses, or zero if none.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order from stg_orders, including all order statuses.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status; accepted values are validated at the source layer.
