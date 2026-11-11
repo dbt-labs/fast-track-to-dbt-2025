@@ -1,27 +1,49 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >
+      Raw replica of the Postgres database used by the Jaffle Shop application,
+      located in the RAW database's JAFFLE_SHOP schema. Contains customer and
+      order records used by stg_customers and stg_orders to build the customer,
+      order, and customer activity ranking marts. Source-level tests protect
+      record identifiers, order completeness, customer relationships, and the
+      accepted set of order statuses before downstream transformations.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >
+          One record per application customer, identified by id. Contains the
+          customer names passed through by stg_customers, which renames id to
+          customer_id. Provides the customer population for dim_customers and
+          customer_order_rankings, including customers without orders. Orders
+          reference this table through orders.user_id = customers.id.
         columns:
           - name: id
-            description: Unique identifier for a customer.
+            description: Unique, non-null application customer identifier; primary key of this source table, referenced by orders.user_id and renamed to customer_id in stg_customers.
             data_tests:
               - unique
               - not_null
+          - name: first_name
+            description: Customer first name as recorded in the application, passed through unchanged by stg_customers to the customer marts.
+          - name: last_name
+            description: Customer last name as recorded in the application, passed through unchanged by stg_customers to the customer marts.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >
+          One record per application order, identified by id, with the customer
+          identifier, order date, and lifecycle status. Includes cancelled and
+          deleted orders according to the source contract. stg_orders renames
+          id to order_id and user_id to customer_id without filtering records.
+          Feeds fct_orders and the customer order-history aggregates; downstream
+          order counts include all available dates and statuses, not only
+          completed orders.
         columns:
           - name: id
-            description: Unique identifier for an order.
+            description: Unique, non-null application order identifier; primary key of this source table and renamed to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
-            description: Identifier of the customer who placed the order.
+            description: Non-null identifier of the customer who placed the order; references customers.id and is renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -29,11 +51,17 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
-            description: Date the order was placed.
+            description: Non-null date the order was placed, passed through unchanged by stg_orders; used to calculate each customer's first and most recent order dates.
             data_tests:
               - not_null
           - name: status
-            description: Order lifecycle status. Review the accepted values when new statuses are introduced.
+            description: >
+              Non-null order lifecycle status recorded by the application and
+              passed through unchanged by stg_orders. The source tests currently
+              accept placed, shipped, completed, return_pending, and returned.
+              Review and update the accepted values when the application
+              introduces a legitimate new status. Downstream marts retain all
+              statuses without filtering to completed orders.
             data_tests:
               - not_null
               - accepted_values:

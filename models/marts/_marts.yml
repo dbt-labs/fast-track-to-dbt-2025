@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      Customer dimension with one row per customer from stg_customers, including
+      customers who have never placed an order. Enriches customer names with
+      order history aggregated from stg_orders across all available dates and
+      statuses, without filtering to completed orders. Customers without orders
+      have a zero order count and null first and most recent order dates.
+      Use this model for customer-level reporting and joins from order facts.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers; primary key of this dimension and join key for order facts.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name, passed through from stg_customers without transformation.
+      - name: last_name
+        description: Customer last name, passed through from stg_customers without transformation.
+      - name: first_order_date
+        description: Earliest non-null order_date for the customer in stg_orders across all statuses; null for customers without dated orders.
+      - name: most_recent_order_date
+        description: Latest non-null order_date for the customer in stg_orders across all statuses; null for customers without dated orders.
+      - name: number_of_orders
+        description: Count of non-null order IDs for the customer in stg_orders across all available dates and statuses; zero for customers without orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: >
+      Order fact with one row per order from stg_orders. Retains the order
+      identifier, customer identifier, order date, and source lifecycle status
+      without filtering by date or status. Use this model for order-level
+      reporting and join customer_id to dim_customers for customer attributes.
+      Counts from this model include all statuses, not only completed orders.
+    columns:
+      - name: order_id
+        description: Unique order identifier from stg_orders; primary key of this fact model.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Identifier of the customer who placed the order; foreign key to dim_customers.customer_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed, passed through from stg_orders without transformation.
+      - name: status
+        description: Source order lifecycle status, passed through from stg_orders without filtering; accepted values are governed by the orders source tests.
+
+  - name: customer_order_rankings
+    description: >
+      Customer activity ranking with one row per customer from dim_customers,
+      including customers without orders. Counts each customer's non-null
+      order IDs in fct_orders across all available dates and statuses, fills
+      missing counts with zero, and ranks customers by that count in descending
+      order. Rank 1 identifies customers with the most orders; equal counts
+      share a dense rank and subsequent ranks have no gaps. Retains customer
+      attributes and order-history fields from dim_customers. Use this model
+      to compare customer ordering activity, rather than revenue or spend.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from dim_customers; primary key of this ranking model and foreign key to dim_customers.customer_id.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer first name, passed through unchanged from dim_customers.
+      - name: last_name
+        description: Customer last name, passed through unchanged from dim_customers.
+      - name: first_order_date
+        description: Earliest order date from dim_customers across all statuses; null for customers without dated orders.
+      - name: most_recent_order_date
+        description: Latest order date from dim_customers across all statuses; null for customers without dated orders.
+      - name: number_of_orders
+        description: Order count from dim_customers, calculated from stg_orders and preserved unchanged; zero for customers without orders. The ranking uses lifetime_order_count instead.
+        data_tests:
+          - not_null
+      - name: lifetime_order_count
+        description: Count of non-null order IDs for the customer in fct_orders across all available dates and statuses; zero for customers without orders. This is the count used to calculate customer_order_rank.
+        data_tests:
+          - not_null
+      - name: customer_order_rank
+        description: Dense rank by lifetime_order_count descending; rank 1 is the highest order count, equal counts share a rank, and subsequent ranks have no gaps. This is not a unique customer identifier.
+        data_tests:
+          - not_null
