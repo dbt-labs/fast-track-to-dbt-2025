@@ -2,32 +2,47 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer with order counts and first and most recent order dates.
+    description: >-
+      Customer dimension with one row per customer from stg_customers, including
+      customers who have never ordered. Enriches customer names with the first
+      and most recent order dates and the count of non-null order IDs from
+      stg_orders across all statuses. Customers without orders have a count of
+      zero and null order dates. Use for customer-level reporting and joins to
+      order facts.
     columns:
       - name: customer_id
+        description: Unique customer identifier from stg_customers; primary key of this dimension.
         data_tests:
           - unique
           - not_null
       - name: first_name
-        description: Customer first name.
+        description: Customer first name as provided by stg_customers.
       - name: last_name
-        description: Customer last name.
+        description: Customer last name as provided by stg_customers.
       - name: first_order_date
-        description: First order date; null for customers without orders.
+        description: Earliest order_date in stg_orders for this customer across all statuses; null when no dated orders exist.
       - name: most_recent_order_date
-        description: Most recent order date; null for customers without orders.
+        description: Latest order_date in stg_orders for this customer across all statuses; null when no dated orders exist.
       - name: number_of_orders
+        description: Count of non-null order IDs in stg_orders for this customer across all statuses, without deduplication; zero for customers without orders.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order, retaining all order statuses from stg_orders.
+    description: >-
+      Order fact with one row per order from stg_orders. Contains the order
+      identifier, customer identifier, order date, and status without filtering
+      by status. Join customer_id to dim_customers.customer_id to enrich orders
+      with customer attributes. Use for order-level reporting and customer
+      order-count aggregations.
     columns:
       - name: order_id
+        description: Unique order identifier from stg_orders; primary key of this fact.
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: Identifier of the customer who placed the order; foreign key to dim_customers.customer_id.
         data_tests:
           - not_null
           - relationships:
@@ -35,20 +50,26 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: order_date
+        description: Date associated with the order, passed through unchanged from stg_orders.order_date.
         data_tests:
           - not_null
       - name: status
+        description: Order lifecycle status passed through unchanged from stg_orders; no statuses are excluded by this model.
         data_tests:
           - not_null
 
   - name: customer_order_rankings
     description: >-
-      One row per customer, preserving dim_customers attributes and adding the
-      lifetime distinct order count from fct_orders across all statuses.
-      Customers without orders have a total of zero. Ties share a dense rank,
-      with rank 1 representing the highest total and no gaps between ranks.
+      Customer order-volume leaderboard with one row per customer from
+      dim_customers, preserving every customer attribute and adding a distinct
+      order count from fct_orders across all dates and statuses. Customers
+      without orders remain included with a total of zero. Ranks are descending
+      and dense, so rank 1 represents the most orders and tied totals share a
+      rank with no gaps. Query with an explicit order by order_rank, customer_id
+      for a consistently sorted leaderboard.
     columns:
       - name: customer_id
+        description: Unique customer identifier inherited from dim_customers; primary key and foreign key to dim_customers.customer_id.
         data_tests:
           - unique
           - not_null
@@ -57,20 +78,20 @@ models:
                 to: ref('dim_customers')
                 field: customer_id
       - name: first_name
-        description: Customer first name inherited from dim_customers.
+        description: Customer first name inherited unchanged from dim_customers.
       - name: last_name
-        description: Customer last name inherited from dim_customers.
+        description: Customer last name inherited unchanged from dim_customers.
       - name: first_order_date
-        description: First order date inherited from dim_customers.
+        description: Earliest order date inherited from dim_customers, based on stg_orders; null when no dated orders exist.
       - name: most_recent_order_date
-        description: Most recent order date inherited from dim_customers.
+        description: Latest order date inherited from dim_customers, based on stg_orders; null when no dated orders exist.
       - name: number_of_orders
-        description: Staging-based order count inherited from dim_customers.
+        description: Non-deduplicated count of non-null order IDs from stg_orders, inherited from dim_customers; total_orders is the distinct fact-based count used for ranking.
       - name: total_orders
-        description: Count of distinct non-null order IDs in fct_orders; zero for customers without orders.
+        description: Count of distinct non-null order IDs in fct_orders for this customer across all dates and statuses; zero for customers without orders and the basis for order_rank.
         data_tests:
           - not_null
       - name: order_rank
-        description: Descending dense rank of total_orders, with tied totals sharing a rank.
+        description: Descending dense rank of total_orders across all customers; rank 1 is the highest total, ties share a rank, and subsequent ranks have no gaps.
         data_tests:
           - not_null

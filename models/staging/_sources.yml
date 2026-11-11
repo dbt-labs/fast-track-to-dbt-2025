@@ -1,24 +1,42 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: >-
+      Replica of the application's Postgres database, stored in the
+      raw.jaffle_shop schema in Snowflake. Provides customer and order records
+      for the stg_customers and stg_orders models and their downstream marts.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: >-
+          One record per customer in the application, containing the customer
+          identifier and name fields used by stg_customers. Customers can exist
+          without orders. Join customers.id to orders.user_id to associate
+          customers with their orders.
         columns:
           - name: id
+            description: Unique customer identifier in the application; primary key, renamed to customer_id in stg_customers.
             data_tests:
               - unique
-              - not_null              
+              - not_null
+          - name: first_name
+            description: Customer first name as recorded in the application and passed through to stg_customers.
+          - name: last_name
+            description: Customer last name as recorded in the application and passed through to stg_customers.
       - name: orders
-        description: One record per order. Includes cancelled and deleted orders.
+        description: >-
+          One record per application order. Includes cancelled and deleted
+          orders, as documented by the source. Supplies the order identifier,
+          customer identifier, date, and lifecycle status to stg_orders.
+          Downstream order counts include all statuses unless explicitly filtered.
         columns:
           - name: id
+            description: Unique order identifier in the application; primary key, renamed to order_id in stg_orders.
             data_tests:
               - unique
               - not_null
           - name: user_id
+            description: Identifier of the customer associated with the order; foreign key to customers.id, renamed to customer_id in stg_orders.
             data_tests:
               - not_null
               - relationships:
@@ -26,9 +44,16 @@ sources:
                     to: source('jaffle_shop', 'customers')
                     field: id
           - name: order_date
+            description: Date associated with the order in the application; passed through unchanged to stg_orders and used for customer first and most recent order dates.
             data_tests:
               - not_null
           - name: status
+            description: >-
+              Order lifecycle status from the application. Observed values are
+              placed, shipped, completed, return_pending, and returned. The
+              accepted_values test warns on additional statuses so they can be
+              reviewed without blocking builds. Passed through unchanged to
+              stg_orders.
             data_tests:
               - not_null
               # Observed values; warn so new lifecycle statuses can be reviewed.
