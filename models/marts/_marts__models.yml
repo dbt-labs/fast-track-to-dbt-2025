@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: customer_order_rankings
+    description: One row per customer, ranked by total number of orders in fct_orders. Ties share the same rank.
+    columns:
+      - name: customer_id
+        description: Primary key, from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: Count of orders for the customer in fct_orders (0 if none).
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Rank by total_orders descending (1 = most orders). Uses rank(), so ties share a rank and leave gaps.
+        data_tests:
+          - not_null
