@@ -5,15 +5,20 @@ models:
     description: One row per order, retaining the customer, order date, and status from stg_orders.
     columns:
       - name: order_id
-        description: Unique order identifier.
+        description: Unique order identifier. Primary key for the order table.
         data_tests:
           - unique
           - not_null
       - name: customer_id
-        description: Customer who placed the order; references dim_customers.
+        description: Customer who placed the order; references dim_customers. Foreign Key for the customers table.
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Date of the order as recorded in stg_orders.
+      - name: status
+        description: Order status from stg_orders; orders are retained regardless of status.
+
