@@ -43,4 +43,4 @@ sources:
               - not_null
               - accepted_values:
                   arguments:
-                    values: [ 'shipped', 'completed', 'return_pending', 'returned']
+                    values: [ 'placed', 'shipped', 'completed', 'return_pending', 'returned']
