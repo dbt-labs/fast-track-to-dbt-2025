@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, with order counts and first and most recent order dates. Customers without orders have a zero count and null order dates.
+    columns:
+      - name: customer_id
+        description: Unique customer identifier from stg_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer first name from stg_customers.
+      - name: last_name
+        description: Customer last name from stg_customers.
+      - name: first_order_date
+        description: Earliest order date; null for customers without orders.
+        data_tests:
+          - not_null:
+              config:
+                where: "number_of_orders > 0"
+      - name: most_recent_order_date
+        description: Latest order date; null for customers without orders.
+        data_tests:
+          - not_null:
+              config:
+                where: "number_of_orders > 0"
+      - name: number_of_orders
+        description: Count of orders across all statuses; zero for customers without orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order from stg_orders, across all order statuses.
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order; references dim_customers.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status from stg_orders.

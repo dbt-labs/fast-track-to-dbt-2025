@@ -11,7 +11,7 @@ sources:
             data_tests:
               - unique
               - not_null
-              
+
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
         columns:
@@ -34,4 +34,11 @@ sources:
               - not_null
               - accepted_values:
                   arguments:
-                    values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+                    values:
+                      [
+                        "placed",
+                        "shipped",
+                        "completed",
+                        "return_pending",
+                        "returned",
+                      ]
