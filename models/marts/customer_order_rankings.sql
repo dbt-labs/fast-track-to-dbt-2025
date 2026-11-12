@@ -33,5 +33,4 @@ customer_totals as (
 select
     customer_totals.*,
     dense_rank() over (order by total_orders desc) as order_count_rank
-
 from customer_totals
