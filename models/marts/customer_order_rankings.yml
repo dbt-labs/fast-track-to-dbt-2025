@@ -3,11 +3,15 @@ version: 2
 models:
   - name: customer_order_rankings
     description: >-
+      Customer order-volume leaderboard for comparing purchasing frequency.
       One row per customer from dim_customers, ranked by their all-time order
       count from fct_orders across all statuses. Includes customers with no
-      orders. Equal order counts share a dense rank, with no gaps between ranks.
+      orders, whose total_orders is zero. Equal order counts share a dense rank,
+      with no gaps between ranks; the highest order count receives rank 1.
       Preserves all dim_customers columns; total_orders is calculated separately
-      from fct_orders and is the count used for ranking.
+      from fct_orders and is the count used for ranking. Ranks cover the full
+      customer population and are not recalculated by downstream report filters.
+
     columns:
       - name: customer_id
         description: Unique identifier of the customer from dim_customers.
