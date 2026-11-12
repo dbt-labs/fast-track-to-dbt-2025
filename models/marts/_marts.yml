@@ -2,20 +2,36 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer, including order dates and an all-time order count. Customers without orders have a count of zero.
+    description: >
+      Customer dimension for customer-level reporting, with one row per customer
+      from stg_customers. Includes first and most recent order dates and an
+      all-time count of non-null order IDs from stg_orders across all statuses.
+      Customers without orders are retained with a zero count and null order dates.
     columns:
       - name: customer_id
         description: Customer identifier; the primary key of this model.
         data_tests:
           - unique
           - not_null
+      - name: first_name
+        description: Customer's first name as provided by stg_customers.
+      - name: last_name
+        description: Customer's last name as provided by stg_customers.
+      - name: first_order_date
+        description: Earliest non-null order date across all statuses; null when the customer has no dated orders.
+      - name: most_recent_order_date
+        description: Latest non-null order date across all statuses; null when the customer has no dated orders.
       - name: number_of_orders
         description: Count of non-null order IDs for the customer across all statuses; zero for customers without orders.
         data_tests:
           - not_null
 
   - name: fct_orders
-    description: One row per order, retaining all source order statuses.
+    description: >
+      Order fact model for order-level reporting, with one row per order from
+      stg_orders. Retains the customer identifier, order date, and source status
+      without filtering by status. Customer-level attributes are available by
+      joining customer_id to dim_customers.
     columns:
       - name: order_id
         description: Order identifier; the primary key of this model.
@@ -23,9 +39,13 @@ models:
           - unique
           - not_null
       - name: customer_id
-        description: Identifier of the customer who placed the order.
+        description: Identifier of the customer who placed the order; joins to customer_id in dim_customers.
         data_tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
+      - name: order_date
+        description: Order date as provided by stg_orders, with no date filtering applied.
+      - name: status
+        description: Order status as provided by stg_orders; all statuses are retained.
