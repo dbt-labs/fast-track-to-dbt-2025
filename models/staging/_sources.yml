@@ -1,10 +1,46 @@
 sources:
   - name: jaffle_shop
-    description: This is a replica of the Postgres database used by our app
+    description: Replica of the application's Postgres database, providing raw customer and order records for staging models.
     database: raw
     schema: jaffle_shop
     tables:
       - name: customers
-        description: One record per customer.
+        description: One record per customer in the application; provides customer identifiers and names for stg_customers.
+        columns:
+          - name: id
+            description: Primary key of the customers table; renamed to customer_id in stg_customers.
+            data_tests:
+                - not_null
+                - unique
+          - name: first_name
+            description: Customer's first name as recorded in the application.
+          - name: last_name
+            description: Customer's last name as recorded in the application.
+
       - name: orders
         description: One record per order. Includes cancelled and deleted orders.
+        columns:
+          - name: id
+            description: Primary key of the orders table; renamed to order_id in stg_orders.
+            data_tests:
+              - not_null
+              - unique
+          - name: user_id
+            description: Foreign key to id in the customers table; identifies the customer who placed the order and is renamed to customer_id in stg_orders.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('jaffle_shop', 'customers')
+                    field: id
+          - name: order_date
+            description: Date of the order as recorded in the application; used downstream to calculate first and most recent order dates.
+            data_tests:
+              - not_null
+          - name: status
+            description: Current order status in the application; accepted values configured here are shipped, completed, return_pending, and returned.
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values: [ 'shipped', 'completed', 'return_pending', 'returned']

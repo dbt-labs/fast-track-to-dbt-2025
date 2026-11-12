@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      One row per customer, including customers with no orders. Summarizes
+      order counts and first and most recent order dates across all order statuses.
+    columns:
+      - name: customer_id
+        description: Primary key of the customer dimension; corresponds to id in the source customers table.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Customer's first name from the source customers table.
+      - name: last_name
+        description: Customer's last name from the source customers table.
+      - name: first_order_date
+        description: Earliest order date for the customer across all statuses; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date for the customer across all statuses; null for customers with no orders.
+      - name: number_of_orders
+        description: Count of non-null order IDs in stg_orders for the customer across all statuses, or zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order from stg_orders across all order statuses, with the customer, order date, and current status.
+    columns:
+      - name: order_id
+        description: Primary key of the orders fact table; corresponds to id in the source orders table.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to customer_id in dim_customers; identifies the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date of the order, carried through from the source orders table.
+      - name: status
+        description: Current order status from the source orders table; used to distinguish placed, shipped, completed, return-pending, and returned orders.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [ 'placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, ranked by all-time order count
+      from fct_orders across all order statuses. Customers with no orders are
+      included with zero orders. Equal counts share a dense rank, with rank 1
+      representing the highest count and no gaps between ranks.
+      All dim_customers columns are retained; number_of_orders is its existing
+      staging-derived count, while total_orders is calculated from fct_orders.
+    columns:
+      - name: customer_id
+        description: Primary key of the customer rankings table and foreign key to customer_id in dim_customers.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: first_name
+        description: Customer's first name, carried through from dim_customers.
+      - name: last_name
+        description: Customer's last name, carried through from dim_customers.
+      - name: first_order_date
+        description: Earliest order date across all statuses from dim_customers; null for customers with no orders.
+      - name: most_recent_order_date
+        description: Latest order date across all statuses from dim_customers; null for customers with no orders.
+      - name: number_of_orders
+        description: Order count from dim_customers, calculated using stg_orders across all statuses; zero for customers with no orders.
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for this customer, or zero when no orders exist.
+        data_tests:
+          - not_null
+      - name: order_rank
+        description: Dense rank by total_orders descending; rank 1 has the most orders, tied counts share a rank, and ranks have no gaps.
+        data_tests:
+          - not_null
