@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level fact model for analyzing order volumes, order dates, and status
+      by customer, with one row per order from stg_orders. Retains all available
+      orders across all dates and source statuses without filtering or
+      aggregation. Includes the customer identifier for joining to dim_customers;
+      no payment or revenue measures are calculated in this model.
+
+    columns:
+      - name: order_id
+        description: Unique order identifier.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Customer who placed the order; must exist in dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: order_date
+        description: Date the order was placed.
+      - name: status
+        description: Order status as provided by the source.
