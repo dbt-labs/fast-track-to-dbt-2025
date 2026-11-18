@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer, with first/most recent order dates and lifetime order count.
+    columns:
+      - name: customer_id
+        description: Unique identifier of the customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: number_of_orders
+        description: Count of orders placed by the customer; zero for customers with no orders.
+        data_tests:
+          - not_null
+
+  - name: fct_orders
+    description: One row per order, including cancelled and deleted orders.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Foreign key to dim_customers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: status
+        description: Current order status.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['completed', 'placed', 'return_pending', 'returned', 'shipped']
+
+  - name: customer_order_rankings
+    description: >
+      One row per customer from dim_customers, ranked by their all-time order
+      count from fct_orders across all statuses. Includes customers with zero
+      orders. Equal order totals share a dense rank, starting at 1 without gaps.
+      Preserves all dim_customers columns; number_of_orders remains the
+      dimension's staging-derived count, while total_orders uses fct_orders.
+    columns:
+      - name: customer_id
+        description: Unique identifier of the customer from dim_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: Count of non-null order IDs in fct_orders for the customer, or zero for customers without orders.
+        data_tests:
+          - not_null
+      - name: customer_rank
+        description: Dense rank by total_orders descending; tied totals receive the same rank.
+        data_tests:
+          - not_null
